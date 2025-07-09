@@ -18,10 +18,12 @@ export function useHandleGoogleRedirectLogin(existingUid?: string) {
   useEffect(() => {
     const handleRedirectLogin = async () => {
       try {
-        console.log('currentUser:',auth.currentUser);
+        console.log('currentUser:',auth.currentUser?.uid);
         console.log('existingUid:',existingUid);
         const result = await getRedirectResult(auth);
         if (!result || !result.user) return;
+
+        console.log('existingUid:',existingUid);
 
         const { user } = result;
         const newUid = user.uid;
