@@ -1,6 +1,6 @@
 // firebase/firebaseConfig.ts
 import { initializeApp, getApps, getApp } from 'firebase/app'
-import { getAuth } from 'firebase/auth'
+import { getAuth, RecaptchaVerifier } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 import { getStorage } from 'firebase/storage'
 import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
@@ -45,6 +45,8 @@ if (typeof window !== 'undefined') {
 }
 // --- 전화 번호 인증 끝 ---
 
-export const auth = getAuth(app)
-export const db = getFirestore(app)
-export const storage = getStorage(app)
+const auth = getAuth(app)
+const db = getFirestore(app)
+const storage = getStorage(app)
+
+export { auth, db, storage, RecaptchaVerifier };

@@ -103,3 +103,13 @@ components/Footer.tsx
 components/LoginLink.tsx  
 
 ![Nextjs + Tailwind css v4 + Firebase 프로젝트](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FcfvSDz%2FbtsPaK7Qn47%2FAAAAAAAAAAAAAAAAAAAAAIsVvgs-g2YiwGEm23XygIDClfGWLXZ4lOnOa128oRza%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3DaYAvAfQ5NcK5fZjtCzdc9d6ACFY%253D)
+
+
+//////////////////////
+### 전화번호 인증
+ 로그인 버튼 클릭 시 전화번호 인증 UI를 진짜 모달(Dialog) 형태  
+  Tailwind CSS + Headless UI 조합으로 모달을 만들겠습니다.  
+   (Headless UI는 TailwindLabs에서 만든 접근성 좋은 컴포넌트입니다.)
+
+   npm install @headlessui/react  
+
