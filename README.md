@@ -1,3 +1,7 @@
+# Next + Tailwind css v4 + Firebase 프로젝트 - 온라인 주문
+
+블로그: https://inetsos.tistory.com/
+
 ### 1. 프로젝트 만들기
   
 npx create-next-app@latest next-tailwind-firebase-order-app --typescript
@@ -105,11 +109,31 @@ components/LoginLink.tsx
 ![Nextjs + Tailwind css v4 + Firebase 프로젝트](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FcfvSDz%2FbtsPaK7Qn47%2FAAAAAAAAAAAAAAAAAAAAAIsVvgs-g2YiwGEm23XygIDClfGWLXZ4lOnOa128oRza%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3DaYAvAfQ5NcK5fZjtCzdc9d6ACFY%253D)
 
 
-//////////////////////
-### 전화번호 인증
- 로그인 버튼 클릭 시 전화번호 인증 UI를 진짜 모달(Dialog) 형태  
-  Tailwind CSS + Headless UI 조합으로 모달을 만들겠습니다.  
-   (Headless UI는 TailwindLabs에서 만든 접근성 좋은 컴포넌트입니다.)
-
+### 4. 전화번호 인증
+  
+네비게이션 바에 로그인 버튼을 추가하였습니다.  
+로그인 버튼 클릭 하면 전화번호 인증 Dialog가 팝업 됩니다.  
+  
+인증 Dialog는 Tailwind CSS + Headless UI 조합으로 모달을 구현합니다.  
+이를 위하여 Headless UI를 설치합니다.  
+  
    npm install @headlessui/react  
+  
+전화번호 인증은 다음과 같이 동작합니다.  
+  
+1. 인증 다이얼로그에서 사용자가 전화번호를 입력  
+2. 클라이언트(Firebase SDK)가 Google 서버에 전화번호 인증 요청  
+3. Firebase가 해당 번호에 OTP(6자리 숫자)를 전송  
+4. 사용자는 OTP를 입력  
+5. Firebase가 OTP 유효성 검사를 하고 사용자 인증  
+  
+✅ 보안 처리는?	  
+  reCAPTCHA 또는 SafetyNet 등을 통해 abuse(남용) 방지 합니다.  
+
+![Nextjs + Tailwind css v4 + Firebase 프로젝트 - 전화번호 인증](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2Fn1kJo%2FbtsPa0wJAtM%2FAAAAAAAAAAAAAAAAAAAAAKavMYkUdz-LSrlrY1v-yNGtFX69U79DZrGpc1_6UfkK%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3D2E2Qy42yEPF0lwObtku3ylbQ%252BIU%253D)
+
+![Nextjs + Tailwind css v4 + Firebase 프로젝트 - 전화번호 인증 로그인](
+https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FJr1uZ%2FbtsPaeJavyR%2FAAAAAAAAAAAAAAAAAAAAAGZV2CSpPbOW8lyvsoaNY5b9onBlkBjwV64-Gr6IfyyR%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3DQ6Vp5FvAnFG86N%252B7iwLwBf0Ot4I%253D)
+
+
 

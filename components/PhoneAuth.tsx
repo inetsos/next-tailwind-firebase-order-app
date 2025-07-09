@@ -1,3 +1,4 @@
+// components/PhoneAuth.tsx
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -99,7 +100,7 @@ export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
         className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
         onClick={sendCode}
       >
-        인증번호 전송
+        인증번호 요청
       </button>
 
       <input
