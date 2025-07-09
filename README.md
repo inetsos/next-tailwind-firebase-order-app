@@ -1,36 +1,105 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+### 1. 프로젝트 만들기
+  
+npx create-next-app@latest next-tailwind-firebase-order-app --typescript
 
-## Getting Started
+√ Would you like to use ESLint? ... No  
+√ Would you like to use Tailwind CSS? ... Yes  
+√ Would you like your code inside a `src/` directory? ... No  
+√ Would you like to use App Router? (recommended) ... Yes  
+√ Would you like to use Turbopack for `next dev`? ... Yes  
+√ Would you like to customize the import alias (`@/*` by default)? ... Yes  
+√ What import alias would you like configured? ... @/*  
+Creating a new Next.js app in C:\work_2025\proj-2025\next-tailwind-firebase-cafe-app.  
+  
+cd next-tailwind-firebase-order-app  
 
-First, run the development server:
+npm install -D tailwindcss@latest postcss autoprefixer
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### 2. Firebase 설치 및 초기화
+
+npm install firebase
+
+#### .env.local 환경 파일
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key  
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain  
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id  
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_storage_bucket  
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id  
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id  
+
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY=your_site_key
+NEXT_PUBLIC_FIREBASE_APPCHECK_DEBUG=true  # 개발 시 true  
+  
+NEXT_PUBLIC_NAVER_CLIENT_ID=your_naver_client_id  
+NEXT_PUBLIC_NAVER_CLIENT_SECRET=your_naver_client_secret  
+NEXT_PUBLIC_NAVER_CALLBACK_URL=http://localhost:3000/naver-callback  
+NEXT_PUBLIC_NAVER_MAP_CLIENT_ID=your_naver_map_client_id  
+  
+NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY=your_kakao_js_key  
+NEXT_PUBLIC_KAKAO_REST_API_KEY=your_kakao_rest_api_key  
+  
+#### firebase/firebaseConfig.ts
+  
 ```
+// firebase/firebaseConfig.ts
+import { initializeApp, getApps, getApp } from 'firebase/app'
+import { getAuth } from 'firebase/auth'
+import { getFirestore } from 'firebase/firestore'
+import { getStorage } from 'firebase/storage'
+import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+// ✅ 여기 값을 Firebase 콘솔에서 복사해서 넣으세요
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+}
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+// 중복 초기화 방지
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp()
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+declare global {
+  interface Window {
+    FIREBASE_APPCHECK_DEBUG_TOKEN?: boolean | string
+  }
 
-## Learn More
+  interface Self {
+    FIREBASE_APPCHECK_DEBUG_TOKEN?: boolean | string
+  }
+}
 
-To learn more about Next.js, take a look at the following resources:
+// 전화 번호 인증을 위하여 ...
+// ✅ App Check 초기화 (한 번만 실행)
+if (typeof window !== 'undefined') {
+  // 개발 중 디버깅용 토큰 사용 가능
+  if (process.env.NEXT_PUBLIC_FIREBASE_APPCHECK_DEBUG === 'true') {
+    self.FIREBASE_APPCHECK_DEBUG_TOKEN = true
+  }
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+  initializeAppCheck(app, {
+    provider: new ReCaptchaV3Provider(
+      process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY! // 콘솔에서 발급받은 site key
+    ),
+    isTokenAutoRefreshEnabled: true, // 자동 갱신 활성화
+  })
+}
+// --- 전화 번호 인증 끝 ---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+export const auth = getAuth(app)
+export const db = getFirestore(app)
+export const storage = getStorage(app)
+```
+  
+### 3. 기본 UI
 
-## Deploy on Vercel
+app/layout.tsx  
+app/page.tsx
+  
+components/Navbar.tsx  
+components/Footer.tsx  
+components/LoginLink.tsx  
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+![Nextjs + Tailwind css v4 + Firebase 프로젝트](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FcfvSDz%2FbtsPaK7Qn47%2FAAAAAAAAAAAAAAAAAAAAAIsVvgs-g2YiwGEm23XygIDClfGWLXZ4lOnOa128oRza%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3DaYAvAfQ5NcK5fZjtCzdc9d6ACFY%253D)
