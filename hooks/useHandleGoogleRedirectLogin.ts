@@ -14,9 +14,10 @@ import {
 } from 'firebase/firestore';
 
 export function useHandleGoogleRedirectLogin(existingUid: string) {
+  
   useEffect(() => {
+    if (!existingUid) return; // 🔒 UID 없으면 실행하지 않음
     const handleRedirectLogin = async () => {
-      
       try {
         const result = await getRedirectResult(auth);
         console.log(result?.user)
