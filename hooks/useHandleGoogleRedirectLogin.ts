@@ -13,42 +13,51 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 
-export function useHandleGoogleRedirectLogin() {
+export function useHandleGoogleRedirectLogin(existingUid: string) {
   useEffect(() => {
     const handleRedirectLogin = async () => {
+      
       try {
         const result = await getRedirectResult(auth);
-
+        console.log(result?.user)
         if (!result || !result.user) return;
 
         const { user } = result;
         console.log('로그인된 유저:', user);
 
-        const userRef = doc(db, 'users', user.uid);
-        const docSnap = await getDoc(userRef);
+        const newUid = user.uid;
 
-        if (!docSnap.exists()) {
-          await setDoc(userRef, {
-            uid: user.uid,
+        // 새로운 로그인 사용자의 문서 생성 또는 업데이트
+        const newUserRef = doc(db, 'users', newUid);
+        const newUserSnap = await getDoc(newUserRef);
+
+        if (!newUserSnap.exists()) {
+          await setDoc(newUserRef, {
+            uid: newUid,
             displayName: user.displayName ?? '',
             email: user.email ?? '',
             phoneNumber: user.phoneNumber ?? '',
             role: 'customer',
             createdAt: serverTimestamp(),
-            uids: [user.uid],
-          });
-        } else {
-          await updateDoc(userRef, {
-            uids: arrayUnion(user.uid),
+            uids: [newUid],
           });
         }
 
-        console.log('✅ 리디렉션 방식으로 로그인 완료:', user.uid);
+        // 기존 사용자 문서에 새 UID 추가
+        if (existingUid) {
+          const existingUserRef = doc(db, 'users', existingUid);
+          await updateDoc(existingUserRef, {
+            uids: arrayUnion(newUid),
+          });
+          console.log(`🔗 기존 사용자(${existingUid}) 문서에 ${newUid} 추가 완료`);
+        }
+
+        console.log('✅ 리디렉션 방식으로 로그인 완료:', newUid);
       } catch (error) {
         console.error('❌ 로그인 처리 중 오류 발생:', error);
       }
     };
 
     handleRedirectLogin();
-  }, []);
+  }, [existingUid]);
 }
