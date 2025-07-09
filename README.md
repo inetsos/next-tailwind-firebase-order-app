@@ -135,5 +135,5 @@ components/LoginLink.tsx
 ![Nextjs + Tailwind css v4 + Firebase 프로젝트 - 전화번호 인증 로그인](
 https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FJr1uZ%2FbtsPaeJavyR%2FAAAAAAAAAAAAAAAAAAAAAGZV2CSpPbOW8lyvsoaNY5b9onBlkBjwV64-Gr6IfyyR%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3DQ6Vp5FvAnFG86N%252B7iwLwBf0Ot4I%253D)
 
-
+npm install zustand
 

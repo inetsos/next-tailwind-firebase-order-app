@@ -34,15 +34,32 @@ export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
     }
   }, []);
 
-  // 인증 코드 전송
-  const sendCode = async () => {
-    if (!phoneNumber.startsWith('+')) {
-      alert('국가코드를 포함한 전화번호를 입력하세요. 예: +821012345678');
-      return;
+  // 일반전화번호 형식 -> 국제전화번호 형식
+  const formatPhoneNumberToE164 = (phoneNumber: string): string =>
+    phoneNumber.startsWith('0') ? '+82' + phoneNumber.slice(1) : phoneNumber;
+
+  // 국제전화번호 형식 -> 일반전화번호 형식
+  const formatE164ToKorean = (e164: string): string => {
+    // 예: +821012345678 → 010-1234-5678
+    if (!e164.startsWith('+82')) return e164; // 한국 번호가 아니면 그대로 반환
+
+    const local = '0' + e164.slice(3); // +82 제거 후 맨 앞에 0 추가
+    if (local.length === 11) {
+      return `${local.slice(0, 3)}-${local.slice(3, 7)}-${local.slice(7)}`;
+    }
+    if (local.length === 10) {
+      return `${local.slice(0, 3)}-${local.slice(3, 6)}-${local.slice(6)}`;
     }
 
+    return local; // fallback
+  };
+
+  // 인증 코드 전송
+  const sendCode = async () => {
+    const phoneNumberE164 = formatPhoneNumberToE164(phoneNumber);
+
     try {
-      const result = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
+      const result = await signInWithPhoneNumber(auth, phoneNumberE164, window.recaptchaVerifier);
       setConfirmationResult(result);
       alert('인증번호가 전송되었습니다.');
     } catch (error: any) {
@@ -66,13 +83,17 @@ export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
       const userRef = doc(db, 'users', user.uid);
       const docSnap = await getDoc(userRef);
 
+      // 국제번호 형식을 일반번호 형식으로
+      const phoneNumber = formatE164ToKorean(user.phoneNumber);
+
       if (!docSnap.exists()) {
         await setDoc(userRef, {
-          uid: user.uid,
-          phoneNumber: user.phoneNumber,
+          userId: user.uid,
+          phoneNumber,  //: user.phoneNumber,
           createdAt: serverTimestamp(),
           displayName: '',
           role: 'customer',
+          uids: [user.uid]
         });
         console.log('신규 사용자 등록');
       } else {
