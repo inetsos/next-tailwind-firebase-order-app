@@ -29,7 +29,6 @@ export async function signInWithGoogle() {
 
   const provider = new GoogleAuthProvider();
   try {
-    console.log(currentUser)
     await linkWithRedirect(currentUser, provider); // ✅ 페이지 리디렉션
   } catch (error) {
     console.error('❌ 구글 리디렉션 연동 실패:', error);
