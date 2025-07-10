@@ -1,16 +1,8 @@
+// ✅ userStore.ts
 'use client';
 
 import { create } from 'zustand';
-
-export interface UserData {
-  userId: string;
-  phoneNumber: string;
-  displayName?: string;
-  role?: string;
-  createdAt?: any;
-  email?: string;
-  uids: string[];
-}
+import type { UserData } from '@/types/UserData'; // 이 부분 추가
 
 interface UserStore {
   userData: UserData | null;

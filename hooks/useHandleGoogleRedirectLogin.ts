@@ -1,64 +1,44 @@
-import { useEffect } from 'react';
-import {
-  getRedirectResult,
-  GoogleAuthProvider,
-} from 'firebase/auth';
+import { getRedirectResult, GoogleAuthProvider } from 'firebase/auth';
 import { auth, db } from '@/firebase/firebaseConfig';
-import {
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-  arrayUnion,
-  serverTimestamp,
-} from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { useUserStore } from '@/stores/userStore';
+import type { UserData } from '@/types/UserData';
 
-export function useHandleGoogleRedirectLogin(existingUid?: string) {
-  
-  useEffect(() => {
-    const handleRedirectLogin = async () => {
-      try {
-        console.log('currentUser:',auth.currentUser?.uid);
-        console.log('existingUid:',existingUid);
-        const result = await getRedirectResult(auth);
-        if (!result || !result.user) return;
+export async function handleRedirectResultAfterLinking() {
+  try {
+    const result = await getRedirectResult(auth);
 
-        console.log('existingUid:',existingUid);
+    console.log(result?.user.uid);
+    
+    if (result && result.user) {
+      const currentUser = auth.currentUser;
+      const googleUid = result.user.uid;
 
-        const { user } = result;
-        const newUid = user.uid;
+      if (!currentUser) return;
 
-        // 새로운 사용자 문서 참조
-        const newUserRef = doc(db, 'users', newUid);
-        const newUserSnap = await getDoc(newUserRef);
+      const userRef = doc(db, 'users', currentUser.uid);
+      await updateDoc(userRef, {
+        uids: arrayUnion(`google:${googleUid}`),
+      });
 
-        if (!newUserSnap.exists()) {
-          await setDoc(newUserRef, {
-            uid: newUid,
-            displayName: user.displayName ?? '',
-            email: user.email ?? '',
-            phoneNumber: user.phoneNumber ?? '',
-            role: 'customer',
-            createdAt: serverTimestamp(),
-            uids: [newUid],
-          });
-        }
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        const docData = userSnap.data();
+        const updatedUserData: UserData = {
+          userId: docData.userId,
+          phoneNumber: docData.phoneNumber ?? '',
+          displayName: docData.displayName,
+          role: docData.role,
+          createdAt: docData.createdAt,
+          uids: docData.uids ?? [],
+        };
 
-        // 기존 사용자 UID가 있으면 기존 사용자 문서에 새 UID 추가
-        if (existingUid && existingUid !== newUid) {
-          const existingUserRef = doc(db, 'users', existingUid);
-          await updateDoc(existingUserRef, {
-            uids: arrayUnion(newUid),
-          });
-          console.log(`🔗 기존 사용자(${existingUid}) 문서에 ${newUid} 추가 완료`);
-        }
-
-        console.log('✅ 리디렉션 방식으로 로그인 완료:', newUid);
-      } catch (error) {
-        console.error('❌ 로그인 처리 중 오류 발생:', error);
+        useUserStore.getState().setUserData(updatedUserData);
       }
-    };
 
-    handleRedirectLogin();
-  }, [existingUid]);
+      console.log('✅ 구글 리디렉션 연동 완료');
+    }
+  } catch (error) {
+    console.error('❌ 리디렉션 결과 처리 실패:', error);
+  }
 }
