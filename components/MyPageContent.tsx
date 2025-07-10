@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth';
 import { signInWithGoogle, signInWithKakao, signInWithNaver } from '@/utils/socialLogin';
 import { useUserStore } from '@/stores/userStore';
@@ -10,13 +11,13 @@ import {
 } from 'firebase/auth';
 import { auth, db } from '@/firebase/firebaseConfig';
 
-
 export default function MyPageContent() {
+  useEffect(() => {
+    handleRedirectResultAfterLinking()
+  }, [])
+
   const { user: firebaseUser } = useAuth();
   const { userData } = useUserStore(); // 전역 사용자 정보 사용
-
-   // 🔧 Hook은 여기서 무조건 호출! 조건문보다 위에
-  handleRedirectResultAfterLinking();
 
   if (!firebaseUser || !userData)
     return <div className="text-center p-4 text-gray-500">로그인이 필요합니다.</div>;
