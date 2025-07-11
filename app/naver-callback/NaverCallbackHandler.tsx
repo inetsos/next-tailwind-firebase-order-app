@@ -60,6 +60,7 @@ export default function NaverCallbackHandler() {
         let currentUser: User
 
         if (!user) {
+          // 로그인 상태가 아니므로 로그인한다.
           const signInResult = await signInWithCustomToken(auth, firebaseToken)
           currentUser = signInResult.user
 
@@ -100,28 +101,38 @@ export default function NaverCallbackHandler() {
 
         } else {
           
-          currentUser = user
+          // 로그인 상태이다.
+          // 이 경우 SNS 로그인 연동 요청이다.
+          // 그렇다면 처음 연동인지, 이미 연동되어 있는지 확인이 필요하다.
 
-          const userRef = doc(db, 'users', currentUser.uid)
-          await updateDoc(userRef, {
-            uids: arrayUnion(naverUid),
-          })
+          // naverUid가 uids 안에 있는지 확인한다.
+          const userStore = useUserStore.getState()
+          const isLinked = userStore.userData?.uids?.includes(naverUid)
+          if (isLinked) {
+              alert('✅ 이미 연동되어 있습니다.')
+          } else {
+            currentUser = user
 
-          const snap = await getDoc(userRef)
-          if (snap.exists()) {
-            const data = snap.data()
-            const userData: UserData = {
-              userId: data.userId,
-              phoneNumber: data.phoneNumber ?? '',
-              displayName: data.displayName,
-              role: data.role,
-              createdAt: data.createdAt,
-              uids: data.uids ?? [],
-            }
-            useUserStore.getState().setUserData(userData)
+            const userRef = doc(db, 'users', currentUser.uid)
+            await updateDoc(userRef, {
+              uids: arrayUnion(naverUid),
+            })
+
+            const snap = await getDoc(userRef)
+            if (snap.exists()) {
+              const data = snap.data()
+              const userData: UserData = {
+                userId: data.userId,
+                phoneNumber: data.phoneNumber ?? '',
+                displayName: data.displayName,
+                role: data.role,
+                createdAt: data.createdAt,
+                uids: data.uids ?? [],
+              }
+              useUserStore.getState().setUserData(userData)
+              alert('✅ 네이버 계정으로 연동 완료')
+            }          
           }
-
-          alert('✅ 네이버 계정으로 연동 완료')
         }
       } catch (error: any) {
         console.error('❌ 네이버 로그인 실패:', error)

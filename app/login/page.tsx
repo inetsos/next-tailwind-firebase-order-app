@@ -124,7 +124,7 @@ export default function AuthPage() {
               <div className="text-sm text-gray-600">전화번호 인증이 필요합니다</div>
               <input
                 className="w-full border px-3 py-2 rounded"
-                placeholder="+821012345678"
+                placeholder="01012345678"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
               />
@@ -147,7 +147,7 @@ export default function AuthPage() {
         <>
           <input
             className="w-full border px-3 py-2 rounded mt-4"
-            placeholder="+821012345678"
+            placeholder="011012345678"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
           />

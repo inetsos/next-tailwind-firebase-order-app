@@ -76,28 +76,48 @@ export default function MyPageContent() {
 
       {/* SNS 로그인 연동 버튼 */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between gap-2">
+        
+        <div className="w-full">
           <button
+            className="w-full bg-[#FEE500] text-black py-2 px-4 rounded flex items-center justify-center gap-2 hover:brightness-95"
             onClick={handleKakaoLogin}
-            className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black py-1 px-3 rounded transition"
           >
-            카카오 로그인 연동
+            <img
+              src="/icons/kakao-logo.png"
+              alt="카카오 아이콘"
+              className="w-5 h-5"
+            />
+            <span className="text-sm font-medium">카카오 로그인 연동</span>
           </button>
-          <span className="text-xs">
-            {isLinked('kakao') ? '✅ 연동됨' : '❌ 미연동'}
-          </span>
+
+          <div className="flex justify-end mt-1 mr-2">
+            <span className="text-xs text-gray-600">
+              {isLinked('kakao') ? '✅ 연동됨' : '❌ 미연동'}
+            </span>
+          </div>
         </div>
-        <div className="flex items-center justify-between gap-2">
+
+        <div className="flex flex-col w-full gap-1">
           <button
+            className="w-full bg-[#03C75A] text-white py-2 px-4 rounded flex items-center justify-center gap-2 hover:brightness-110"
             onClick={handleNaverLogin}
-            className="flex-1 bg-green-600 hover:bg-green-700 text-white py-1 px-3 rounded transition"
           >
-            네이버 로그인 연동
+            <img
+              src="/icons/naver-logo.png"
+              alt="네이버 아이콘"
+              className="w-6 h-6"
+            />
+            <span className="text-sm font-medium">네이버 로그인 연동</span>
           </button>
-          <span className="text-xs">
-            {isLinked('naver') ? '✅ 연동됨' : '❌ 미연동'}
-          </span>
+
+          <div className="flex justify-end mt-1 mr-2">
+            <span className="text-xs text-gray-600">
+              {isLinked('naver') ? '✅ 연동됨' : '❌ 미연동'}
+            </span>
+          </div>
         </div>
+        
+        
         {/* <div className="flex items-center justify-between gap-2">
           <button
             onClick={handleGoogleLogin}

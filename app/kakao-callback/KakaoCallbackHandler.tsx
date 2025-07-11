@@ -97,31 +97,43 @@ export default function KakaoCallbackHandler() {
         } else {
           // 🔗 이미 로그인된 상태면 연결만 수행
           // 마이페이지에서 카카오 로그인 연동 시도....
-          currentUser = user
-          console.log('이미 로그인된 사용자:', currentUser.uid)
+          
+          // 로그인 상태이다.
+          // 이 경우 SNS 로그인 연동 요청이다.
+          // 그렇다면 처음 연동인지, 이미 연동되어 있는지 확인이 필요하다.
 
-          // 사용자 문서에 kakaoUid 추가
-          const userRef = doc(db, 'users', currentUser.uid)
-          await updateDoc(userRef, {
-            uids: arrayUnion(kakaoUid),
-          })
-        
-          // 상태 저장
-          const finalSnap = await getDoc(userRef)
-          if (finalSnap.exists()) {
-            const data = finalSnap.data()
-            const userData: UserData = {
-              userId: data.userId,
-              phoneNumber: data.phoneNumber ?? '',
-              displayName: data.displayName,
-              role: data.role,
-              createdAt: data.createdAt,
-              uids: data.uids ?? [],
+          // kakaoUid가 uids 안에 있는지 확인한다.
+          const userStore = useUserStore.getState()
+          const isLinked = userStore.userData?.uids?.includes(kakaoUid)
+          if (isLinked) {
+              alert('✅ 이미 연동되어 있습니다.')
+          } else {
+
+            currentUser = user
+
+            // 사용자 문서에 kakaoUid 추가
+            const userRef = doc(db, 'users', currentUser.uid)
+            await updateDoc(userRef, {
+              uids: arrayUnion(kakaoUid),
+            })
+          
+            // 상태 저장
+            const finalSnap = await getDoc(userRef)
+            if (finalSnap.exists()) {
+              const data = finalSnap.data()
+              const userData: UserData = {
+                userId: data.userId,
+                phoneNumber: data.phoneNumber ?? '',
+                displayName: data.displayName,
+                role: data.role,
+                createdAt: data.createdAt,
+                uids: data.uids ?? [],
+              }
+              useUserStore.getState().setUserData(userData)
             }
-            useUserStore.getState().setUserData(userData)
-          }
 
-          alert('✅ 카카오 계정으로 로그인 되었습니다')          
+            alert('✅ 카카오 계정으로 로그인 되었습니다')          
+          }
         }
       } catch (error: any) {
         console.error('❌ 카카오 로그인 실패:', error)
