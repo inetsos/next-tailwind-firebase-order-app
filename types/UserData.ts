@@ -1,3 +1,4 @@
+// types/UserData.ts
 export type UserData = {
   userId: string;
   phoneNumber?: string;

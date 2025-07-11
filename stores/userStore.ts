@@ -1,8 +1,8 @@
-// ✅ userStore.ts
+// stores/userStore.ts
 'use client';
 
 import { create } from 'zustand';
-import type { UserData } from '@/types/UserData'; // 이 부분 추가
+import type { UserData } from '@/types/UserData';
 
 interface UserStore {
   userData: UserData | null;

@@ -97,7 +97,9 @@ export default function NaverCallbackHandler() {
           }
 
           console.log('네이버 계정으로 신규 로그인 완료:', currentUser.uid)
+
         } else {
+          
           currentUser = user
 
           const userRef = doc(db, 'users', currentUser.uid)

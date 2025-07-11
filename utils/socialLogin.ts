@@ -74,6 +74,7 @@ export async function signInWithKakao() {
   const redirectUri = encodeURIComponent(kakaoRedirectUri)
   const state = Math.random().toString(36).substring(2)
 
+  // 로그인 인가 코드 요청
   const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}`
   window.location.href = kakaoAuthUrl
 }
@@ -89,6 +90,7 @@ export async function signInWithNaver() {
   const redirectUri = encodeURIComponent(naverRedirectUri);
 
   const state = Math.random().toString(36).substring(2); // CSRF 방지를 위한 임의 문자열
+  // 로그인 인가 코드 요청
   const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}`;
   window.location.href = naverAuthUrl;
 }

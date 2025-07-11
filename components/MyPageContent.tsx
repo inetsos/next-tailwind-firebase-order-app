@@ -18,14 +18,14 @@ export default function MyPageContent() {
   };
 
   // SNS 로그인 버튼 핸들러
-  const handleGoogleLogin = async () => {
-    try {
-      await signInWithGoogle();
-    } catch (error) {
-      alert('구글 로그인 실패');
-      console.error(error);
-    }
-  };
+  // const handleGoogleLogin = async () => {
+  //   try {
+  //     await signInWithGoogle();
+  //   } catch (error) {
+  //     alert('구글 로그인 실패');
+  //     console.error(error);
+  //   }
+  // };
 
   const handleKakaoLogin = async () => {
     try {
@@ -98,7 +98,7 @@ export default function MyPageContent() {
             {isLinked('naver') ? '✅ 연동됨' : '❌ 미연동'}
           </span>
         </div>
-        <div className="flex items-center justify-between gap-2">
+        {/* <div className="flex items-center justify-between gap-2">
           <button
             onClick={handleGoogleLogin}
             className="flex-1 bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded transition"
@@ -108,7 +108,7 @@ export default function MyPageContent() {
           <span className="text-xs">
             {isLinked('google') ? '✅ 연동됨' : '❌ 미연동'}
           </span>
-        </div>
+        </div> */}
       </div>
     </div>
   );

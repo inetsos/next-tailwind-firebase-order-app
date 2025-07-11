@@ -135,10 +135,39 @@ components/LoginLink.tsx
 ![Nextjs + Tailwind css v4 + Firebase 프로젝트 - 전화번호 인증 로그인](
 https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FJr1uZ%2FbtsPaeJavyR%2FAAAAAAAAAAAAAAAAAAAAAGZV2CSpPbOW8lyvsoaNY5b9onBlkBjwV64-Gr6IfyyR%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3DQ6Vp5FvAnFG86N%252B7iwLwBf0Ot4I%253D)
 
+
+### 5. SNS 인증 - 카카오, 네이버
+
+#### 사용자 정보 상태 관리
+
+로그인한 사용자의 정보를 전역적으로 사용하기 위해 상태 관리를 합니다.
+
 npm install zustand
 
-### functions
-npm install -g firebase-tools
-firebase init functions
-cd functions
-npm install axios
+🧠 Zustand는 React 애플리케이션에서 상태 관리를   
+간편하게 할 수 있도록 도와주는 경량 상태 관리 라이브러리예요.   
+독일어로 "상태"라는 뜻을 가진 이름답게, 상태를 다루는 데 집중된 도구죠.  
+
+---
+  
+#### SNS 로그인 - 카카오 로그인, 네이버 로그인
+  
+'order-app'은 전화번호 인증을 기본으로 합니다.  
+전화번호 인증 후 로그인 상태에서 카카오 로그인, 네이버 로그인 연동을 하면  
+다음부터 카카오, 네이버로 로그인할 수 있습니다.  
+  
+처음 전화번호 인증으로 계정이 생성됩니다.  
+카카오 로그인 또는 네이버 로그인이 연동되지 않은 상태에서  
+카카오 로그인 또는 네이버 로그인을 하면   
+'order-app'을 전화번호 인증을 먼저 하도록 합니다.  
+
+ #### firebase functions - 서버리스 백엔드
+
+카카오 로그인 또는 네이버 로그인을 위하여  
+백엔드로 firebase functions를 사용합니다.
+  
+npm install -g firebase-tools  
+firebase init functions  
+cd functions  
+npm install axios  
+  

@@ -9,12 +9,11 @@ admin.initializeApp();
 
 // Kakao 로그인 처리
 const KAKAO_REST_API_KEY = defineSecret("KAKAO_REST_API_KEY");
-const KAKAO_REDIRECT_URI = defineSecret("KAKAO_REDIRECT_URI");
 
 export const kakaoLogin = onCall(
   {
     region: "asia-northeast3",
-    secrets: [KAKAO_REST_API_KEY, KAKAO_REDIRECT_URI],
+    secrets: [KAKAO_REST_API_KEY],
   },
   async (request) => {
     const code = request.data?.code as string;
@@ -23,7 +22,6 @@ export const kakaoLogin = onCall(
     }
 
     const clientId = process.env.KAKAO_REST_API_KEY!;
-    // process.env.KAKAO_REDIRECT_URI! - 대치함
     const redirectUri = request.data?.kakaoRedirectUri;
     logger.info("Kakao redirectUri : ", redirectUri);
 
@@ -72,13 +70,12 @@ export const kakaoLogin = onCall(
 // ✅ Naver 비밀 환경 변수
 const NAVER_CLIENT_ID = defineSecret("NAVER_CLIENT_ID");
 const NAVER_CLIENT_SECRET = defineSecret("NAVER_CLIENT_SECRET");
-const NAVER_CALLBACK_URL = defineSecret("NAVER_CALLBACK_URL");
 
 // Naver 로그인 처리 (Authorization Code 방식)
 export const naverLogin = onCall(
   {
     region: "asia-northeast3",
-    secrets: [NAVER_CLIENT_ID, NAVER_CLIENT_SECRET, NAVER_CALLBACK_URL],
+    secrets: [NAVER_CLIENT_ID, NAVER_CLIENT_SECRET],
   },
   async (request) => {
     const code = request.data?.code as string;
@@ -90,7 +87,6 @@ export const naverLogin = onCall(
 
     const clientId = process.env.NAVER_CLIENT_ID!;
     const clientSecret = process.env.NAVER_CLIENT_SECRET!;
-    // process.env.NAVER_CALLBACK_URL!; 대치함
     const redirectUri = request.data?.naverRedirectUri;
     logger.info("Naver redirectUri : ", redirectUri);
 

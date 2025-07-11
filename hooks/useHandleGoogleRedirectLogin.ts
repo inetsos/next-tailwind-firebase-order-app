@@ -4,6 +4,8 @@ import { doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { useUserStore } from '@/stores/userStore';
 import type { UserData } from '@/types/UserData';
 
+// 구글 연동 로그인은 일단 보류
+// 리디렉션 후에 로그인 정보를 받지 못함. 원인 모름
 export async function handleRedirectResultAfterLinking() {
   try {
 
@@ -11,7 +13,7 @@ export async function handleRedirectResultAfterLinking() {
     console.log('🟢 Firebase 앱 객체:', app)
 
     const result = await getRedirectResult(auth);
-
+    // 로그가 undefined로 찍힘
     console.log(result?.user.uid);
     
     if (result && result.user) {
