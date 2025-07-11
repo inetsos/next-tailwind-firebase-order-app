@@ -137,3 +137,8 @@ https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog
 
 npm install zustand
 
+### functions
+npm install -g firebase-tools
+firebase init functions
+cd functions
+npm install axios

@@ -1,8 +1,8 @@
 // components/Navbar.tsx
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link';
 import PhoneAuthModal from './PhoneAuthModal';
 import { useAuth } from '@/hooks/useAuth';
@@ -12,6 +12,13 @@ export default function Navbar() {
   const [showModal, setShowModal] = useState(false);
   const { user } = useAuth();
   const router = useRouter();
+
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    if (searchParams.get('login') === 'true') {
+      setShowModal(true);
+    }
+  }, [searchParams]);
 
   const handleLogout = async () => {
     await logout(() => {

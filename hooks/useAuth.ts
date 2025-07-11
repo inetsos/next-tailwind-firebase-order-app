@@ -33,8 +33,7 @@ export function useAuth() {
 
         if (!snapshot.empty) {
           const docSnap = snapshot.docs[0];
-          const data = docSnap.data();
-
+          const data = docSnap.data(); 
           // 유효성 검사 후 상태 저장
           if (
             typeof data.userId === 'string' &&

@@ -15,6 +15,15 @@ interface PhoneAuthProps {
   onLoginSuccess: () => void;
 }
 
+const KAKAO_CLIENT_ID = '5f9989664ef55417d17008aadd415c6d';
+const REDIRECT_URI = 'http://localhost:3000/kakao-callback';
+const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
+
+const NAVER_CLIENT_ID = process.env.NEXT_PUBLIC_NAVER_CLIENT_ID!;
+const NAVER_REDIRECT_URI = encodeURIComponent(process.env.NEXT_PUBLIC_NAVER_CALLBACK_URL!);
+const NAVER_STATE = Math.random().toString(36).substring(2);
+const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${NAVER_CLIENT_ID}&redirect_uri=${NAVER_REDIRECT_URI}&state=${NAVER_STATE}`;
+
 export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
@@ -136,6 +145,26 @@ export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
         onClick={verifyCode}
       >
         인증하기
+      </button>
+
+      <hr className="border-t border-gray-300 my-6" />
+
+      <button
+        className="w-full bg-yellow-400 text-black py-2 rounded hover:bg-yellow-300"
+        onClick={() => {
+          window.location.href = kakaoAuthUrl;
+        }}
+      >
+        카카오 로그인
+      </button>
+
+      <button
+        className="w-full bg-green-400 text-black py-2 rounded hover:bg-green-300"
+        onClick={() => {
+          window.location.href = naverAuthUrl;
+        }}
+      >
+        네이버 로그인
       </button>
 
       {/* invisible reCAPTCHA 위치 */}

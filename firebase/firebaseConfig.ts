@@ -17,6 +17,7 @@ const firebaseConfig = {
 
 // 중복 초기화 방지
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp()
+const auth = getAuth(app)
 
 declare global {
   interface Window {
@@ -36,6 +37,7 @@ if (typeof window !== 'undefined') {
     self.FIREBASE_APPCHECK_DEBUG_TOKEN = true
   }
 
+  //console.log(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!);
   initializeAppCheck(app, {
     provider: new ReCaptchaV3Provider(
       process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY! // 콘솔에서 발급받은 site key
@@ -45,8 +47,7 @@ if (typeof window !== 'undefined') {
 }
 // --- 전화 번호 인증 끝 ---
 
-const auth = getAuth(app)
 const db = getFirestore(app)
 const storage = getStorage(app)
 
-export { auth, db, storage, RecaptchaVerifier };
+export { app, auth, db, storage, RecaptchaVerifier };

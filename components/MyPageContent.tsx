@@ -1,20 +1,10 @@
 'use client';
 
-import { useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth';
 import { signInWithGoogle, signInWithKakao, signInWithNaver } from '@/utils/socialLogin';
 import { useUserStore } from '@/stores/userStore';
-import { handleRedirectResultAfterLinking } from '@/hooks/useHandleGoogleRedirectLogin';
-import {
-  GoogleAuthProvider,
-  linkWithRedirect,
-} from 'firebase/auth';
-import { auth, db } from '@/firebase/firebaseConfig';
 
 export default function MyPageContent() {
-  useEffect(() => {
-    handleRedirectResultAfterLinking()
-  }, [])
 
   const { user: firebaseUser } = useAuth();
   const { userData } = useUserStore(); // 전역 사용자 정보 사용
@@ -30,28 +20,7 @@ export default function MyPageContent() {
   // SNS 로그인 버튼 핸들러
   const handleGoogleLogin = async () => {
     try {
-      //await signInWithGoogle();
-      const currentUser = auth.currentUser;
-      if (!currentUser) {
-        alert('전화번호로 로그인 후 시도해주세요.');
-        return;
-      }
-
-      const alreadyLinked = currentUser.providerData.some(
-        (p) => p.providerId === GoogleAuthProvider.PROVIDER_ID
-      );
-      if (alreadyLinked) {
-        alert('이미 구글 계정이 연동되어 있습니다.');
-        return;
-      }
-
-      const provider = new GoogleAuthProvider();
-      try {
-        await linkWithRedirect(currentUser, provider); // ✅ 페이지 리디렉션
-      } catch (error) {
-        console.error('❌ 구글 리디렉션 연동 실패:', error);
-      }
-
+      await signInWithGoogle();
     } catch (error) {
       alert('구글 로그인 실패');
       console.error(error);

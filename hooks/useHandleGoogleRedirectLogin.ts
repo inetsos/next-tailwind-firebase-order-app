@@ -1,11 +1,15 @@
 import { getRedirectResult, GoogleAuthProvider } from 'firebase/auth';
-import { auth, db } from '@/firebase/firebaseConfig';
+import { app, auth, db } from '@/firebase/firebaseConfig';
 import { doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { useUserStore } from '@/stores/userStore';
 import type { UserData } from '@/types/UserData';
 
 export async function handleRedirectResultAfterLinking() {
   try {
+
+    console.log('🟡 Firebase 인증 객체:', auth)
+    console.log('🟢 Firebase 앱 객체:', app)
+
     const result = await getRedirectResult(auth);
 
     console.log(result?.user.uid);
