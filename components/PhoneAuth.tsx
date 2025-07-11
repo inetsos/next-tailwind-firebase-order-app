@@ -15,14 +15,8 @@ interface PhoneAuthProps {
   onLoginSuccess: () => void;
 }
 
-const KAKAO_CLIENT_ID = '5f9989664ef55417d17008aadd415c6d';
-const REDIRECT_URI = 'http://localhost:3000/kakao-callback';
-const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
-
+const KAKAO_CLIENT_ID = process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID!;
 const NAVER_CLIENT_ID = process.env.NEXT_PUBLIC_NAVER_CLIENT_ID!;
-const NAVER_REDIRECT_URI = encodeURIComponent(process.env.NEXT_PUBLIC_NAVER_CALLBACK_URL!);
-const NAVER_STATE = Math.random().toString(36).substring(2);
-const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${NAVER_CLIENT_ID}&redirect_uri=${NAVER_REDIRECT_URI}&state=${NAVER_STATE}`;
 
 export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -30,8 +24,30 @@ export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
   const recaptchaRef = useRef<HTMLDivElement>(null);
 
+  const [kakaoAuthUrl, setKakaoAuthUrl] = useState('');
+  const [naverAuthUrl, setNaverAuthUrl] = useState('');
+
   // reCAPTCHA 설정
   useEffect(() => {
+
+    if (typeof window !== 'undefined') {
+      const isLocal = window.location.hostname === 'localhost';
+      const kakaoRedirectUri = isLocal
+        ? 'http://localhost:3000/kakao-callback'
+        : 'https://next-tailwind-firebase-order-app.vercel.app/kakao-callback';
+      const kakaoRedirectUriEncoding = encodeURIComponent(kakaoRedirectUri);
+      const kakaoUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_CLIENT_ID}&redirect_uri=${kakaoRedirectUriEncoding}`;
+      setKakaoAuthUrl(kakaoUrl);
+
+      const naverRedirectUri = isLocal
+        ? 'http://localhost:3000/naver-callback'
+        : 'https://next-tailwind-firebase-order-app.vercel.app/naver-callback';
+      const naverRedirectUriEncoding = encodeURIComponent(naverRedirectUri);
+      const NAVER_STATE = Math.random().toString(36).substring(2);
+      const naverUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${NAVER_CLIENT_ID}&redirect_uri=${naverRedirectUriEncoding}&state=${NAVER_STATE}`;
+      setNaverAuthUrl(naverUrl);
+    }
+
     if (!window.recaptchaVerifier && recaptchaRef.current) {
       window.recaptchaVerifier = new RecaptchaVerifier(auth, recaptchaRef.current, {
         size: 'invisible',

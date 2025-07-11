@@ -38,7 +38,7 @@ export default function KakaoCallbackHandler() {
         const isLocal = window.location.hostname === 'localhost';
         const kakaoRedirectUri = isLocal
           ? 'http://localhost:3000/kakao-callback'
-          : 'https://https://next-tailwind-firebase-order-app.vercel.app/kakao-callback';
+          : 'https://next-tailwind-firebase-order-app.vercel.app/kakao-callback';
 
         const result: any = await kakaoLogin({ code, kakaoRedirectUri })
 

@@ -52,7 +52,7 @@ export default function NaverCallbackHandler() {
         const isLocal = window.location.hostname === 'localhost';
         const naverRedirectUri = isLocal
           ? 'http://localhost:3000/naver-callback'
-          : 'https://https://next-tailwind-firebase-order-app.vercel.app/naver-callback';
+          : 'https://next-tailwind-firebase-order-app.vercel.app/naver-callback';
 
         const result: any = await naverLogin({ code, state, naverRedirectUri })
         const { firebaseToken, naverUid, displayName } = result.data

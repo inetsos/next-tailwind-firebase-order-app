@@ -69,7 +69,8 @@ export async function signInWithKakao() {
   const isLocal = window.location.hostname === 'localhost';
   const kakaoRedirectUri = isLocal
     ? 'http://localhost:3000/kakao-callback'
-    : 'https://https://next-tailwind-firebase-order-app.vercel.app/kakao-callback';
+    : 'https://next-tailwind-firebase-order-app.vercel.app/kakao-callback';
+
   const redirectUri = encodeURIComponent(kakaoRedirectUri)
   const state = Math.random().toString(36).substring(2)
 
@@ -84,7 +85,7 @@ export async function signInWithNaver() {
   const isLocal = window.location.hostname === 'localhost';
   const naverRedirectUri = isLocal
     ? 'http://localhost:3000/naver-callback'
-    : 'https://https://next-tailwind-firebase-order-app.vercel.app/naver-callback';
+    : 'https://next-tailwind-firebase-order-app.vercel.app/naver-callback';
   const redirectUri = encodeURIComponent(naverRedirectUri);
 
   const state = Math.random().toString(36).substring(2); // CSRF 방지를 위한 임의 문자열
