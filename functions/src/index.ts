@@ -23,7 +23,9 @@ export const kakaoLogin = onCall(
     }
 
     const clientId = process.env.KAKAO_REST_API_KEY!;
-    const redirectUri = process.env.KAKAO_REDIRECT_URI!;
+    // process.env.KAKAO_REDIRECT_URI! - 대치함
+    const redirectUri = request.data?.kakaoRedirectUri;
+    logger.info("Kakao redirectUri : ", redirectUri);
 
     // Kakao OAuth Token 요청
     const tokenRes = await axios.post("https://kauth.kakao.com/oauth/token", new URLSearchParams({
@@ -88,7 +90,9 @@ export const naverLogin = onCall(
 
     const clientId = process.env.NAVER_CLIENT_ID!;
     const clientSecret = process.env.NAVER_CLIENT_SECRET!;
-    const redirectUri = process.env.NAVER_CALLBACK_URL!;
+    // process.env.NAVER_CALLBACK_URL!; 대치함
+    const redirectUri = request.data?.naverRedirectUri;
+    logger.info("Naver redirectUri : ", redirectUri);
 
     let tokenData;
     try {

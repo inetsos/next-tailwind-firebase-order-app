@@ -64,7 +64,13 @@ export async function signInWithGoogle() {
 
 export async function signInWithKakao() {
   const clientId = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY!
-  const redirectUri = encodeURIComponent(process.env.NEXT_PUBLIC_KAKAO_CALLBACK_URL!)
+
+  // 로컬 또는 배포 상태에 따른 처리
+  const isLocal = window.location.hostname === 'localhost';
+  const kakaoRedirectUri = isLocal
+    ? 'http://localhost:3000/kakao-callback'
+    : 'https://https://next-tailwind-firebase-order-app.vercel.app/kakao-callback';
+  const redirectUri = encodeURIComponent(kakaoRedirectUri)
   const state = Math.random().toString(36).substring(2)
 
   const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}`
@@ -74,7 +80,13 @@ export async function signInWithKakao() {
 export async function signInWithNaver() {
 
   const clientId = process.env.NEXT_PUBLIC_NAVER_CLIENT_ID!;
-  const redirectUri = encodeURIComponent(process.env.NEXT_PUBLIC_NAVER_CALLBACK_URL!);
+
+  const isLocal = window.location.hostname === 'localhost';
+  const naverRedirectUri = isLocal
+    ? 'http://localhost:3000/naver-callback'
+    : 'https://https://next-tailwind-firebase-order-app.vercel.app/naver-callback';
+  const redirectUri = encodeURIComponent(naverRedirectUri);
+
   const state = Math.random().toString(36).substring(2); // CSRF 방지를 위한 임의 문자열
   const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}`;
   window.location.href = naverAuthUrl;
