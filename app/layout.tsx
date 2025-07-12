@@ -6,7 +6,7 @@ import './globals.css'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'My App',
+  title: '지역 커뮤니티 - 시지 라이프',
   description: 'Next.js + Tailwind Layout Example',
 }
 
