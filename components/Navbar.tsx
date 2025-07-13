@@ -6,11 +6,14 @@ import Link from 'next/link';
 import PhoneAuthModal from './PhoneAuthModal';
 import { useAuth } from '@/hooks/useAuth';
 import { logout } from '@/utils/auth';
+import { useUserStore } from '@/stores/userStore';
 
 export default function Navbar() {
   const [showModal, setShowModal] = useState(false);
-  const [mounted, setMounted] = useState(false); // ✅ hydration-safe 렌더링용
+  const [mounted, setMounted] = useState(false); 
+  
   const { user } = useAuth();
+  const { userData } = useUserStore(); 
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -53,7 +56,10 @@ export default function Navbar() {
                 <Link href="/mypage" className="text-sm hover:underline hover:text-blue-300">
                   마이페이지
                 </Link>
-                <span className="text-sm">👤 {formatE164ToKorean(user.phoneNumber)}</span>
+                {/* ✅ 사용자 이름 출력 */}
+                <span className="text-sm">
+                  👤 {userData?.displayName || '사용자'}
+                </span>
                 <button
                   onClick={handleLogout}
                   className="bg-red-500 px-3 py-1 rounded hover:bg-red-600 text-sm"

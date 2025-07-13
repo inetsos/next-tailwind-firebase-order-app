@@ -2,10 +2,13 @@
 
 import { useState } from 'react';
 import { db } from '@/firebase/firebaseConfig';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp,
+  query, where, getDocs
+ } from 'firebase/firestore';
 import { Store } from '@/types/store';
 import Script from 'next/script';
 import { useRouter } from 'next/navigation';
+import { useUserStore } from '@/stores/userStore';
 
 const categories = [
   '한식', '중식', '일식', '양식', '분식', '치킨', '피자', '패스트푸드',
@@ -28,6 +31,7 @@ export default function StoreRegisterPage() {
   });
 
   const router = useRouter();
+  const { userData } = useUserStore();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -89,14 +93,62 @@ export default function StoreRegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!userData?.userId) {
+      alert('사용자 정보가 없습니다. 로그인 상태를 확인해주세요.');
+      return;
+    }
+
+    // 필수 입력값 검사
+    const requiredFields = [
+      { key: 'category', label: '업종' },
+      { key: 'name', label: '상호명' },
+      { key: 'description', label: '소개말' },
+      { key: 'openingTime', label: '영업 시작 시간' },
+      { key: 'closingTime', label: '영업 종료 시간' },
+      { key: 'zipcode', label: '우편번호' },
+      { key: 'address', label: '주소' },
+      //{ key: 'detailAddress', label: '상세주소' },
+      { key: 'latitude', label: '위도' },
+      { key: 'longitude', label: '경도' },
+    ];
+
+    for (const field of requiredFields) {
+      if (!form[field.key as keyof typeof form]) {
+        alert(`${field.label}을(를) 입력해주세요.`);
+        return;
+      }
+    }
+
     try {
-      await addDoc(collection(db, 'stores'), {
+      // ✅ 중복 상호+주소 체크
+      const storesRef = collection(db, 'stores');
+      const duplicateQuery = query(
+        storesRef,
+        where('name', '==', form.name.trim()),
+        where('address', '==', form.address.trim())
+      );
+
+      const snapshot = await getDocs(duplicateQuery);
+
+      if (!snapshot.empty) {
+        alert(
+          `이미 등록된 매장입니다.\n\n상호명: ${form.name}\n주소: ${form.address}`
+        );
+        return;
+      }
+
+      // ✅ 등록
+      await addDoc(storesRef, {
         ...form,
         latitude: parseFloat(form.latitude as any),
         longitude: parseFloat(form.longitude as any),
+        admin: userData.userId,
         createdAt: serverTimestamp(),
       });
+
       alert('매장이 등록되었습니다!');
+      router.push('/store-list');
     } catch (error) {
       console.error(error);
       alert('등록 실패');
@@ -110,7 +162,9 @@ export default function StoreRegisterPage() {
 
         {/* 업종 선택 */}
         <div>
-          <label className="block font-semibold mb-2">업종 선택</label>
+          <label className="block font-semibold mb-2">
+            업종 선택 
+          </label>
           <div className="flex flex-wrap gap-2">
             {categories.map(c => (
               <button

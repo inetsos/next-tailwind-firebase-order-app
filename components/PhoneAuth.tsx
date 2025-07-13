@@ -162,6 +162,9 @@ export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
       >
         인증하기
       </button>
+      <p className="text-sm text-gray-500 text-center -mt-2">
+        인증번호는 해외에서 발송됩니다.
+      </p>
 
       <hr className="border-t border-gray-300 my-6" />
 
