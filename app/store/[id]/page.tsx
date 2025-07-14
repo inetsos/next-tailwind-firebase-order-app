@@ -195,7 +195,7 @@ export default function StoreLandingPage() {
 
   return (
     <main className="max-w-xl mx-auto p-6 bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
-      <div className="flex items-baseline mb-2 -mt-4">
+      <div className="flex items-baseline mb-2">
         <h4 className="text-xl font-bold">{store.name}</h4>
         <p className="text-gray-600 dark:text-gray-300 text-base ml-4">{store.category}</p>
       </div>

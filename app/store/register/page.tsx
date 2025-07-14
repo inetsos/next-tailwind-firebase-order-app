@@ -175,7 +175,7 @@ export default function StoreRegisterPage() {
 
   return (
     <div className="max-w-xl mx-auto p-3">
-      <h1 className="text-2xl font-bold mb-2 -mt-4 dark:text-white">매장 등록</h1>
+      <h1 className="text-2xl font-bold mb-2 dark:text-white">매장 등록</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
 
         {/* 업종 선택 */}
@@ -249,20 +249,56 @@ export default function StoreRegisterPage() {
             : ''}
         </p>
 
-        {/* 주소 필드들 */}
+        
+        {/* 우편번호 및 주소 */}
         <input
           type="text"
           name="zipcode"
+          placeholder="우편번호 (클릭하여 검색)"
+          value={form.zipcode}
           readOnly
           onClick={handleAddressSearch}
-          className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-800 text-black dark:text-white cursor-pointer"
+          className="w-full p-2 border border-gray-300 dark:border-gray-600
+                    rounded bg-gray-100 dark:bg-gray-800 
+                    text-black dark:text-white 
+                    placeholder-gray-400 dark:placeholder-gray-500 
+                    cursor-pointer"
         />
 
+        <input
+          type="text"
+          name="address"
+          placeholder="주소"
+          value={form.address}
+          readOnly
+          onClick={handleAddressSearch}
+          className="w-full p-2 border border-gray-300 dark:border-gray-600 
+                    rounded bg-gray-100 dark:bg-gray-800 
+                    text-black dark:text-white 
+                    placeholder-gray-400 dark:placeholder-gray-500 
+                    cursor-pointer"
+        />
+
+        <input
+          type="text"
+          name="detailAddress"
+          placeholder="상세주소"
+          value={form.detailAddress}
+          onChange={handleChange}
+          className="w-full p-2 border border-gray-300 dark:border-gray-600 
+                    rounded bg-white dark:bg-gray-800 
+                    text-black dark:text-white 
+                    placeholder-gray-400 dark:placeholder-gray-500"
+        />
+
+        
         {/* 위도 / 경도 필드 */}
         <div className="flex gap-4">
           <input
             type="text"
             name="latitude"
+            placeholder="위도"
+            value={form.latitude}
             readOnly
             onClick={handleOpenMap}
             className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-800 text-black dark:text-white"
@@ -270,6 +306,8 @@ export default function StoreRegisterPage() {
           <input
             type="text"
             name="longitude"
+            placeholder="경도"
+            value={form.longitude}
             readOnly
             onClick={handleOpenMap}
             className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-800 text-black dark:text-white"
