@@ -1,14 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { db } from '@/firebase/firebaseConfig';
-import { collection, addDoc, serverTimestamp,
-  query, where, getDocs
- } from 'firebase/firestore';
-import { Store } from '@/types/store';
+import { collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
+import { Store, BusinessHour, DayOfWeek, HolidayRule } from '@/types/store';
 import Script from 'next/script';
 import { useRouter } from 'next/navigation';
 import { useUserStore } from '@/stores/userStore';
+import BusinessHoursModal from '@/components/modals/BusinessHoursModal';
+import HolidayRuleModal from '@/components/modals/HolidayRuleModal';
 
 const categories = [
   '한식', '중식', '일식', '양식', '분식', '치킨', '피자', '패스트푸드',
@@ -16,24 +16,41 @@ const categories = [
   '디저트', '베이커리', '카페', '커피/음료', '샐러드', '브런치', '기타',
 ];
 
+const emptyBusinessHours: Record<DayOfWeek, BusinessHour> = {
+  월: { opening: '', closing: '' },
+  화: { opening: '', closing: '' },
+  수: { opening: '', closing: '' },
+  목: { opening: '', closing: '' },
+  금: { opening: '', closing: '' },
+  토: { opening: '', closing: '' },
+  일: { opening: '', closing: '' },
+};
+
+const defaultHolidayRule: HolidayRule = {
+  frequency: '매주',
+  days: [],
+};
+
 export default function StoreRegisterPage() {
   const [form, setForm] = useState<Store>({
     category: '',
     name: '',
     description: '',
-    openingTime: '',
-    closingTime: '',
     zipcode: '',
     address: '',
     detailAddress: '',
     latitude: '',
     longitude: '',
+    businessHours: emptyBusinessHours,
+    holidayRule: defaultHolidayRule,
   });
 
+  const [showBusinessHoursModal, setShowBusinessHoursModal] = useState(false);
+  const [showHolidayRuleModal, setShowHolidayRuleModal] = useState(false);
   const router = useRouter();
   const { userData } = useUserStore();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
   };
@@ -74,12 +91,10 @@ export default function StoreRegisterPage() {
       'mapWindow',
       `width=${width},height=${height},left=${left},top=${top}`
     );
-    
   };
 
-  // 자식 창에서 위도/경도 전달받기
-  if (typeof window !== 'undefined') {
-    window.addEventListener('message', (event) => {
+  useEffect(() => {
+    const messageHandler = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
       if (event.data?.type === 'coords') {
         setForm(prev => ({
@@ -88,8 +103,10 @@ export default function StoreRegisterPage() {
           longitude: event.data.lng.toString(),
         }));
       }
-    });
-  }
+    };
+    window.addEventListener('message', messageHandler);
+    return () => window.removeEventListener('message', messageHandler);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,16 +116,12 @@ export default function StoreRegisterPage() {
       return;
     }
 
-    // 필수 입력값 검사
     const requiredFields = [
       { key: 'category', label: '업종' },
       { key: 'name', label: '상호명' },
       { key: 'description', label: '소개말' },
-      { key: 'openingTime', label: '영업 시작 시간' },
-      { key: 'closingTime', label: '영업 종료 시간' },
       { key: 'zipcode', label: '우편번호' },
       { key: 'address', label: '주소' },
-      //{ key: 'detailAddress', label: '상세주소' },
       { key: 'latitude', label: '위도' },
       { key: 'longitude', label: '경도' },
     ];
@@ -120,8 +133,16 @@ export default function StoreRegisterPage() {
       }
     }
 
+    // 영업시간 하나라도 설정됐는지 체크
+    const hasValidHours = Object.values(form.businessHours).some(
+      (day) => day.opening && day.closing
+    );
+    if (!hasValidHours) {
+      alert('영업시간을 설정해주세요.');
+      return;
+    }
+
     try {
-      // ✅ 중복 상호+주소 체크
       const storesRef = collection(db, 'stores');
       const duplicateQuery = query(
         storesRef,
@@ -132,23 +153,20 @@ export default function StoreRegisterPage() {
       const snapshot = await getDocs(duplicateQuery);
 
       if (!snapshot.empty) {
-        alert(
-          `이미 등록된 매장입니다.\n\n상호명: ${form.name}\n주소: ${form.address}`
-        );
+        alert(`이미 등록된 매장입니다.\n\n상호명: ${form.name}\n주소: ${form.address}`);
         return;
       }
 
-      // ✅ 등록
       await addDoc(storesRef, {
         ...form,
-        latitude: parseFloat(form.latitude as any),
-        longitude: parseFloat(form.longitude as any),
+        latitude: parseFloat(form.latitude),
+        longitude: parseFloat(form.longitude),
         admin: userData.userId,
         createdAt: serverTimestamp(),
       });
 
       alert('매장이 등록되었습니다!');
-      router.push('/store-list');
+      router.push('/');
     } catch (error) {
       console.error(error);
       alert('등록 실패');
@@ -156,8 +174,8 @@ export default function StoreRegisterPage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6 -mt-6">매장 등록</h1>
+    <div className="max-w-xl mx-auto p-3">
+      <h1 className="text-2xl font-bold mb-2 -mt-4">매장 등록</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
 
         {/* 업종 선택 */}
@@ -199,29 +217,49 @@ export default function StoreRegisterPage() {
           className="w-full p-2 border rounded"
         />
 
-        {/* 영업시간 */}
-        <div className="flex gap-4 items-center">
-          <div className="flex flex-col w-full">
-            <label className="text-sm font-medium text-gray-700">영업 시작 시간</label>
-            <input
-              type="time"
-              name="openingTime"
-              value={form.openingTime}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-            />
-          </div>
-          <div className="flex flex-col w-full">
-            <label className="text-sm font-medium text-gray-700">영업 종료 시간</label>
-            <input
-              type="time"
-              name="closingTime"
-              value={form.closingTime}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-            />
-          </div>
+        {/* 영업시간 설정 모달 오픈 */}
+        <button
+          type="button"
+          onClick={() => setShowBusinessHoursModal(true)}
+          className="w-full p-2 border rounded bg-gray-100"
+        >
+          영업시간 설정
+        </button>
+
+        {/* 설정된 영업시간 보기 */}
+        <div className="text-sm text-gray-600">
+          {Object.entries(form.businessHours).every(([_, h]) => !h.opening && !h.closing) ? (
+            <span className="italic">영업시간 미설정</span>
+          ) : (
+            <ul className="mt-1 space-y-1">
+              {Object.entries(form.businessHours).map(([day, h]) => (
+                <li key={day}>
+                  <span className="font-semibold">{day}</span>:&nbsp;
+                  {h.opening && h.closing ? `${h.opening} ~ ${h.closing}` : '휴무'}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
+
+        {/* 휴무일 설정 */}
+        <button
+          type="button"
+          onClick={() => setShowHolidayRuleModal(true)}
+          className="w-full p-2 border rounded bg-gray-100"
+        >
+          휴무일 설정
+        </button>
+
+        {/* 설정된 휴무 규칙 요약 표시 */}
+        {form.holidayRule && (
+          <p className="mt-2 text-sm text-gray-600">
+            {form.holidayRule.frequency} {form.holidayRule.days.join(', ')}
+            {form.holidayRule.weeks?.length
+              ? ` (매월 ${form.holidayRule.weeks.join(', ')}주차)`
+              : ''}
+          </p>
+        )}
 
         {/* 우편번호 및 주소 */}
         <input
@@ -282,7 +320,29 @@ export default function StoreRegisterPage() {
         </button>
       </form>
 
-      {/* 카카오 주소 API */}
+      {showBusinessHoursModal && (
+        <BusinessHoursModal
+          defaultValue={form.businessHours}
+          onSave={(updatedHours) => {
+            setForm(prev => ({ ...prev, businessHours: updatedHours }));
+            setShowBusinessHoursModal(false);
+          }}
+          onCancel={() => setShowBusinessHoursModal(false)}
+        />
+      )}
+
+      {showHolidayRuleModal && (
+        <HolidayRuleModal
+          isOpen={true}
+          defaultValue={form.holidayRule ?? defaultHolidayRule}
+          onSave={(updatedRule) => {
+            setForm(prev => ({ ...prev, holidayRule: updatedRule }));
+            setShowHolidayRuleModal(false);
+          }}
+          onCancel={() => setShowHolidayRuleModal(false)}
+        />
+      )}
+
       <Script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" strategy="lazyOnload" />
     </div>
   );

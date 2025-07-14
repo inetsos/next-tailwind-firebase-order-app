@@ -171,3 +171,6 @@ firebase init functions
 cd functions  
 npm install axios  
   
+
+햄버거 아이콘(Menu, X)을 사용하기 위해 아래 명령어로 설치하세요:
+npm install lucide-react

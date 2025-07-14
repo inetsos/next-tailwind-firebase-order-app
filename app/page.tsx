@@ -1,10 +1,11 @@
-// app/page.tsx
+import StoreList from '@/components/StoreList';
+
 export default function Home() {
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">시지 라이프</h1>
-      <p>시지 지역 커뮤니티 - 개발 중입니다.</p>
-      <p>테스트 배포 중으로 실제 매장과는 연동되지 않습니다.</p>
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6">
+      <h1 className="text-2xl font-bold mb-2">시지 라이프</h1>
+      <p className="text-gray-600 mb-4">시지 지역 커뮤니티 - 테스트 배포 중입니다.</p>
+      <StoreList />
     </div>
-  )
+  );
 }
