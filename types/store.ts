@@ -28,5 +28,5 @@ export interface Store {
   businessHours: Record<DayOfWeek, BusinessHour>;
 
   // ✅ 휴무 규칙
-  holidayRule?: HolidayRule;
+  holidayRule: HolidayRule;
 }

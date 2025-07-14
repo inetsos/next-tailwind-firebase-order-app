@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="kr">
-      <body className="min-h-screen flex flex-col">
+      <body className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
         <Suspense fallback={<div>로딩 중...</div>}>        
           <Navbar />
         </Suspense>

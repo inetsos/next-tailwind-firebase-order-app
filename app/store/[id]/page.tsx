@@ -177,38 +177,45 @@ export default function StoreLandingPage() {
   };
 
   return (
-    <main className="max-w-xl mx-auto p-6">
+    <main className="max-w-xl mx-auto p-6 bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
       <div className="flex items-baseline mb-2 -mt-4">
         <h4 className="text-xl font-bold">{store.name}</h4>
-        <p className="text-gray-600 text-base ml-4">{store.category}</p>
+        <p className="text-gray-600 dark:text-gray-300 text-base ml-4">{store.category}</p>
       </div>
 
-      <p className="mb-6 whitespace-pre-wrap">{store.description}</p>
+      <p className="mb-6 whitespace-pre-wrap text-gray-800 dark:text-gray-200">
+        {store.description}
+      </p>
 
-      {/* 정보 블록: 영업시간, 휴무일, 주소 */}
       <section className="space-y-4">
         {/* 영업시간 */}
         <div className="flex">
-          <div className="w-24 shrink-0 font-semibold text-base">영업시간</div>
+          <div className="w-24 shrink-0 font-semibold text-base text-gray-900 dark:text-white">영업시간</div>
           <div className="text-sm">{renderTodayBusinessHour()}</div>
         </div>
 
         {/* 휴무일 */}
         <div className="flex">
-          <div className="w-24 shrink-0 font-semibold text-base">휴무일</div>
+          <div className="w-24 shrink-0 font-semibold text-base text-gray-900 dark:text-white">휴무일</div>
           <div className="text-sm">{renderHolidayRule()}</div>
         </div>
 
         {/* 주소 */}
         <div className="flex">
-          <div className="w-24 shrink-0 font-semibold text-base">주소</div>
+          <div className="w-24 shrink-0 font-semibold text-base text-gray-900 dark:text-white">주소</div>
           <div className="flex-1">
-            <p className="text-sm mb-2">{store.address} {store.detailAddress ?? ''}</p>            
+            <p className="text-sm mb-2 text-gray-700 dark:text-gray-300">
+              {store.address} {store.detailAddress ?? ''}
+            </p>
           </div>
         </div>
-        <div ref={mapRef} className="h-64 w-full border rounded overflow-hidden" />
+
+        {/* 지도 */}
+        <div
+          ref={mapRef}
+          className="h-64 w-full border rounded overflow-hidden border-gray-300 dark:border-gray-600"
+        />
       </section>
     </main>
   );
-
 }
