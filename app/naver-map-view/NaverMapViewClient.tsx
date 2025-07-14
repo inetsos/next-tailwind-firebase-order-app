@@ -185,11 +185,16 @@ export default function NaverMapSelectPage() {
 
   return (
     <div className="p-2 flex flex-col h-full">
-      <div className="flex items-center justify-between mb-1 -mt-6">
-        <h3 className="text-lg font-semibold">{name} 위치 선택</h3>
-        <p className="text-sm ml-4">지도를 클릭하여 위치를 선택하세요.</p>
+      <div className="mb-2">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          {name} 위치 선택
+        </h3>
+        <p className="text-sm mt-1 text-gray-600 dark:text-gray-300">
+          지도 위에서 매장의 위치를 선택하세요.
+        </p>
       </div>
-      <div id="map" style={{ width: '100%', height: '400px', flexGrow: 1 }} />
+
+      <div id="map" style={{ width: '100%', height: '360px', flexGrow: 1 }} />
 
       <div className="mt-2 flex gap-2">
         <button
