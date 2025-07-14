@@ -123,9 +123,26 @@ export default function NaverMapSelectPage() {
       title: name,
     });
 
+    const isDarkMode = document.documentElement.classList.contains('dark'); // tailwind dark mode 감지
+
     const infoWindow = new window.naver.maps.InfoWindow({
-      content: `<div style="padding:10px;"><b>${name}</b><br/>${address}</div>`,
+      content: `
+        <div style="
+          padding:10px;
+          background-color: ${isDarkMode ? '#1f2937' : '#ffffff'};  /* dark:bg-gray-800 / bg-white */
+          color: ${isDarkMode ? '#e5e7eb' : '#111827'};              /* dark:text-gray-200 / text-gray-900 */
+          border-radius: 8px;
+          font-size: 14px;
+          line-height: 1.4;
+        ">
+          <strong>${name}</strong><br/>${address}
+        </div>
+      `,
     });
+
+    // const infoWindow = new window.naver.maps.InfoWindow({
+    //   content: `<div style="padding:10px;"><b>${name}</b><br/>${address}</div>`,
+    // });
 
     infoWindow.open(map, marker);
 
