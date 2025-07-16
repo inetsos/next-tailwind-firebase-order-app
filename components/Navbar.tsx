@@ -34,12 +34,14 @@ export default function Navbar() {
 
   const renderMenuItems = () => (
     <>
-      <Link href="/store/register" className="hover:underline hover:text-blue-300 text-sm ml-2">
-        매장 등록
+      <Link href="/store/manage" className="hover:underline hover:text-blue-300 text-sm ml-2">
+        매장 관리
       </Link>
+
       <Link href="/mypage" className="hover:underline hover:text-blue-300 text-sm ml-2">
         마이페이지
       </Link>
+      
       <button
         onClick={handleLogout}
         className="bg-red-500 px-3 py-1 rounded text-sm hover:bg-red-600 ml-2"

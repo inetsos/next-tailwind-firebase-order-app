@@ -8,9 +8,7 @@ import {
   TransitionChild,
 } from '@headlessui/react';
 import { Fragment, useState } from 'react';
-// HolidayRuleModal.tsx
 import type { HolidayRule, HolidayFrequency } from '@/types/store';
-
 
 export type DayOfWeek = '월' | '화' | '수' | '목' | '금' | '토' | '일';
 
@@ -29,7 +27,12 @@ const emptyRule: HolidayRule = {
   weeks: [],
 };
 
-export default function HolidayRuleModal({ isOpen, defaultValue, onSave, onCancel }: HolidayRuleModalProps) {
+export default function HolidayRuleModal({
+  isOpen,
+  defaultValue,
+  onSave,
+  onCancel,
+}: HolidayRuleModalProps) {
   const [rule, setRule] = useState<HolidayRule>(defaultValue);
 
   const toggleDay = (day: DayOfWeek) => {
@@ -42,12 +45,21 @@ export default function HolidayRuleModal({ isOpen, defaultValue, onSave, onCance
   };
 
   const toggleWeek = (week: number) => {
-    setRule((prev) => ({
-      ...prev,
-      weeks: prev.weeks?.includes(week)
-        ? prev.weeks.filter((w) => w !== week)
-        : [...(prev.weeks || []), week],
-    }));
+    setRule((prev) => {
+      const current = prev.weeks || [];
+
+      if (prev.frequency === '매월 1회') {
+        return { ...prev, weeks: [week] }; // 한 개만 선택 가능
+      }
+
+      // 매월 2회인 경우: 다중 선택 가능
+      return {
+        ...prev,
+        weeks: current.includes(week)
+          ? current.filter((w) => w !== week)
+          : [...current, week],
+      };
+    });
   };
 
   const handleFrequencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -55,11 +67,10 @@ export default function HolidayRuleModal({ isOpen, defaultValue, onSave, onCance
     setRule({
       frequency: value,
       days: [],
-      weeks: value === '매월 2회' ? [] : undefined,
+      weeks: value === '매월 1회' || value === '매월 2회' ? [] : undefined,
     });
   };
 
-  // 초기화(지우기) 버튼 클릭 시
   const handleClear = () => {
     setRule(emptyRule);
   };
@@ -130,7 +141,7 @@ export default function HolidayRuleModal({ isOpen, defaultValue, onSave, onCance
                 </div>
 
                 {/* 주차 선택 */}
-                {rule.frequency === '매월 2회' && (
+                {(rule.frequency === '매월 1회' || rule.frequency === '매월 2회') && (
                   <div>
                     <label className="block text-sm font-medium mb-1">몇째 주</label>
                     <div className="flex gap-2">

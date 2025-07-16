@@ -1,3 +1,4 @@
+// app/types/store.ts
 export type DayOfWeek = '월' | '화' | '수' | '목' | '금' | '토' | '일';
 
 export interface BusinessHour {
@@ -29,4 +30,6 @@ export interface Store {
 
   // ✅ 휴무 규칙
   holidayRule: HolidayRule;
+
+  admin: string;
 }

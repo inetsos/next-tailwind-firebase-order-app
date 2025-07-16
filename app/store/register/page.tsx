@@ -43,6 +43,7 @@ export default function StoreRegisterPage() {
     longitude: '',
     businessHours: emptyBusinessHours,
     holidayRule: defaultHolidayRule,
+    admin: ''
   });
 
   const [showBusinessHoursModal, setShowBusinessHoursModal] = useState(false);
