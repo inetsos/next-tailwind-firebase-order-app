@@ -11,23 +11,30 @@ export default function MenuManagementPage() {
   if (!storeId || typeof storeId !== 'string') return <p>매장 정보 없음</p>;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-2xl font-bold">메뉴 관리</h3>
+    <div className="max-w-5xl mx-auto px-2 py-4 space-y-4">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+        <h3 className="text-xl sm:text-2xl font-bold">메뉴 관리</h3>
 
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <Link
             href={`/store/${storeId}/categories/new`}
-            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
+            className="px-3 py-1.5 bg-green-600 text-white rounded hover:bg-green-700 text-xs sm:text-sm text-center"
           >
             카테고리
           </Link>
-          
+
           <Link
             href={`/store/${storeId}/menus/new`}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+            className="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs sm:text-sm text-center"
           >
             메뉴 등록
+          </Link>
+
+          <Link
+            href={`/store/${storeId}/menus/sort`}
+            className="px-3 py-1.5 bg-purple-600 text-white rounded hover:bg-purple-700 text-xs sm:text-sm text-center"
+          >
+            메뉴 정렬
           </Link>
         </div>
       </div>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { db, storage } from '@/firebase/firebaseConfig';
-import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, doc, getDocs, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 import { Menu, MenuPrice, OptionGroup } from '@/types/menu';
@@ -12,15 +12,16 @@ import Link from 'next/link';
 
 interface MenuFormProps {
   storeId: string;
-  menuData?: Menu; // 수정 시 초기값 전달
-  onSubmit?: (menu: Omit<Menu, 'id'>) => Promise<void>; // 수정 시 콜백
+  menuData?: Menu;
+  onSubmit?: (menu: Omit<Menu, 'id'>) => Promise<void>;
 }
 
 export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps) {
-  //console.log('storeId: ', storeId);
   const [name, setName] = useState(menuData?.name || '');
   const [description, setDescription] = useState(menuData?.description || '');
+  const [sortOrder, setSortOrder] = useState<number>(menuData?.sortOrder ?? 0);
   const [category, setCategory] = useState(menuData?.category || '');
+  const [categories, setCategories] = useState<string[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState(menuData?.imageUrl || '');
   const [isSoldOut, setIsSoldOut] = useState(menuData?.isSoldOut || false);
@@ -32,8 +33,26 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
   const [requiredOptions, setRequiredOptions] = useState<OptionGroup[]>(menuData?.requiredOptions || []);
   const [optionalOptions, setOptionalOptions] = useState<OptionGroup[]>(menuData?.optionalOptions || []);
 
-  const router = useRouter(); // 추가
-  
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchCategoriesAndMenus = async () => {
+      const [categorySnap, menuSnap] = await Promise.all([
+        getDocs(collection(db, 'stores', storeId, 'categories')),
+        getDocs(collection(db, 'stores', storeId, 'menus')),
+      ]);
+
+      const categoryList = categorySnap.docs.map((doc) => doc.data().name);
+      setCategories(categoryList);
+
+      if (!menuData) {
+        setSortOrder(menuSnap.size);
+      }
+    };
+
+    fetchCategoriesAndMenus();
+  }, [storeId]);
+
   const handleImageUpload = async (): Promise<string> => {
     if (!imageFile) return imageUrl || '';
     const imageRef = ref(storage, `menus/${storeId}/${uuidv4()}`);
@@ -46,41 +65,27 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
       alert('규격명과 가격을 올바르게 입력하세요.');
       return;
     }
-
-    setPrices((prev) => [...prev, { label: sizeLabel, price: sizePrice }]);
+    setPrices(prev => [...prev, { label: sizeLabel, price: sizePrice }]);
     setSizeLabel('');
     setSizePrice(0);
   };
 
   const handleRemovePrice = (index: number) => {
-    setPrices((prev) => prev.filter((_, i) => i !== index));
+    setPrices(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleRemoveOptionGroup = (index: number, isRequired: boolean) => {
     const update = (prev: OptionGroup[]) => prev.filter((_, i) => i !== index);
-    isRequired
-      ? setRequiredOptions(update)
-      : setOptionalOptions(update);
+    isRequired ? setRequiredOptions(update) : setOptionalOptions(update);
   };
 
-  const handleRemoveOptionItem = (
-    groupIndex: number,
-    optionIndex: number,
-    isRequired: boolean
-  ) => {
+  const handleRemoveOptionItem = (groupIndex: number, optionIndex: number, isRequired: boolean) => {
     const targetGroups = isRequired ? requiredOptions : optionalOptions;
     const updatedGroups = [...targetGroups];
     const updatedOptions = [...updatedGroups[groupIndex].options];
     updatedOptions.splice(optionIndex, 1);
-
-    updatedGroups[groupIndex] = {
-      ...updatedGroups[groupIndex],
-      options: updatedOptions,
-    };
-
-    isRequired
-      ? setRequiredOptions(updatedGroups)
-      : setOptionalOptions(updatedGroups);
+    updatedGroups[groupIndex] = { ...updatedGroups[groupIndex], options: updatedOptions };
+    isRequired ? setRequiredOptions(updatedGroups) : setOptionalOptions(updatedGroups);
   };
 
   const handleSubmit = async () => {
@@ -100,6 +105,7 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
       isSoldOut,
       requiredOptions,
       optionalOptions,
+      sortOrder,
     };
 
     if (onSubmit) {
@@ -127,7 +133,6 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
 
   return (
     <div className="space-y-6 text-sm max-w-xl mx-auto p-4 bg-white rounded shadow">
-      {/* 🔗 메뉴 관리로 돌아가기 링크 */}
       <div className="text-right -mt-2">
         <button
           onClick={() => router.push(`/store/${storeId}/menus`)}
@@ -155,14 +160,44 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
           onChange={(e) => setDescription(e.target.value)}
           className="w-full border p-2 rounded"
         />
+
+        <div className="space-y-1">
+          <label className="block font-medium"><strong>정렬 순서</strong></label>
+          <input
+            type="number"
+            min={0}
+            value={sortOrder}
+            onChange={(e) => setSortOrder(Number(e.target.value))}
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label className="block font-medium"><strong>카테고리</strong></label>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setCategory(cat)}
+                className={`px-4 py-1 rounded-full border text-sm transition 
+                  ${
+                    category === cat
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+                  }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <label htmlFor="image-upload" className="font-semibold">
+          메뉴 이미지
+        </label>
         <input
-          type="text"
-          placeholder="분류"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="w-full border p-2 rounded"
-        />
-        <input
+          id="image-upload"
           type="file"
           accept="image/*"
           onChange={(e) => setImageFile(e.target.files?.[0] || null)}

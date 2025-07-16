@@ -28,4 +28,5 @@ export interface Menu {
   isSoldOut: boolean;
   requiredOptions: OptionGroup[];
   optionalOptions: OptionGroup[];
+  sortOrder: number;
 }
