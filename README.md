@@ -171,8 +171,65 @@ firebase init functions
 cd functions  
 npm install axios  
   
+![지역 커뮤니티 시지 라이프 - SNS 로그인 연동](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbPSAK8%2FbtsPfcp7tJZ%2FAAAAAAAAAAAAAAAAAAAAAP25LAhW-PblswgEQDsXeEhKmq87GDQvUh2X7oD-tvUH%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3DkJmUnXdJ1ixZJMieCKI93veRbF4%253D)
 
-햄버거 아이콘(Menu, X)을 사용하기 위해 아래 명령어로 설치하세요:
-npm install lucide-react
+![지역 커뮤니티 시지 라이프 - SNS 로그인](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FeaDdzb%2FbtsPd4sKbVO%2FAAAAAAAAAAAAAAAAAAAAAHsQ_dAnMxD3YLIELBAncarOLSRIhl3CxJ2TROmWEUon%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3DB3IEmm%252Bx%252B6GfYvaT1urq8WgNwX0%253D)
 
-npm install @dnd-kit/core @dnd-kit/sortable
+### 6. 시지 라이프 - 매장 등록
+  
+매장 등록 정보는 업종, 상호, 소개, 영업시간, 휴무일, 주소, 위도/경도 입니다.  
+영업 시간은 요일마다 시간을 다르게 등록할 수 있습니다.  
+휴무일은 주1회, 주2회, 월 1회, 월 2회 등 다양한 조건을 설정할 수 있습니다.  
+주소는 카카오 주소 API로 검색을 통하여 등록합니다.  
+위도, 경도는 네이버 지도를 통하여 지도에서 위치를 선택하여 등록합니다.  
+  
+![지역 커뮤니티 시지 라이프 - 카카오 주소 API 사용](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbRCT94%2FbtsPiV9kvGU%2FAAAAAAAAAAAAAAAAAAAAACVaVIS7mp_XquTxJ2EsFN2LSAfLL4lFjrS4mIpg0ln4%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3DSuIG4BcS6iMtVkcrWU2tSyDOu4s%253D)
+
+![지역 커뮤니티 시지 라이프 - 네이버 지도를 통하여 매장 위치 입력](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FQIXNk%2FbtsPj6PRL48%2FAAAAAAAAAAAAAAAAAAAAANQP6MJ7HDXlgbsJupe1dsabRTeGzdTlh5PHByB1PaVC%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3DeUV2xo24etuerP4mtbuTSyBvIf8%253D)
+
+![지역 커뮤니티 시지 라이프 - 각 요일별 영업 시간 설정](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbUr4kZ%2FbtsPkEsoEnf%2FAAAAAAAAAAAAAAAAAAAAAPJGIdYH2ePTASoWZyacMzXVR2yVfoama4dzOCW5EA9G%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3DI%252BOLz8C6SpJTMxINKR8GiPSj7Vc%253D)
+
+![지역 커뮤니티 시지 라이프 - 매장 휴무일 설정](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2Fmk1AJ%2FbtsPjSZo7EH%2FAAAAAAAAAAAAAAAAAAAAAJEFk19AwUEG4ndwB2oNJvivsH5LxTI2LqsTEW9N7pMP%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3DtmoyHatQ68FrGr9WXguUew3s5xg%253D)
+  
+
+### 7. 시지 라이프 - 메뉴 카테고리 관리 
+  
+메뉴에는 다양한 카테고리가 있습니다.  
+카테고리를 별도 등록하고  
+카테고리에 정렬 순서가 있어  
+메뉴를 나타낼 때 먼저 나타나는 카테고리 순서를 조정할 수 있습니다.   
+  
+카테고리 정렬 순서는 드래그 앤 드롭으로 변경할 수 있습니다. 😊  
+
+![지역 커뮤니티 시지 라이프 - 드래그 앤 드롭으로 카테고리 순서 변경](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FphxFQ%2FbtsPmgltxbD%2FAAAAAAAAAAAAAAAAAAAAAJwXC4tGpbok6R6XDS8eIGmyjozbNJJ2DxNX-4w4NbrI%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3DjYHLi29D%252BwXG1DKSnZcXzjoDMO0%253D)
+
+### 8. 시지 라이프 - 온라인 주문 메뉴 관리 
+
+메뉴의 구조를 생각해 봅시다.   
+  
+특정한 음식 또는 음료에 대한 메뉴가 아니라
+많은 종류의 배달 또는 포장 음식, 또는 음료에 대한 것입니다.  
+  
+같은 메뉴 이름에 여러 규격이 있습니다.  
+1인분, 2인분, 대, 중, 소, 레귤러, 라지 등등  
+규격에 따라 가격도 다릅니다.   
+  
+여러가지 옵션 그룹이 있습니다.  
+맛 그룹으로 매운맛, 순한맛, 보통맛  
+온도 그룹으로 핫, 아이스  
+샷추가, 사리 추가, 토핑 추가 등 주 메뉴에 추가되는 옵션들  
+필수적으로 선택해야 하는 옵션들과  
+선택적으로 선택해야 하는 옵션들이 있습니다.   
+  
+이와 같은 구조를 가진 메뉴 시스템을 구현합니다.  
+
+![지역 커뮤니티 시지 라이프 - 메뉴 관리](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FGs6A6%2FbtsPm3TUbzn%2FAAAAAAAAAAAAAAAAAAAAAOMzlB1MjcRxJk20geD6LO5fUTgtTI4KuRhNAOvPoCaF%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3D3nOyVnqfDUu%252FhfIoEjVcEqSMxys%253D)
+
+![지역 커뮤니티 시지 라이프 - 메뉴 등록](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbOyh8M%2FbtsPmg0vjLh%2FAAAAAAAAAAAAAAAAAAAAAJ1JNoeUmJPtx9tioCR5Iur-R5fPUJo91wi09CQ0Orjg%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3DZZIv5ricO%252BL3Gp6hehYoJ8gDdJ8%253D)
+  
+### 9. 시지 라이프 - 등록 메뉴 순서 변경
+  
+등록된 카테고리의 순서를 변경할 수 있습니다.   
+카테고리별로 각 카테고리에 속한 메뉴의 순서를 드래그 앤 드롭으로 변경할 수 있습니다.  
+  
+![지역 커뮤니티 시지 라이프 - 드래그 앱 드롭으로 메뉴 순서 변경](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2Fb1ARsW%2FbtsPnrmDDsS%2FAAAAAAAAAAAAAAAAAAAAAC8--k2MkuYk9MuT4Xb9xWl2to4WCDhQv1Va6a6R_Gg7%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3DuBG2nq6AQZ5R93TXOJ%252BZMEGnPj4%253D)

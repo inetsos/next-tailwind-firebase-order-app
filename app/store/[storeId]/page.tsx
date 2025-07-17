@@ -139,11 +139,18 @@ export default function StoreLandingPage() {
 
         {userData?.userId === store.admin && (
           <div className="flex gap-2">
-            <Link href={`/store/edit/${store.id}`} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-xs flex items-center gap-1">
+            <Link 
+              href={`/store/edit/${store.id}`} 
+              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 
+                rounded-md text-xs flex items-center gap-1">
               <PencilSquareIcon className="w-4 h-4" />
               정보 수정
             </Link>
-            <Link href={`/store/${store.id}/menus`} className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-xs flex items-center gap-1">
+            
+            <Link 
+              href={`/store/${store.id}/menus?name=${encodeURIComponent(store.name)}`}
+              className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 
+                rounded-md text-xs flex items-center gap-1">
               <Squares2X2Icon className="w-4 h-4" />
               메뉴 관리
             </Link>

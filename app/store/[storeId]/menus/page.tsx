@@ -3,17 +3,23 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import MenuList from '@/components/MenuList';
+import { useSearchParams } from 'next/navigation';
 
 export default function MenuManagementPage() {
   const params = useParams();
   const storeId = params.storeId;
+
+  const searchParams = useSearchParams();
+  const storeName = decodeURIComponent(searchParams.get('name') ?? ''); 
 
   if (!storeId || typeof storeId !== 'string') return <p>매장 정보 없음</p>;
 
   return (
     <div className="max-w-5xl mx-auto px-2 py-4 space-y-4">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-        <h3 className="text-xl sm:text-2xl font-bold">메뉴 관리</h3>
+        <h3 className="text-xl sm:text-2xl font-bold">
+          {storeName} 메뉴 관리
+        </h3>
 
         <div className="flex flex-col sm:flex-row gap-2">
           <Link

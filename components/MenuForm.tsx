@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { db, storage } from '@/firebase/firebaseConfig';
-import { addDoc, collection, doc, getDocs, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 import { Menu, MenuPrice, OptionGroup } from '@/types/menu';
 import OptionGroupForm from './OptionGroupForm';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { logEvent } from '@/utils/logger';
 
 interface MenuFormProps {
   storeId: string;
@@ -37,27 +38,44 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
 
   useEffect(() => {
     const fetchCategoriesAndMenus = async () => {
-      const [categorySnap, menuSnap] = await Promise.all([
-        getDocs(collection(db, 'stores', storeId, 'categories')),
-        getDocs(collection(db, 'stores', storeId, 'menus')),
-      ]);
+      try {
+        const [categorySnap, menuSnap] = await Promise.all([
+          getDocs(collection(db, 'stores', storeId, 'categories')),
+          getDocs(collection(db, 'stores', storeId, 'menus')),
+        ]);
 
-      const categoryList = categorySnap.docs.map((doc) => doc.data().name);
-      setCategories(categoryList);
+        const categoryList = categorySnap.docs
+          .map(doc => {
+            const data = doc.data();
+            return {
+              name: data.name,
+              sortOrder: data.sortOrder ?? 0, // 정렬번호가 없으면 0 기본값
+            };
+          })
+          .sort((a, b) => a.sortOrder - b.sortOrder);
 
-      if (!menuData) {
-        setSortOrder(menuSnap.size);
+        setCategories(categoryList.map(cat => cat.name));
+
+      } catch (error) {
+        await logEvent('error', '카테고리 및 메뉴 불러오기 실패', { error });
       }
     };
 
     fetchCategoriesAndMenus();
-  }, [storeId]);
+  }, [storeId, menuData]);
 
   const handleImageUpload = async (): Promise<string> => {
     if (!imageFile) return imageUrl || '';
-    const imageRef = ref(storage, `menus/${storeId}/${uuidv4()}`);
-    await uploadBytes(imageRef, imageFile);
-    return await getDownloadURL(imageRef);
+    try {
+      const imageRef = ref(storage, `menus/${storeId}/${uuidv4()}`);
+      await uploadBytes(imageRef, imageFile);
+      const url = await getDownloadURL(imageRef);
+      return url;
+    } catch (error) {
+      await logEvent('error', '메뉴 이미지 업로드 실패', { error });
+      alert('이미지 업로드 중 오류가 발생했습니다.');
+      return imageUrl || '';
+    }
   };
 
   const handleAddPrice = () => {
@@ -65,13 +83,13 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
       alert('규격명과 가격을 올바르게 입력하세요.');
       return;
     }
-    setPrices(prev => [...prev, { label: sizeLabel, price: sizePrice }]);
+    setPrices((prev) => [...prev, { label: sizeLabel, price: sizePrice }]);
     setSizeLabel('');
     setSizePrice(0);
   };
 
   const handleRemovePrice = (index: number) => {
-    setPrices(prev => prev.filter((_, i) => i !== index));
+    setPrices((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleRemoveOptionGroup = (index: number, isRequired: boolean) => {
@@ -94,41 +112,51 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
       return;
     }
 
-    const uploadedImageUrl = await handleImageUpload();
+    try {
+      const uploadedImageUrl = await handleImageUpload();
 
-    const menu: Omit<Menu, 'id'> = {
-      name,
-      description,
-      category,
-      prices,
-      imageUrl: uploadedImageUrl,
-      isSoldOut,
-      requiredOptions,
-      optionalOptions,
-      sortOrder,
-    };
+      const menu: Omit<Menu, 'id'> = {
+        name,
+        description,
+        category,
+        prices,
+        imageUrl: uploadedImageUrl,
+        isSoldOut,
+        requiredOptions,
+        optionalOptions,
+        sortOrder,
+      };
 
-    if (onSubmit) {
-      await onSubmit(menu);
-    } else {
-      await addDoc(collection(db, 'stores', storeId, 'menus'), {
-        storeId,
-        ...menu,
-      });
-      alert('메뉴가 등록되었습니다.');
+      if (onSubmit) {
+        await onSubmit(menu);
+      } else {
+        await addDoc(collection(db, 'stores', storeId, 'menus'), {
+          storeId,
+          ...menu,
+        });
+        alert('메뉴가 등록되었습니다.');
+      }
+
+      await logEvent('info', '메뉴 등록 완료', { storeId, menuName: name });
+
+      // 초기화
+      setName('');
+      setDescription('');
+      setCategory('');
+      setPrices([]);
+      setSizeLabel('');
+      setSizePrice(0);
+      setImageFile(null);
+      setIsSoldOut(false);
+      setRequiredOptions([]);
+      setOptionalOptions([]);
+      setImageUrl('');
+
+      router.push(`/store/${storeId}/menus`);
+    } catch (error) {
+      await logEvent('error', '메뉴 등록 실패', { storeId, menuName: name, error });
+      alert('메뉴 등록 중 오류가 발생했습니다.');
     }
-
-    setName('');
-    setDescription('');
-    setCategory('');
-    setPrices([]);
-    setSizeLabel('');
-    setSizePrice(0);
-    setImageFile(null);
-    setIsSoldOut(false);
-    setRequiredOptions([]);
-    setOptionalOptions([]);
-    setImageUrl('');
   };
 
   return (
@@ -147,33 +175,9 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
       </h2>
 
       <div className="space-y-2 -mt-6">
-        <input
-          type="text"
-          placeholder="메뉴 이름"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full border p-2 rounded"
-        />
-        <textarea
-          placeholder="설명"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full border p-2 rounded"
-        />
-
+        {/* 카테고리 선택 */}
         <div className="space-y-1">
-          <label className="block font-medium"><strong>정렬 순서</strong></label>
-          <input
-            type="number"
-            min={0}
-            value={sortOrder}
-            onChange={(e) => setSortOrder(Number(e.target.value))}
-            className="w-full border p-2 rounded"
-          />
-        </div>
-
-        <div className="space-y-1">
-          <label className="block font-medium"><strong>카테고리</strong></label>
+          <label className="block font-medium"><strong>카테고리 *</strong></label>
           <div className="flex flex-wrap gap-2 mb-4">
             {categories.map((cat) => (
               <button
@@ -192,6 +196,39 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
             ))}
           </div>
         </div>
+
+        {/* 메뉴 이름 */}
+        <div className="space-y-1">
+          <label className="block font-medium"><strong>메뉴 이름 *</strong></label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label className="block font-medium"><strong>설명</strong></label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label className="block font-medium"><strong>정렬 순서</strong></label>
+          <input
+            type="number"
+            min={0}
+            value={sortOrder}
+            onChange={(e) => setSortOrder(Number(e.target.value))}
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
+        
 
         <label htmlFor="image-upload" className="font-semibold">
           메뉴 이미지
@@ -213,7 +250,7 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold pb-2 mt-2">💰 규격 및 가격</h2>
+        <h2 className="text-lg font-semibold pb-2 mt-2">💰 규격 및 가격 *</h2>
         <div className="flex items-center gap-2 mt-0">
           <input
             type="text"
@@ -357,17 +394,19 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
       </div>
 
       <div className="flex gap-2">
-        <button
-          onClick={handleSubmit}
-          disabled={!name || prices.length === 0 || !category}
-          className={`w-full py-3 rounded text-white font-semibold transition ${
-            !name || prices.length === 0 || !category
-              ? 'bg-blue-600 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700'
-          }`}
-        >
-          ✅ {menuData ? '수정 완료' : '메뉴 등록'}
-        </button>
+        <div className="relative w-full">
+          <button
+            onClick={handleSubmit}
+            disabled={!name || prices.length === 0 || !category}
+            className={`w-full py-3 rounded text-white font-semibold transition ${
+              !name || prices.length === 0 || !category
+                ? 'bg-blue-600 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700'
+            }`}
+          >
+            ✅ {menuData ? '수정 완료' : '메뉴 등록'}
+          </button>
+        </div>
 
         <button
           type="button"

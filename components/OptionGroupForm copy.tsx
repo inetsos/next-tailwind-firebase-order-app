@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { OptionGroup, OptionItem } from '@/types/menu';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -13,18 +13,15 @@ export default function OptionGroupForm({ onAdd, isRequired }: Props) {
   const [groupName, setGroupName] = useState('');
   const [minSelect, setMinSelect] = useState(isRequired ? 1 : 0);
   const [maxSelect, setMaxSelect] = useState(1);
+
   const [options, setOptions] = useState<OptionItem[]>([]);
 
   const addOptionItem = () => {
-    setOptions((prev) => {
-      const updated = [...prev, { id: uuidv4(), name: '', price: 0 }];
-      return updated;
-    });
+    setOptions([
+      ...options,
+      { id: uuidv4(), name: '', price: 0 }
+    ]);
   };
-
-  useEffect(() => {
-    setMaxSelect((prevMax) => Math.min(Math.max(prevMax, options.length), options.length));
-  }, [options]);
 
   const updateOption = (id: string, field: keyof OptionItem, value: any) => {
     setOptions((prev) =>
@@ -33,10 +30,7 @@ export default function OptionGroupForm({ onAdd, isRequired }: Props) {
   };
 
   const removeOption = (id: string) => {
-    setOptions((prev) => {
-      const updated = prev.filter((item) => item.id !== id);    
-      return updated;    
-    });
+    setOptions((prev) => prev.filter((opt) => opt.id !== id));
   };
 
   const handleAddGroup = () => {
@@ -52,7 +46,7 @@ export default function OptionGroupForm({ onAdd, isRequired }: Props) {
       alert('최대 선택 수는 옵션 항목 개수를 초과할 수 없습니다.');
       return;
     }
-    if (options.some((opt) => !opt.name.trim())) {
+    if (options.some(opt => !opt.name.trim())) {
       alert('옵션 항목 이름을 모두 입력하세요.');
       return;
     }
@@ -65,6 +59,7 @@ export default function OptionGroupForm({ onAdd, isRequired }: Props) {
       options,
     });
 
+    // 초기화
     setGroupName('');
     setMinSelect(isRequired ? 1 : 0);
     setMaxSelect(1);
@@ -80,39 +75,35 @@ export default function OptionGroupForm({ onAdd, isRequired }: Props) {
         placeholder="옵션 그룹 이름"
         value={groupName}
         onChange={(e) => setGroupName(e.target.value)}
-        className="w-full border p-2 mb-4"
+        className="w-full border p-2 mb-2"
       />
 
-      {/* min/max 선택 수 */}
-      <div className="flex gap-4 mb-4">
-        <div className="flex flex-col w-1/2">
-          <label className="text-sm font-medium mb-1">최소 선택 수</label>
-          <input
-            type="number"
-            value={minSelect}
-            min={isRequired ? 1 : 0}
-            onChange={(e) => setMinSelect(Number(e.target.value))}
-            onFocus={(e) => e.target.select()}
-            className="border p-2"
-          />
-        </div>
-        <div className="flex flex-col w-1/2">
-          <label className="text-sm font-medium mb-1">최대 선택 수</label>
-          <input
-            type="number"
-            value={maxSelect}
-            min={1}
-            max={options.length}
-            onChange={(e) => setMaxSelect(Number(e.target.value))}
-            onFocus={(e) => e.target.select()}
-            className="border p-2"
-          />
-        </div>
+      <div className="flex gap-2 mb-2">
+        <input
+          type="number"
+          placeholder="최소 선택"
+          value={minSelect}
+          min={isRequired ? 1 : 0}
+          onChange={(e) => setMinSelect(Number(e.target.value))}
+          onFocus={(e) => e.target.select()} // 포커스 시 전체 선택
+          className="border p-2 w-1/2"
+        />
+        <input
+          type="number"
+          placeholder="최대 선택"
+          value={maxSelect}
+          min={1}
+          onChange={(e) => setMaxSelect(Number(e.target.value))}
+          onFocus={(e) => e.target.select()} // 포커스 시 전체 선택
+          className="border p-2 w-1/2"
+        />
       </div>
 
-      {/* 옵션 항목 추가 */}
       <div className="mb-2">
-        <button onClick={addOptionItem} className="text-blue-500 text-sm">
+        <button
+          onClick={addOptionItem}
+          className="text-blue-500 text-sm"
+        >
           + 옵션 항목 추가
         </button>
       </div>
@@ -132,7 +123,7 @@ export default function OptionGroupForm({ onAdd, isRequired }: Props) {
             value={opt.price}
             min={0}
             onChange={(e) => updateOption(opt.id, 'price', Number(e.target.value))}
-            onFocus={(e) => e.target.select()}
+            onFocus={(e) => e.target.select()} // 포커스 시 전체 선택
             className="border p-2 w-1/3"
           />
           <button
@@ -146,7 +137,7 @@ export default function OptionGroupForm({ onAdd, isRequired }: Props) {
 
       <button
         onClick={handleAddGroup}
-        className="mt-4 bg-green-500 text-white px-3 py-1 rounded"
+        className="mt-2 bg-green-500 text-white px-3 py-1 rounded"
       >
         옵션 그룹 추가
       </button>

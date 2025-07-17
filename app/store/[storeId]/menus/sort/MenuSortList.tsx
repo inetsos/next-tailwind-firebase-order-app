@@ -38,22 +38,37 @@ interface CategoryInfo {
 }
 
 function SortableItem({ menu }: { menu: Menu }) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: menu.id });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: menu.id });
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    opacity: isDragging ? 0.5 : 1,
   };
 
   return (
     <li
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
-      className="p-3 border rounded shadow-sm bg-white flex justify-between items-center"
+      className="p-3 border rounded shadow-sm bg-white flex justify-between items-center text-sm"
     >
       <span>{menu.name}</span>
-      <span className="text-xs text-gray-400">({menu.sortOrder})</span>
+      <span
+        {...listeners}
+        {...attributes}
+        onClick={(e) => e.preventDefault()}
+        className="cursor-grab select-none text-lg ml-2"
+        title="드래그로 순서 변경"
+      >
+        ≡
+      </span>
     </li>
   );
 }
@@ -67,7 +82,6 @@ export default function MenuSortList({ storeId }: MenuSortListProps) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // 카테고리 목록 가져오기 (sortOrder 기준 정렬)
         const categorySnapshot = await getDocs(
           query(collection(db, 'stores', storeId, 'categories'), orderBy('sortOrder', 'asc'))
         );
@@ -77,16 +91,18 @@ export default function MenuSortList({ storeId }: MenuSortListProps) {
         }));
         setCategories(categoryList);
 
-        // 메뉴 목록 가져오기 (category, sortOrder 정렬)
         const menuSnapshot = await getDocs(
-          query(collection(db, 'stores', storeId, 'menus'), orderBy('category', 'asc'), orderBy('sortOrder', 'asc'))
+          query(
+            collection(db, 'stores', storeId, 'menus'),
+            orderBy('category', 'asc'),
+            orderBy('sortOrder', 'asc')
+          )
         );
         const items: Menu[] = menuSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         })) as Menu[];
 
-        // 카테고리별 메뉴 그룹화
         const grouped: Record<string, Menu[]> = {};
         items.forEach((menu) => {
           if (!grouped[menu.category]) grouped[menu.category] = [];
@@ -120,11 +136,11 @@ export default function MenuSortList({ storeId }: MenuSortListProps) {
 
     for (const [category, menus] of Object.entries(menusByCategory)) {
       const aIndex = menus.findIndex((m) => m.id === active.id);
+      const oIndex = menus.findIndex((m) => m.id === over.id);
       if (aIndex !== -1) {
         activeCategory = category;
         activeIndex = aIndex;
       }
-      const oIndex = menus.findIndex((m) => m.id === over.id);
       if (oIndex !== -1) {
         overCategory = category;
         overIndex = oIndex;
@@ -133,23 +149,17 @@ export default function MenuSortList({ storeId }: MenuSortListProps) {
 
     if (activeCategory !== overCategory) return;
 
-    const categoryMenus = menusByCategory[activeCategory];
-    let newCategoryMenus = arrayMove(categoryMenus, activeIndex, overIndex);
-
-    // 변경된 순서에 맞춰 sortOrder 재설정
-    newCategoryMenus = newCategoryMenus.map((menu, index) => ({
-      ...menu,
-      sortOrder: index,
-    }));
+    const newMenus = arrayMove(menusByCategory[activeCategory], activeIndex, overIndex).map(
+      (menu, idx) => ({ ...menu, sortOrder: idx })
+    );
 
     setMenusByCategory((prev) => ({
       ...prev,
-      [activeCategory]: newCategoryMenus,
+      [activeCategory]: newMenus,
     }));
 
-    // Firestore에 sortOrder 업데이트
     const batch = writeBatch(db);
-    newCategoryMenus.forEach((menu) => {
+    newMenus.forEach((menu) => {
       const ref = doc(db, 'stores', storeId, 'menus', menu.id);
       batch.update(ref, { sortOrder: menu.sortOrder });
     });
@@ -159,7 +169,7 @@ export default function MenuSortList({ storeId }: MenuSortListProps) {
   if (loading) return <p className="text-center py-10 text-gray-500">⏳ 메뉴 불러오는 중...</p>;
 
   return (
-    <div className="max-w-xl mx-auto mt-4">
+    <div className="max-w-xl mx-auto mt-0 text-sm">
       <div className="text-right -mt-2">
         <button
           onClick={() => router.push(`/store/${storeId}/menus`)}
@@ -169,17 +179,17 @@ export default function MenuSortList({ storeId }: MenuSortListProps) {
         </button>
       </div>
 
-      <h3 className="text-lg font-semibold mb-6">📦 메뉴 순서 정렬 (카테고리별)</h3>
+      <h3 className="text-lg font-semibold mb-2">📦 메뉴 순서 정렬 (카테고리별)</h3>
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         {categories.map(({ name: category }) => {
           const menus = menusByCategory[category] ?? [];
           if (menus.length === 0) return null;
           return (
-            <div key={category} className="mb-8">
-              <h3 className="font-semibold text-md mb-3">{category}</h3>
+            <div key={category} className="mb-4">
+              <h3 className="font-semibold text-md mb-2">{category}</h3>
               <SortableContext items={menus.map((m) => m.id)} strategy={verticalListSortingStrategy}>
-                <ul className="space-y-2">
+                <ul className="space-y-1">
                   {menus.map((menu) => (
                     <SortableItem key={menu.id} menu={menu} />
                   ))}
