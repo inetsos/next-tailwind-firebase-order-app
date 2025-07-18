@@ -67,15 +67,13 @@ export default function CartPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-4">
-
+    <div className="max-w-3xl mx-auto px-2 sm:px-4 py-4">
       <CartView
         cartItems={items}
         onQuantityChange={handleQuantityChange}
         onRemoveItem={handleRemoveItem}
       />
 
-      {/* 품목이 있을 때 장바구니 비우기 + 메뉴 추가 버튼 */}
       {items.length > 0 && (
         <div className="flex justify-center gap-4 mt-6">
           <button
@@ -99,7 +97,6 @@ export default function CartPage() {
         </div>
       )}
 
-      {/* 품목 없을 때 메뉴 추가 버튼만 */}
       {items.length === 0 && (
         <div className="flex justify-center mt-6">
           <button
@@ -120,8 +117,8 @@ export default function CartPage() {
         .btn {
           width: 160px;
           height: 40px;
-          font-size: 0.875rem; /* text-sm */
-          border-radius: 0.375rem; /* rounded-md */
+          font-size: 0.875rem;
+          border-radius: 0.375rem;
           font-weight: 600;
           box-shadow: 0 2px 6px rgba(0,0,0,0.15);
           transition: background-color 0.3s ease;
@@ -133,18 +130,18 @@ export default function CartPage() {
           border: none;
         }
         .btn-red {
-          background-color: #ef4444; /* red-500 */
+          background-color: #ef4444;
           color: white;
         }
         .btn-red:hover {
-          background-color: #dc2626; /* red-600 */
+          background-color: #dc2626;
         }
         .btn-green {
-          background-color: #16a34a; /* green-600 */
+          background-color: #16a34a;
           color: white;
         }
         .btn-green:hover {
-          background-color: #15803d; /* green-700 */
+          background-color: #15803d;
         }
       `}</style>
     </div>

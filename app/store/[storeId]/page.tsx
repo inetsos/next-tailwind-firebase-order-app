@@ -169,9 +169,10 @@ export default function StoreLandingPage() {
 
   return (
     <>
-      <div className="max-w-xl mx-auto p-4 space-y-6">
-        <main className="max-w-xl mx-auto p-4 bg-white dark:bg-gray-900 text-gray-900
-                         dark:text-white shadow-md rounded-md text-sm mb-10">
+      <div className="w-full space-y-6">
+        {/* 매장 정보 메인 섹션 */}
+        <main className="w-full bg-white dark:bg-gray-900 text-gray-900
+                       dark:text-white shadow-md text-sm mb-10 px-4 sm:px-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
             <div className="flex flex-col sm:flex-row sm:items-baseline gap-1">
               <h4 className="font-bold text-sm">{store.name}</h4>
@@ -232,17 +233,18 @@ export default function StoreLandingPage() {
           <div ref={mapRef} className="w-full aspect-video border rounded-md shadow-md dark:border-gray-600" />
         </main>
 
-        {/* 메뉴 영역에 ref 연결 */}
-        <div ref={menuRef}>
+        {/* 메뉴 영역 */}
+        <div ref={menuRef} className="w-full px-4 sm:px-6">
           <MenuByCategory storeId={storeId} />
         </div>
       </div>
 
+      {/* 맨 위로 버튼 */}
       {showScrollTop && (
         <button
           onClick={scrollToTop}
           className="fixed bottom-6 right-6 z-50 bg-blue-600 hover:bg-blue-700
-                     text-white p-3 rounded-full shadow-lg transition-opacity"
+                    text-white p-3 rounded-full shadow-lg transition-opacity"
           aria-label="맨 위로"
         >
           <ArrowUpIcon className="w-5 h-5" />
