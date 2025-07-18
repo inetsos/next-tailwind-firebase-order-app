@@ -233,3 +233,131 @@ npm install axios
 카테고리별로 각 카테고리에 속한 메뉴의 순서를 드래그 앤 드롭으로 변경할 수 있습니다.  
   
 ![지역 커뮤니티 시지 라이프 - 드래그 앱 드롭으로 메뉴 순서 변경](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2Fb1ARsW%2FbtsPnrmDDsS%2FAAAAAAAAAAAAAAAAAAAAAC8--k2MkuYk9MuT4Xb9xWl2to4WCDhQv1Va6a6R_Gg7%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3DuBG2nq6AQZ5R93TXOJ%252BZMEGnPj4%253D)
+
+
+
+```
+next-tailwind-firebase-order-app
+├─ .firebaserc
+├─ app
+│  ├─ favicon.ico
+│  ├─ globals.css
+│  ├─ kakao-callback
+│  │  ├─ KakaoCallbackHandler.tsx
+│  │  └─ page.tsx
+│  ├─ layout.tsx
+│  ├─ login
+│  │  └─ page.tsx
+│  ├─ mypage
+│  │  └─ page.tsx
+│  ├─ naver-callback
+│  │  ├─ NaverCallbackHandler.tsx
+│  │  └─ page.tsx
+│  ├─ naver-map-view
+│  │  ├─ NaverMapViewClient.tsx
+│  │  └─ page.tsx
+│  ├─ page.tsx
+│  ├─ store
+│  │  ├─ edit
+│  │  │  └─ [storeId]
+│  │  │     └─ page.tsx
+│  │  ├─ manage
+│  │  │  └─ page.tsx
+│  │  ├─ register
+│  │  │  └─ page.tsx
+│  │  └─ [storeId]
+│  │     ├─ cart
+│  │     │  └─ page.tsx
+│  │     ├─ categories
+│  │     │  └─ new
+│  │     │     └─ page.tsx
+│  │     ├─ menus
+│  │     │  ├─ new
+│  │     │  │  └─ page.tsx
+│  │     │  ├─ page.tsx
+│  │     │  ├─ sort
+│  │     │  │  ├─ MenuSortList.tsx
+│  │     │  │  └─ page.tsx
+│  │     │  └─ [menuId]
+│  │     │     ├─ edit
+│  │     │     │  └─ page.tsx
+│  │     │     └─ order
+│  │     │        └─ page.tsx
+│  │     └─ page.tsx
+│  └─ store-list
+│     └─ page.tsx
+├─ components
+│  ├─ CartView.tsx
+│  ├─ CategoryManager.tsx
+│  ├─ ErrorBoundaryClient.tsx
+│  ├─ Footer.tsx
+│  ├─ GlobalErrorSetup.tsx
+│  ├─ GoogleRedirectHandler.tsx
+│  ├─ LoginLink.tsx
+│  ├─ MenuByCategory.tsx
+│  ├─ MenuForm.tsx
+│  ├─ MenuList.tsx
+│  ├─ modals
+│  │  ├─ BusinessHoursModal.tsx
+│  │  └─ HolidayRuleModal.tsx
+│  ├─ MyPageContent.tsx
+│  ├─ Navbar.tsx
+│  ├─ OptionGroupForm copy.tsx
+│  ├─ OptionGroupForm.tsx
+│  ├─ PhoneAuth.tsx
+│  ├─ PhoneAuthModal.tsx
+│  └─ StoreList.tsx
+├─ context
+│  └─ CartContext.tsx
+├─ firebase
+│  └─ firebaseConfig.ts
+├─ firebase.json
+├─ functions
+│  ├─ .eslintrc.js
+│  ├─ lib
+│  │  ├─ index.js
+│  │  └─ index.js.map
+│  ├─ package-lock.json
+│  ├─ package.json
+│  ├─ pglite-debug.log
+│  ├─ src
+│  │  └─ index.ts
+│  ├─ tsconfig.dev.json
+│  └─ tsconfig.json
+├─ hooks
+│  ├─ useAuth.ts
+│  ├─ useHandleGoogleRedirectLogin.ts
+│  └─ useUserLocation.ts
+├─ next.config.ts
+├─ package-lock.json
+├─ package.json
+├─ pglite-debug.log
+├─ postcss.config.mjs
+├─ public
+│  ├─ file.svg
+│  ├─ globe.svg
+│  ├─ icons
+│  │  ├─ kakao-logo.png
+│  │  └─ naver-logo.png
+│  ├─ kakao-login.png
+│  ├─ next.svg
+│  ├─ vercel.svg
+│  └─ window.svg
+├─ README.md
+├─ stores
+│  └─ userStore.ts
+├─ tailwind.config.js
+├─ tsconfig.json
+├─ types
+│  ├─ cart.ts
+│  ├─ menu.ts
+│  ├─ naver.d.ts
+│  ├─ store.ts
+│  └─ UserData.ts
+└─ utils
+   ├─ auth.ts
+   ├─ logger.ts
+   ├─ setupGlobalErrorHandler.ts
+   └─ socialLogin.ts
+
+```
