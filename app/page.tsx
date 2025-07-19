@@ -6,6 +6,9 @@ import { Store } from '@/types/store';
 import { convertFirestoreTimestamp } from '@/utils/firestoreUtils';
 
 export default async function Home() {
+  // 사이트 정식 오픈시 전략 필요
+  // - 접속수가 많아지면 리드 카운트가 폭증함, 비용 증가
+  // 추천 사이트 등 활용 가능
   const snapshot = await getDocs(
     query(collection(db, 'stores'), orderBy('createdAt', 'desc'))
   );

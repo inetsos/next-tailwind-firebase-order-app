@@ -81,7 +81,7 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className="fixed top-0 left-0 right-0 z-50 bg-gray-800 text-white px-4 py-3 flex items-center justify-between shadow-md"
+        className="fixed top-0 left-0 right-0 z-50 bg-gray-800 text-white px-4 py-3 flex items-center justify-between shadow-md print:hidden"
         role="navigation"
         aria-label="주요 네비게이션"
       >

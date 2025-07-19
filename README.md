@@ -234,6 +234,8 @@ npm install axios
   
 ![지역 커뮤니티 시지 라이프 - 드래그 앱 드롭으로 메뉴 순서 변경](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2Fb1ARsW%2FbtsPnrmDDsS%2FAAAAAAAAAAAAAAAAAAAAAC8--k2MkuYk9MuT4Xb9xWl2to4WCDhQv1Va6a6R_Gg7%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3DuBG2nq6AQZ5R93TXOJ%252BZMEGnPj4%253D)
 
+npm install dayjs
+npm install react-to-print@latest
 
 
 ```
@@ -352,10 +354,14 @@ next-tailwind-firebase-order-app
 │  ├─ cart.ts
 │  ├─ menu.ts
 │  ├─ naver.d.ts
+│  ├─ order.ts
 │  ├─ store.ts
 │  └─ UserData.ts
 └─ utils
    ├─ auth.ts
+   ├─ cartStorage.ts
+   ├─ firestoreUtils.ts
+   ├─ localCart.ts
    ├─ logger.ts
    ├─ setupGlobalErrorHandler.ts
    └─ socialLogin.ts

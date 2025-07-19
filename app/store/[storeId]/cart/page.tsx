@@ -94,6 +94,18 @@ export default function CartPage() {
           >
             메뉴 추가
           </button>
+
+          <button
+            onClick={() => {
+              if (storeId) {
+                sessionStorage.setItem('scrollToMenu', 'true');
+                router.push(`/store/${storeId}/checkout`);
+              }
+            }}
+            className="btn btn-blue"
+          >
+            주문하기
+          </button>
         </div>
       )}
 
@@ -142,6 +154,14 @@ export default function CartPage() {
         }
         .btn-green:hover {
           background-color: #15803d;
+        }
+
+        .btn-blue {
+          background-color: #2563eb;
+          color: white;
+        }
+        .btn-blue:hover {
+          background-color: #1d4ed8;
         }
       `}</style>
     </div>

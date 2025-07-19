@@ -55,7 +55,10 @@ export default function StoreManagePage() {
       ) : (
         <ul className="space-y-3">
           {stores.map(store => (
-            <li key={store.id} className="p-4 border rounded dark:border-gray-600 dark:text-white">
+            <li
+              key={store.id}
+              className="p-4 border rounded dark:border-gray-600 dark:text-white"
+            >
               <div className="font-semibold">{store.name}</div>
               <div className="text-sm text-gray-500 dark:text-gray-300">
                 {store.category} | {store.address}
@@ -71,7 +74,13 @@ export default function StoreManagePage() {
                   href={`/store/edit/${store.id}`}
                   className="text-blue-600 text-sm underline hover:text-blue-800"
                 >
-                  수정하기
+                  정보 수정
+                </Link>
+                <Link
+                  href={`/store/${store.id}/admin`}
+                  className="ml-auto bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded transition"
+                >
+                  관리하기
                 </Link>
               </div>
             </li>
