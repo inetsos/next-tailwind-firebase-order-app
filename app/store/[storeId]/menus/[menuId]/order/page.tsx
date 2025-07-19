@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Head from 'next/head';
 import { useParams, useRouter } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebase/firebaseConfig';
 import { Menu, OptionGroup } from '@/types/menu';
 import { useCart } from '@/context/CartContext';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 export default function OnlineOrderPage() {
   const params = useParams();
@@ -159,18 +161,26 @@ export default function OnlineOrderPage() {
     };
 
     console.log('장바구니에 추가할 아이템:', itemToAdd);
-
     addItem(storeId, itemToAdd);
-
-    alert('장바구니에 담겼습니다!');
-
+    //alert('장바구니에 담겼습니다!');
     sessionStorage.setItem('scrollToMenu', 'true');
     router.push(`/store/${storeId}`);
   };
 
   return (
     <div className="max-w-md mx-auto p-4">
-      <h1 className="text-lg font-bold mb-2">🛒 {menu.name} 주문</h1>
+      <Head>
+        <title>{menu.name} 주문 - {storeName}</title>
+      </Head>
+      <div className="flex items-center justify-between mb-2 mt-2">
+        <h4 className="text-lg font-bold">🛒 {menu.name} 주문</h4>
+        <button
+          onClick={() => router.push(`/store/${storeId}`)}
+          className="flex items-center text-sm text-blue-600 hover:underline"
+        >
+          <ArrowLeftIcon className="w-4 h-4 mr-1" /> 돌아가기
+        </button>
+      </div>
 
       {menu.imageUrl && (
         <img

@@ -1,8 +1,21 @@
+// app/page.tsx (서버 컴포넌트)
 import StoreList from '@/components/StoreList';
+import { db } from '@/firebase/firebaseConfig';
+import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { Store } from '@/types/store';
+import { convertFirestoreTimestamp } from '@/utils/firestoreUtils';
 
-export default function Home() {
+export default async function Home() {
+  const snapshot = await getDocs(
+    query(collection(db, 'stores'), orderBy('createdAt', 'desc'))
+  );
+
+  const stores: Store[] = snapshot.docs.map(doc =>
+    convertFirestoreTimestamp({ id: doc.id, ...(doc.data() as Omit<Store, 'id'>) })
+  );
+
   return (
-    <div className="w-full px-0 py-6 text-gray-900 dark:text-white">
+    <div className="w-full px-0 py-4 text-gray-900 dark:text-white">
       <div className="px-2 sm:px-4">
         <h1 className="text-3xl font-bold mb-4">시지 라이프</h1>
 
@@ -23,9 +36,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* StoreList에도 동일한 여백 적용 */}
       <div className="px-2 sm:px-4">
-        <StoreList />
+        <StoreList stores={stores} />
       </div>
     </div>
   );

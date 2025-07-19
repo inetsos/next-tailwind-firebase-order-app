@@ -169,13 +169,13 @@ export default function StoreLandingPage() {
 
   return (
     <>
-      <div className="w-full space-y-6">
+      <div className="w-full space-y-6 mt-6 mb-6">
         {/* 매장 정보 메인 섹션 */}
-        <main className="w-full bg-white dark:bg-gray-900 text-gray-900
-                       dark:text-white shadow-md text-sm mb-10 px-4 sm:px-6">
+        <main className="w-full max-w-lg mx-auto bg-white dark:bg-gray-900 text-gray-900
+                       dark:text-white shadow-md text-sm mb-4 pb-4 pt-4 px-4 sm:px-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
             <div className="flex flex-col sm:flex-row sm:items-baseline gap-1">
-              <h4 className="font-bold text-sm">{store.name}</h4>
+              <h4 className="font-bold text-xl">{store.name}</h4>
               <p className="text-gray-600 dark:text-gray-400">{store.category}</p>
             </div>
 
@@ -230,11 +230,14 @@ export default function StoreLandingPage() {
             </div>
           </div>
 
-          <div ref={mapRef} className="w-full aspect-video border rounded-md shadow-md dark:border-gray-600" />
+          <div
+            ref={mapRef}
+            className="relative z-0 w-full aspect-video border rounded-md shadow-md dark:border-gray-600"
+          />
         </main>
 
         {/* 메뉴 영역 */}
-        <div ref={menuRef} className="w-full px-4 sm:px-6">
+        <div ref={menuRef} className="w-full max-w-lg mx-auto px-4 sm:px-6">
           <MenuByCategory storeId={storeId} />
         </div>
       </div>

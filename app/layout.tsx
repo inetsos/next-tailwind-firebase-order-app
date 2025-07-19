@@ -23,7 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
           {/* 네비게이션 고정으로 인한 본문 밀림 방지용 padding-top 추가 */}
           <ErrorBoundaryClient>
-            <main className="flex-1 w-full px-1 sm:px-2 pt-[64px]">
+            <main className="flex-1 w-full  max-w-lg mx-auto px-1 sm:px-2">
               {children}
             </main>
           </ErrorBoundaryClient>

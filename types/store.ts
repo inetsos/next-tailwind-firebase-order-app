@@ -33,3 +33,8 @@ export interface Store {
 
   admin: string;
 }
+
+// distanceKm 포함 확장 타입
+export interface StoreWithDistance extends Store {
+  distanceKm: number;
+}
