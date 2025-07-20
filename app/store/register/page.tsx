@@ -189,9 +189,10 @@ export default function StoreRegisterPage() {
                 type="button"
                 onClick={() => setForm(prev => ({ ...prev, category: c }))}
                 className={`px-3 py-1.5 rounded-full border text-xs transition
-                  ${form.category === c
-                    ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-600'
+                  ${
+                    form.category === c
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-600'
                   }`}
               >
                 {c}
@@ -200,36 +201,45 @@ export default function StoreRegisterPage() {
           </div>
         </div>
 
-        {/* 텍스트 입력 필드 예시 */}
+        {/* 상호명 */}
         <input
           type="text"
           name="name"
           placeholder="상호명"
           value={form.name}
           onChange={handleChange}
-          className="w-full p-2 border text-xs border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-black dark:text-white"
+          className="w-full p-2 border text-xs rounded
+            border-gray-300 bg-white text-black
+            placeholder-gray-400
+            dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
         />
 
-        {/* textarea */}
+        {/* 소개말 */}
         <textarea
           name="description"
           placeholder="소개말"
           value={form.description}
           onChange={handleChange}
-          className="w-full p-2 border text-xs border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-black dark:text-white"
+          className="w-full p-2 border text-xs rounded
+            border-gray-300 bg-white text-black
+            placeholder-gray-400
+            dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
         />
 
-        {/* 영업시간 버튼 */}
+        {/* 영업시간 설정 버튼 */}
         <button
           type="button"
           onClick={() => setShowBusinessHoursModal(true)}
-          className="w-full p-2 border text-xs rounded bg-gray-100 dark:bg-gray-700 dark:text-white"
+          className="w-full p-2 rounded border text-xs
+            bg-gray-100 text-gray-900
+            dark:bg-gray-700 dark:text-white dark:border-gray-600
+            hover:bg-gray-200 dark:hover:bg-gray-600"
         >
           영업시간 설정
         </button>
 
         {/* 설정된 영업시간 보기 */}
-        <div className="text-xs text-gray-600">
+        <div className="text-xs text-gray-600 dark:text-gray-300">
           {Object.entries(form.businessHours).every(([_, h]) => !h.opening && !h.closing) ? (
             <span className="italic">영업시간 미설정</span>
           ) : (
@@ -248,7 +258,10 @@ export default function StoreRegisterPage() {
         <button
           type="button"
           onClick={() => setShowHolidayRuleModal(true)}
-          className="w-full p-2 border text-xs rounded bg-gray-100 dark:bg-gray-700 dark:text-white"
+          className="w-full p-2 rounded border text-xs
+            bg-gray-100 text-gray-900
+            dark:bg-gray-700 dark:text-white dark:border-gray-600
+            hover:bg-gray-200 dark:hover:bg-gray-600"
         >
           휴무일 설정
         </button>
@@ -261,8 +274,7 @@ export default function StoreRegisterPage() {
             : ''} 휴무
         </p>
 
-        
-        {/* 우편번호 및 주소 */}
+        {/* 우편번호 */}
         <input
           type="text"
           name="zipcode"
@@ -270,13 +282,12 @@ export default function StoreRegisterPage() {
           value={form.zipcode}
           readOnly
           onClick={handleAddressSearch}
-          className="w-full p-2 text-xs border border-gray-300 dark:border-gray-600
-                    rounded bg-gray-100 dark:bg-gray-800 
-                    text-black dark:text-white 
-                    placeholder-gray-400 dark:placeholder-gray-500 
-                    cursor-pointer"
+          className="w-full p-2 text-xs rounded border cursor-pointer
+            border-gray-300 bg-gray-100 text-black placeholder-gray-400
+            dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
         />
 
+        {/* 주소 */}
         <input
           type="text"
           name="address"
@@ -284,27 +295,24 @@ export default function StoreRegisterPage() {
           value={form.address}
           readOnly
           onClick={handleAddressSearch}
-          className="w-full p-2 text-xs border border-gray-300 dark:border-gray-600 
-                    rounded bg-gray-100 dark:bg-gray-800 
-                    text-black dark:text-white 
-                    placeholder-gray-400 dark:placeholder-gray-500 
-                    cursor-pointer"
+          className="w-full p-2 text-xs rounded border cursor-pointer
+            border-gray-300 bg-gray-100 text-black placeholder-gray-400
+            dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
         />
 
+        {/* 상세주소 */}
         <input
           type="text"
           name="detailAddress"
           placeholder="상세주소"
           value={form.detailAddress}
           onChange={handleChange}
-          className="w-full p-2 text-xs border border-gray-300 dark:border-gray-600 
-                    rounded bg-white dark:bg-gray-800 
-                    text-black dark:text-white 
-                    placeholder-gray-400 dark:placeholder-gray-500"
+          className="w-full p-2 text-xs rounded border
+            border-gray-300 bg-white text-black placeholder-gray-400
+            dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
         />
 
-        
-        {/* 위도 / 경도 필드 */}
+        {/* 위도 / 경도 */}
         <div className="flex gap-4">
           <input
             type="text"
@@ -313,8 +321,9 @@ export default function StoreRegisterPage() {
             value={form.latitude}
             readOnly
             onClick={handleOpenMap}
-            className="w-full p-2 border text-xs border-gray-300 dark:border-gray-600 
-                      rounded bg-gray-100 dark:bg-gray-800 text-black dark:text-white"
+            className="w-full p-2 rounded border text-xs cursor-pointer
+              border-gray-300 bg-gray-100 text-black
+              dark:border-gray-600 dark:bg-gray-800 dark:text-white"
           />
           <input
             type="text"
@@ -323,16 +332,17 @@ export default function StoreRegisterPage() {
             value={form.longitude}
             readOnly
             onClick={handleOpenMap}
-            className="w-full p-2 text-xs border border-gray-300 dark:border-gray-600 rounded
-                       bg-gray-100 dark:bg-gray-800 text-black dark:text-white"
+            className="w-full p-2 rounded border text-xs cursor-pointer
+              border-gray-300 bg-gray-100 text-black
+              dark:border-gray-600 dark:bg-gray-800 dark:text-white"
           />
         </div>
 
         {/* 등록 버튼 */}
         <button
           type="submit"
-          className="w-full text-xs bg-blue-600 text-white py-2 rounded hover:bg-blue-700
-                   dark:hover:bg-blue-500"
+          className="w-full text-xs py-2 rounded bg-blue-600 text-white
+            hover:bg-blue-700 dark:hover:bg-blue-500 transition-colors"
         >
           등록하기
         </button>

@@ -160,11 +160,11 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
   };
 
   return (
-    <div className="space-y-6 text-sm max-w-xl mx-auto p-4 bg-white rounded shadow">
+    <div className="space-y-6 text-sm max-w-xl mx-auto p-4 bg-white rounded shadow dark:bg-gray-900 dark:text-gray-100">
       <div className="text-right -mt-2">
         <button
           onClick={() => router.push(`/store/${storeId}/menus`)}
-          className="text-blue-600 hover:underline text-sm"
+          className="text-blue-600 hover:underline text-sm dark:text-blue-400"
         >
           ← 메뉴 관리
         </button>
@@ -187,8 +187,8 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
                 className={`px-4 py-1 rounded-full border text-sm transition 
                   ${
                     category === cat
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+                      ? 'bg-blue-600 text-white border-blue-600 dark:bg-blue-500'
+                      : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700'
                   }`}
               >
                 {cat}
@@ -204,7 +204,7 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full border p-2 rounded"
+            className="w-full border p-2 rounded bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
           />
         </div>
 
@@ -213,7 +213,7 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full border p-2 rounded"
+            className="w-full border p-2 rounded bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
           />
         </div>
 
@@ -224,11 +224,9 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
             min={0}
             value={sortOrder}
             onChange={(e) => setSortOrder(Number(e.target.value))}
-            className="w-full border p-2 rounded"
+            className="w-full border p-2 rounded bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
           />
         </div>
-
-        
 
         <label htmlFor="image-upload" className="font-semibold">
           메뉴 이미지
@@ -238,13 +236,13 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
           type="file"
           accept="image/*"
           onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-          className="w-full"
+          className="w-full text-gray-700 dark:text-gray-300"
         />
         {imageUrl && !imageFile && (
           <img
             src={imageUrl}
             alt="미리보기"
-            className="w-24 h-24 object-cover rounded border mt-2"
+            className="w-24 h-24 object-cover rounded border mt-2 dark:border-gray-700"
           />
         )}
       </div>
@@ -257,7 +255,7 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
             placeholder="규격"
             value={sizeLabel}
             onChange={(e) => setSizeLabel(e.target.value)}
-            className="border p-2 rounded w-1/3"
+            className="border p-2 rounded w-1/3 bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
           />
           <input
             type="number"
@@ -265,12 +263,12 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
             value={sizePrice}
             onChange={(e) => setSizePrice(Number(e.target.value))}
             onFocus={(e) => e.target.select()}
-            className="border p-2 rounded w-1/3"
+            className="border p-2 rounded w-1/3 bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
           />
           <button
             type="button"
             onClick={handleAddPrice}
-            className="bg-green-600 text-white px-4 py-2 rounded w-1/3 hover:bg-green-700 whitespace-nowrap"
+            className="bg-green-600 text-white px-4 py-2 rounded w-1/3 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 whitespace-nowrap"
           >
             추가
           </button>
@@ -281,13 +279,13 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
             {prices.map((p, idx) => (
               <li
                 key={idx}
-                className="flex items-center gap-4 bg-gray-50 p-2 rounded border"
+                className="flex items-center gap-4 bg-gray-50 dark:bg-gray-800 p-2 rounded border dark:border-gray-700"
               >
                 <span className="w-1/3 truncate">{p.label}</span>
                 <span className="w-1/3">{p.price.toLocaleString()}원</span>
                 <button
                   onClick={() => handleRemovePrice(idx)}
-                  className="text-red-500 hover:text-red-700 text-xs bg-white border px-2 py-1 rounded"
+                  className="text-red-500 hover:text-red-700 text-xs bg-white border px-2 py-1 rounded dark:bg-gray-900 dark:border-red-700 dark:text-red-400 dark:hover:text-red-600"
                 >
                   삭제
                 </button>
@@ -317,7 +315,7 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
         {requiredOptions.length > 0 && (
           <ul className="mt-2 space-y-2 text-sm">
             {requiredOptions.map((group, groupIdx) => (
-              <li key={groupIdx} className="p-2 border rounded bg-gray-50">
+              <li key={groupIdx} className="p-2 border rounded bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
                 <div className="flex justify-between items-center">
                   <strong>{group.name}</strong>
                   <button
@@ -360,7 +358,7 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
         {optionalOptions.length > 0 && (
           <ul className="mt-2 space-y-2 text-sm">
             {optionalOptions.map((group, groupIdx) => (
-              <li key={groupIdx} className="p-2 border rounded bg-gray-50">
+              <li key={groupIdx} className="p-2 border rounded bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
                 <div className="flex justify-between items-center">
                   <strong>{group.name}</strong>
                   <button
@@ -400,8 +398,8 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
             disabled={!name || prices.length === 0 || !category}
             className={`w-full py-3 rounded text-white font-semibold transition ${
               !name || prices.length === 0 || !category
-                ? 'bg-blue-600 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700'
+                ? 'bg-blue-600 dark:bg-blue-600 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600'
             }`}
           >
             ✅ {menuData ? '수정 완료' : '메뉴 등록'}
@@ -411,7 +409,7 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
         <button
           type="button"
           onClick={() => router.push(`/store/${storeId}/menus`)}
-          className="w-full py-3 rounded border border-gray-300  bg-gray-50 text-gray-700 font-semibold hover:bg-gray-100"
+          className="w-full py-3 rounded border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-100 font-semibold hover:bg-gray-100 dark:hover:bg-gray-700"
         >
           ❌ 취소
         </button>

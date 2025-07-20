@@ -1,4 +1,3 @@
-// components/CategoryManager.tsx
 'use client';
 
 import {
@@ -89,10 +88,8 @@ const CategoryManager = forwardRef<CategoryManagerRef, CategoryManagerProps>(
       const newIndex = categories.findIndex((c) => c.id === over.id);
       const reordered = arrayMove(categories, oldIndex, newIndex);
 
-      // 1) UI 즉시 반영
       setCategories(reordered);
 
-      // 2) Firestore 업데이트
       await Promise.all(
         reordered.map((cat, idx) =>
           updateDoc(doc(db, 'stores', storeId, 'categories', cat.id), {
@@ -101,13 +98,14 @@ const CategoryManager = forwardRef<CategoryManagerRef, CategoryManagerProps>(
         )
       );
 
-      // 3) 업데이트 완료 후 다시 최신 데이터 불러오기 (DB와 완전 동기화)
       await fetchCategories();
     };
 
     return (
       <div className="mb-6">
-        <h2 className="text-sm font-semibold mb-2">📋 등록된 카테고리</h2>
+        <h2 className="text-sm font-semibold mb-2 text-gray-900 dark:text-white">
+          📋 등록된 카테고리
+        </h2>
 
         <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext
@@ -155,24 +153,30 @@ function SortableCategoryItem({
     <li
       ref={setNodeRef}
       style={style}
-      className="p-2 border rounded bg-gray-50 flex items-center justify-between gap-2"
+      className="p-2 border border-gray-200 dark:border-gray-700 rounded bg-gray-50 dark:bg-gray-800 flex items-center justify-between gap-2"
     >
-      <div {...attributes} {...listeners} className="cursor-move text-gray-400 select-none pr-2">
+      <div
+        {...attributes}
+        {...listeners}
+        className="cursor-move text-gray-400 dark:text-gray-500 select-none pr-2"
+      >
         ≡
       </div>
 
-      <span className="flex-1 truncate">{category.name}</span>
+      <span className="flex-1 truncate text-gray-900 dark:text-gray-100">
+        {category.name}
+      </span>
 
       <input
         type="number"
         value={category.sortOrder}
         onChange={(e) => onSortChange(category.id, Number(e.target.value))}
-        className="w-16 border p-1 rounded text-xs"
+        className="w-16 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-xs text-black dark:text-white p-1 rounded"
       />
 
       <button
         onClick={() => onDelete(category.id)}
-        className="text-red-500 text-xs hover:underline"
+        className="text-red-500 dark:text-red-400 text-xs hover:underline"
       >
         삭제
       </button>

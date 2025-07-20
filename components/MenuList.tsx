@@ -50,12 +50,12 @@ export default function MenuList({ storeId }: MenuListProps) {
     fetchData();
   }, [storeId]);
 
-  if (loading) return <p className="text-center text-sm">⏳ 메뉴 불러오는 중...</p>;
-  if (menus.length === 0) return <p className="text-center text-sm">📭 등록된 메뉴가 없습니다.</p>;
+  if (loading) return <p className="text-center text-sm text-gray-600 dark:text-gray-300">⏳ 메뉴 불러오는 중...</p>;
+  if (menus.length === 0) return <p className="text-center text-sm text-gray-600 dark:text-gray-300">📭 등록된 메뉴가 없습니다.</p>;
 
   return (
     <div className="mt-4 space-y-6 px-2">
-      <h2 className="text-lg font-semibold">🍽 카테고리별 메뉴</h2>
+      <h2 className="text-lg font-semibold text-gray-900 dark:text-white">🍽 카테고리별 메뉴</h2>
 
       {categories.map((category) => {
         const categoryMenus = menus
@@ -66,13 +66,13 @@ export default function MenuList({ storeId }: MenuListProps) {
 
         return (
           <div key={category.name}>
-            <h3 className="text-base font-bold text-gray-700 mb-2">📂 {category.name}</h3>
+            <h3 className="text-base font-bold text-gray-700 dark:text-white mb-2">📂 {category.name}</h3>
 
             <div className="space-y-4">
               {categoryMenus.map((menu) => (
                 <div
                   key={menu.id}
-                  className="border border-gray-200 rounded p-3 shadow-sm bg-white space-y-3 relative"
+                  className="border border-gray-200 dark:border-gray-700 rounded p-3 shadow-sm bg-white dark:bg-gray-800 space-y-3 relative"
                 >
                   <Link
                     href={`/store/${storeId}/menus/${menu.id}/edit`}
@@ -85,23 +85,23 @@ export default function MenuList({ storeId }: MenuListProps) {
                     <img
                       src={menu.imageUrl}
                       alt={menu.name}
-                      className="w-full aspect-video object-cover rounded border"
+                      className="w-full aspect-video object-cover rounded border dark:border-gray-700"
                     />
                   )}
 
                   <div>
                     <div className="flex justify-between items-center flex-wrap gap-y-1">
-                      <h3 className="text-base font-medium">{menu.name}</h3>
+                      <h3 className="text-base font-medium text-gray-900 dark:text-gray-100">{menu.name}</h3>
                       {menu.isSoldOut && (
                         <span className="text-xs text-red-600 font-medium">품절</span>
                       )}
                     </div>
 
-                    <p className="text-sm text-gray-600 break-words whitespace-pre-line">
+                    <p className="text-sm text-gray-600 dark:text-gray-300 break-words whitespace-pre-line">
                       {menu.description}
                     </p>
 
-                    <ul className="text-sm text-gray-800 mt-2 space-y-1">
+                    <ul className="text-sm text-gray-800 dark:text-gray-200 mt-2 space-y-1">
                       {menu.prices.map((price, idx) => (
                         <li key={idx}>
                           💰 {price.label} - {price.price.toLocaleString()}원
@@ -111,7 +111,7 @@ export default function MenuList({ storeId }: MenuListProps) {
                   </div>
 
                   {menu.requiredOptions?.length > 0 && (
-                    <div className="text-sm mt-2">
+                    <div className="text-sm mt-2 text-gray-800 dark:text-gray-200">
                       <strong>⚙️ 필수 옵션</strong>
                       <ul className="ml-4 list-disc space-y-1">
                         {menu.requiredOptions.map((group, idx) => (
@@ -131,7 +131,7 @@ export default function MenuList({ storeId }: MenuListProps) {
                   )}
 
                   {menu.optionalOptions?.length > 0 && (
-                    <div className="text-sm mt-2">
+                    <div className="text-sm mt-2 text-gray-800 dark:text-gray-200">
                       <strong>🧩 선택 옵션</strong>
                       <ul className="ml-4 list-disc space-y-1">
                         {menu.optionalOptions.map((group, idx) => (

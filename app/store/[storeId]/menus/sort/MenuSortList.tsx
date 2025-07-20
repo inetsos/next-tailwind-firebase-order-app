@@ -57,14 +57,15 @@ function SortableItem({ menu }: { menu: Menu }) {
     <li
       ref={setNodeRef}
       style={style}
-      className="p-3 border rounded shadow-sm bg-white flex justify-between items-center text-sm"
+      className="p-3 border rounded shadow-sm bg-white flex justify-between items-center text-sm
+                 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
     >
       <span>{menu.name}</span>
       <span
         {...listeners}
         {...attributes}
         onClick={(e) => e.preventDefault()}
-        className="cursor-grab select-none text-lg ml-2"
+        className="cursor-grab select-none text-lg ml-2 text-gray-500 dark:text-gray-400"
         title="드래그로 순서 변경"
       >
         ≡
@@ -166,14 +167,19 @@ export default function MenuSortList({ storeId }: MenuSortListProps) {
     await batch.commit();
   };
 
-  if (loading) return <p className="text-center py-10 text-gray-500">⏳ 메뉴 불러오는 중...</p>;
+  if (loading)
+    return (
+      <p className="text-center py-10 text-gray-500 dark:text-gray-400">
+        ⏳ 메뉴 불러오는 중...
+      </p>
+    );
 
   return (
-    <div className="max-w-xl mx-auto mt-0 text-sm">
+    <div className="max-w-xl mx-auto mt-0 text-sm dark:text-gray-100">
       <div className="text-right -mt-2">
         <button
           onClick={() => router.push(`/store/${storeId}/menus`)}
-          className="text-blue-600 hover:underline text-sm"
+          className="text-blue-600 hover:underline text-sm dark:text-blue-400"
         >
           ← 메뉴 관리
         </button>
