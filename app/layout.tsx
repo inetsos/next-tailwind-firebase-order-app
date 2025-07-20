@@ -10,6 +10,9 @@ import { CartProvider } from '@/context/CartContext';
 export const metadata: Metadata = {
   title: '지역 커뮤니티 - 시지 라이프',
   description: 'Next.js + Tailwind Layout Example',
+  verification: {
+    google: 'f6qg1AVUd-2giHuyqps-X1yc7J1B0-ZNQi5p-j9DDaA',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
