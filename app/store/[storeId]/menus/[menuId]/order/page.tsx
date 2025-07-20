@@ -24,7 +24,9 @@ export default function OnlineOrderPage() {
   const [selectedPriceIdx, setSelectedPriceIdx] = useState<number>(0);
   const [quantity, setQuantity] = useState<number>(1);
 
+  // 필수 옵션은 그룹별로 선택된 옵션 인덱스를 저장 (ex: [0, 2, -1])
   const [selectedRequiredOptions, setSelectedRequiredOptions] = useState<number[]>([]);
+  // 선택 옵션은 그룹별로 선택된 옵션 인덱스 배열 저장 (ex: [[0,2], [1]])
   const [selectedOptionalOptions, setSelectedOptionalOptions] = useState<number[][]>([]);
 
   const { addItem } = useCart();
@@ -83,6 +85,7 @@ export default function OnlineOrderPage() {
 
   const selectedPrice = menu.prices[selectedPriceIdx];
 
+  // 필수 옵션 가격 합산
   const requiredOptionsPrice = selectedRequiredOptions.reduce((sum, optionIdx, groupIdx) => {
     const group = menu.requiredOptions?.[groupIdx];
     if (!group) return sum;
@@ -90,6 +93,7 @@ export default function OnlineOrderPage() {
     return sum + (group.options[optionIdx]?.price || 0);
   }, 0);
 
+  // 선택 옵션 가격 합산
   const optionalOptionsPrice = selectedOptionalOptions.reduce((sum, optionIndexes, groupIdx) => {
     const group = menu.optionalOptions?.[groupIdx];
     if (!group) return sum;
@@ -101,6 +105,7 @@ export default function OnlineOrderPage() {
 
   const total = (selectedPrice.price + requiredOptionsPrice + optionalOptionsPrice) * quantity;
 
+  // 필수 옵션 선택 변경 핸들러
   const onChangeRequiredOption = (groupIdx: number, optionIdx: number) => {
     setSelectedRequiredOptions(prev => {
       const newArr = [...prev];
@@ -110,6 +115,7 @@ export default function OnlineOrderPage() {
     });
   };
 
+  // 선택 옵션 토글 핸들러
   const onToggleOptionalOption = (groupIdx: number, optionIdx: number) => {
     setSelectedOptionalOptions(prev => {
       const newArr = [...prev];
@@ -118,6 +124,12 @@ export default function OnlineOrderPage() {
         newArr[groupIdx] = groupSelected.filter(idx => idx !== optionIdx);
         console.log(`선택 옵션 해제 - 그룹 ${groupIdx}, 옵션 ${optionIdx}`);
       } else {
+        // 최대 선택 개수 제한 확인
+        const group = menu.optionalOptions?.[groupIdx];
+        if (group && groupSelected.length >= group.maxSelect) {
+          alert(`선택 옵션은 최대 ${group.maxSelect}개까지 선택 가능합니다.`);
+          return prev; // 변경 없음
+        }
         newArr[groupIdx] = [...groupSelected, optionIdx];
         console.log(`선택 옵션 선택 - 그룹 ${groupIdx}, 옵션 ${optionIdx}`);
       }
@@ -125,11 +137,13 @@ export default function OnlineOrderPage() {
     });
   };
 
+  // 가격 옵션 변경 핸들러
   const onChangePriceOption = (priceIdx: number) => {
     setSelectedPriceIdx(priceIdx);
     console.log(`가격 옵션 변경 - 인덱스: ${priceIdx}`);
   };
 
+  // 주문 처리 함수
   const handleOrder = () => {
     if (menu.requiredOptions?.some((_, idx) => selectedRequiredOptions[idx] === -1)) {
       alert('필수 옵션을 모두 선택해주세요.');
@@ -162,21 +176,20 @@ export default function OnlineOrderPage() {
 
     console.log('장바구니에 추가할 아이템:', itemToAdd);
     addItem(storeId, itemToAdd);
-    //alert('장바구니에 담겼습니다!');
     sessionStorage.setItem('scrollToMenu', 'true');
     router.push(`/store/${storeId}`);
   };
 
   return (
-    <div className="max-w-md mx-auto p-4">
+    <div className="max-w-md mx-auto p-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
       <Head>
         <title>{menu.name} 주문 - {storeName}</title>
       </Head>
-      <div className="flex items-center justify-between mb-2 mt-2">
+      <div className="flex items-center justify-between mb-4 mt-2">
         <h4 className="text-lg font-bold">🛒 {menu.name} 주문</h4>
         <button
           onClick={() => router.push(`/store/${storeId}`)}
-          className="flex items-center text-sm text-blue-600 hover:underline"
+          className="flex items-center text-sm text-blue-600 hover:underline dark:text-blue-400"
         >
           <ArrowLeftIcon className="w-4 h-4 mr-1" /> 돌아가기
         </button>
@@ -186,23 +199,24 @@ export default function OnlineOrderPage() {
         <img
           src={menu.imageUrl}
           alt={menu.name}
-          className="w-full aspect-video object-cover rounded border mb-4"
+          className="w-full aspect-video object-cover rounded border mb-4 border-gray-300 dark:border-gray-700"
         />
       )}
 
-      <p className="text-sm text-gray-700 mb-2 whitespace-pre-line">{menu.description}</p>
+      <p className="text-sm mb-4 whitespace-pre-line text-gray-700 dark:text-gray-300">{menu.description}</p>
 
-      {/* 가격 옵션 - 라디오 버튼 리스트 */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">가격</label>
-        <fieldset className="border rounded p-2 bg-gray-50">
+      {/* 가격 옵션 */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium mb-2">가격</label>
+        <fieldset className="border rounded p-3 bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700">
           {menu.prices.map((price, idx) => (
-            <label key={idx} className="flex items-center gap-2 text-sm mb-1">
+            <label key={idx} className="flex items-center gap-2 text-sm mb-2 cursor-pointer">
               <input
                 type="radio"
                 name="price-option"
                 checked={selectedPriceIdx === idx}
                 onChange={() => onChangePriceOption(idx)}
+                className="cursor-pointer"
               />
               <span>{price.label} - {price.price.toLocaleString()}원</span>
             </label>
@@ -212,23 +226,30 @@ export default function OnlineOrderPage() {
 
       {/* 필수 옵션 */}
       {menu.requiredOptions && menu.requiredOptions.length > 0 && (
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">필수 옵션 선택</label>
+        <div className="mb-6">
+          <label className="block text-sm font-medium mb-2">필수 옵션 선택</label>
           {menu.requiredOptions.map((group, gIdx) => (
-            <fieldset key={group.id} className="mb-3 border rounded p-2 bg-gray-50">
-              <legend className="font-semibold">
+            <fieldset
+              key={group.id}
+              className="mb-4 border rounded p-3 bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700"
+            >
+              <legend className="font-semibold mb-2">
                 {group.name}{' '}
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-500 dark:text-gray-400">
                   (최소 {group.minSelect}개, 최대 {group.maxSelect}개)
                 </span>
               </legend>
               {group.options.map((opt, oIdx) => (
-                <label key={opt.id} className="flex items-center gap-2 text-sm">
+                <label
+                  key={opt.id}
+                  className="flex items-center gap-2 text-sm mb-1 cursor-pointer"
+                >
                   <input
                     type="radio"
                     name={`required-group-${gIdx}`}
                     checked={selectedRequiredOptions[gIdx] === oIdx}
                     onChange={() => onChangeRequiredOption(gIdx, oIdx)}
+                    className="cursor-pointer"
                   />
                   <span>{opt.name} (+{opt.price.toLocaleString()}원)</span>
                 </label>
@@ -240,18 +261,24 @@ export default function OnlineOrderPage() {
 
       {/* 선택 옵션 */}
       {menu.optionalOptions && menu.optionalOptions.length > 0 && (
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">선택 옵션</label>
+        <div className="mb-6">
+          <label className="block text-sm font-medium mb-2">선택 옵션</label>
           {menu.optionalOptions.map((group, gIdx) => (
-            <fieldset key={group.id} className="mb-3 border rounded p-2 bg-gray-50">
-              <legend className="font-semibold">
+            <fieldset
+              key={group.id}
+              className="mb-4 border rounded p-3 bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700"
+            >
+              <legend className="font-semibold mb-2">
                 {group.name}{' '}
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-500 dark:text-gray-400">
                   (최소 {group.minSelect}개, 최대 {group.maxSelect}개)
                 </span>
               </legend>
               {group.options.map((opt, oIdx) => (
-                <label key={opt.id} className="flex items-center gap-2 text-sm">
+                <label
+                  key={opt.id}
+                  className="flex items-center gap-2 text-sm mb-1 cursor-pointer"
+                >
                   <input
                     type="checkbox"
                     checked={selectedOptionalOptions[gIdx]?.includes(oIdx) || false}
@@ -260,6 +287,7 @@ export default function OnlineOrderPage() {
                       selectedOptionalOptions[gIdx]?.length >= group.maxSelect &&
                       !selectedOptionalOptions[gIdx]?.includes(oIdx)
                     }
+                    className="cursor-pointer"
                   />
                   <span>{opt.name} (+{opt.price.toLocaleString()}원)</span>
                 </label>
@@ -270,13 +298,13 @@ export default function OnlineOrderPage() {
       )}
 
       {/* 수량 */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">수량</label>
+      <div className="mb-6">
+        <label className="block text-sm font-medium mb-2">수량</label>
         <div className="flex w-full">
           <button
             type="button"
             onClick={() => setQuantity(q => Math.max(1, q - 1))}
-            className="w-12 border rounded-l flex items-center justify-center text-lg select-none"
+            className="w-12 border rounded-l flex items-center justify-center text-lg select-none border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
           >
             −
           </button>
@@ -290,13 +318,13 @@ export default function OnlineOrderPage() {
               if (val >= 1) setQuantity(val);
               else if (e.target.value === '') setQuantity(1);
             }}
-            className="flex-grow text-center border-t border-b px-2 py-1"
+            className="flex-grow text-center border-t border-b px-2 py-1 bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100"
             style={{ outline: 'none' }}
           />
           <button
             type="button"
             onClick={() => setQuantity(q => q + 1)}
-            className="w-12 border rounded-r flex items-center justify-center text-lg select-none"
+            className="w-12 border rounded-r flex items-center justify-center text-lg select-none border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
           >
             +
           </button>

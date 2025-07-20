@@ -1,4 +1,3 @@
-// components/MenuByCategory.tsx
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
@@ -63,15 +62,16 @@ export default function MenuByCategory({ storeId }: MenuByCategoryProps) {
   if (loading) return <p className="text-center text-sm">⏳ 메뉴 불러오는 중...</p>;
   if (menus.length === 0) return <p className="text-center text-sm">📭 등록된 메뉴가 없습니다.</p>;
 
-  return (    
+  return (
     <div className="space-y-6">
-      
-      {/* 카테고리 칩 버튼 */}
+      {/* 카테고리 버튼 */}
       <div className="flex flex-wrap gap-2 mb-4">
         {categories.map((category) => (
           <button
             key={category.name}
-            className="px-3 py-1 rounded-full border border-gray-400 text-sm hover:bg-gray-200 dark:hover:bg-gray-700"
+            className="px-3 py-1 rounded-full border border-gray-400 text-sm 
+                       hover:bg-gray-200 dark:hover:bg-gray-700 
+                       dark:border-gray-600 dark:text-white"
             onClick={() => handleCategoryClick(category.name)}
             type="button"
           >
@@ -94,34 +94,43 @@ export default function MenuByCategory({ storeId }: MenuByCategoryProps) {
             ref={(el) => {
               categoryRefs.current[category.name] = el;
             }}
-          >            
-            <h3 className="text-base font-bold text-gray-700 mb-2">📂 {category.name}</h3>
+          >
+            <h3 className="text-base font-bold text-gray-700 dark:text-white mb-2">
+              📂 {category.name}
+            </h3>
 
             <div className="space-y-4">
               {categoryMenus.map((menu) => (
                 <Link
                   key={menu.id}
                   href={`/store/${storeId}/menus/${menu.id}/order`}
-                  className="block border border-gray-200 rounded p-3 shadow-sm bg-white space-y-2 hover:shadow-md transition-shadow"
+                  className="block border border-gray-200 dark:border-gray-700 rounded p-3 
+                             shadow-sm bg-white dark:bg-gray-900 
+                             text-gray-900 dark:text-gray-100 
+                             hover:shadow-md transition-shadow"
                 >
                   {menu.imageUrl && (
                     <img
                       src={menu.imageUrl}
                       alt={menu.name}
-                      className="w-full aspect-video object-cover rounded border"
+                      className="w-full aspect-video object-cover rounded border border-gray-300 dark:border-gray-700"
                     />
                   )}
 
                   <div className="flex justify-between items-center flex-wrap gap-y-1">
-                    <h4 className="text-base font-medium">{menu.name}</h4>
-                    {menu.isSoldOut && <span className="text-xs text-red-600 font-medium">품절</span>}
+                    <h4 className="text-base font-medium text-gray-900 dark:text-white">
+                      {menu.name}
+                    </h4>
+                    {menu.isSoldOut && (
+                      <span className="text-xs text-red-600 font-medium">품절</span>
+                    )}
                   </div>
 
-                  <p className="text-sm text-gray-600 break-words whitespace-pre-line">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 break-words whitespace-pre-line">
                     {menu.description}
                   </p>
 
-                  <ul className="text-sm text-gray-800 mt-2 space-y-1">
+                  <ul className="text-sm text-gray-800 dark:text-gray-200 mt-2 space-y-1">
                     {menu.prices.map((price, idx) => (
                       <li key={idx}>
                         💰 {price.label} - {price.price.toLocaleString()}원

@@ -135,7 +135,7 @@ export default function OrderReceipt() {
         <div className="flex justify-center print:hidden">
           <button 
             onClick={reactToPrintFn}
-            className="flex flex-row items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium border
+            className="flex flex-row items-center mt-2 gap-1 px-3 py-1.5 rounded-full text-xs font-medium border
                      bg-white text-gray-700 border-gray-300 hover:bg-gray-100 active:bg-gray-200 
                      transition-all duration-200 print:hidden"
           >

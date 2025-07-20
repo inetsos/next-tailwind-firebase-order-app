@@ -25,11 +25,10 @@ export default function StoreLandingPage() {
   const [loading, setLoading] = useState(true);
   const [showAllBusinessHours, setShowAllBusinessHours] = useState(false);
   const mapRef = useRef<HTMLDivElement | null>(null);
-  const menuRef = useRef<HTMLDivElement | null>(null); // 메뉴 영역 참조
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const { userData } = useUserStore();
   const [showScrollTop, setShowScrollTop] = useState(false);
 
-  // 스크롤 버튼 노출 제어
   useEffect(() => {
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 300);
@@ -55,7 +54,6 @@ export default function StoreLandingPage() {
     });
   };
 
-  // 매장 데이터 로드
   useEffect(() => {
     if (!storeId) return router.push('/');
     const fetchStore = async () => {
@@ -68,26 +66,21 @@ export default function StoreLandingPage() {
     fetchStore();
   }, [storeId, router]);
 
-  // 주문 후 돌아온 경우 메뉴 영역으로 스크롤
   useEffect(() => {
-    if (!store) return; // store가 준비되어야 메뉴 영역 렌더됨
-
+    if (!store) return;
     const scrolledFromOrder = sessionStorage.getItem('scrollToMenu') === 'true';
     if (scrolledFromOrder) {
       setTimeout(() => {
         if (menuRef.current) {
-          const navbarHeight = 56; // 고정 navbar 높이(px), 상황에 맞게 조절하세요
+          const navbarHeight = 56;
           const menuTop = menuRef.current.getBoundingClientRect().top + window.pageYOffset;
           window.scrollTo({ top: menuTop - navbarHeight, behavior: 'smooth' });
           sessionStorage.removeItem('scrollToMenu');
-        } else {
-          console.warn('menuRef.current is still null');
         }
       }, 100);
     }
   }, [store]);
 
-  // 지도 표시
   useEffect(() => {
     if (!store || !mapRef.current) return;
     const initMap = async () => {
@@ -96,10 +89,12 @@ export default function StoreLandingPage() {
       const position = new window.naver.maps.LatLng(+latitude, +longitude);
       const map = new window.naver.maps.Map(mapRef.current, { center: position, zoom: 15 });
       const marker = new window.naver.maps.Marker({ position, map, title: name });
+
       const isDark = document.documentElement.classList.contains('dark');
       const infoWindow = new window.naver.maps.InfoWindow({
         content: `
-          <div style="padding:10px; background-color: ${isDark ? '#1f2937' : '#ffffff'}; color: ${isDark ? '#e5e7eb' : '#111827'}; border-radius: 8px; font-size: 10px;">
+          <div style="padding:10px; background-color: ${isDark ? '#1f2937' : '#ffffff'}; 
+                      color: ${isDark ? '#e5e7eb' : '#111827'}; border-radius: 8px; font-size: 10px;">
             <strong>${name}</strong><br/>${address}
           </div>`,
       });
@@ -110,14 +105,12 @@ export default function StoreLandingPage() {
 
   if (loading || !store) return <p className="p-6 text-center">로딩 중...</p>;
 
-  // 이번 달 몇째 주인지 계산 함수
   const getWeekNumberOfMonth = (date: Date): number => {
     const first = new Date(date.getFullYear(), date.getMonth(), 1);
     const offset = first.getDay();
     return Math.ceil((date.getDate() + offset) / 7);
   };
 
-  // 오늘 영업시간 렌더링
   const renderTodayBusinessHour = () => {
     const days: DayOfWeek[] = ['일', '월', '화', '수', '목', '금', '토'];
     const today = new Date();
@@ -150,7 +143,6 @@ export default function StoreLandingPage() {
     );
   };
 
-  // 전체 영업시간 렌더링
   const renderAllBusinessHours = () => {
     const days: DayOfWeek[] = ['월', '화', '수', '목', '금', '토', '일'];
     return (
@@ -170,9 +162,10 @@ export default function StoreLandingPage() {
   return (
     <>
       <div className="w-full space-y-6 mt-6 mb-6">
-        {/* 매장 정보 메인 섹션 */}
-        <main className="w-full max-w-lg mx-auto bg-white dark:bg-gray-900 text-gray-900
-                       dark:text-white shadow-md text-sm mb-4 pb-4 pt-4 px-4 sm:px-6">
+        <main
+          className="w-full max-w-lg mx-auto bg-white dark:bg-gray-950 text-gray-900 
+                     dark:text-gray-100 shadow-md text-sm mb-4 pb-4 pt-4 px-4 sm:px-6"
+        >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
             <div className="flex flex-col sm:flex-row sm:items-baseline gap-1">
               <h4 className="font-bold text-xl">{store.name}</h4>
@@ -188,7 +181,7 @@ export default function StoreLandingPage() {
               {renderTodayBusinessHour()}
               <button
                 onClick={() => setShowAllBusinessHours((prev) => !prev)}
-                className="mt-1 text-blue-600 dark:text-blue-400 hover:underline"
+                className="mt-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline"
               >
                 {showAllBusinessHours ? '영업시간 숨기기' : '영업시간 보기'}
               </button>
@@ -213,21 +206,19 @@ export default function StoreLandingPage() {
 
           <div
             ref={mapRef}
-            className="relative z-0 w-full aspect-video border rounded-md shadow-md dark:border-gray-600"
+            className="relative z-0 w-full aspect-video border border-gray-200 dark:border-gray-700 rounded-md shadow-sm"
           />
         </main>
 
-        {/* 메뉴 영역 */}
         <div ref={menuRef} className="w-full max-w-lg mx-auto px-4 sm:px-6">
           <MenuByCategory storeId={storeId} />
         </div>
       </div>
 
-      {/* 맨 위로 버튼 */}
       {showScrollTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-6 right-6 z-50 bg-blue-600 hover:bg-blue-700
+          className="fixed bottom-6 right-6 z-50 bg-blue-600 hover:bg-blue-500
                     text-white p-3 rounded-full shadow-lg transition-opacity"
           aria-label="맨 위로"
         >

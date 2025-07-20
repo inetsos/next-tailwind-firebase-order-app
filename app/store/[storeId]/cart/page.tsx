@@ -67,7 +67,7 @@ export default function CartPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-2 sm:px-4 py-4">
+    <div className="max-w-3xl mx-auto px-2 sm:px-4 py-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
       <CartView
         cartItems={items}
         onQuantityChange={handleQuantityChange}
@@ -75,10 +75,13 @@ export default function CartPage() {
       />
 
       {items.length > 0 && (
-        <div className="flex justify-center gap-4 mt-6">
+        <div className="flex justify-center gap-4 mt-6 flex-wrap">
           <button
             onClick={() => storeId && clearCart(storeId)}
-            className="btn btn-red"
+            className="w-40 h-10 text-sm font-semibold rounded-md shadow-md
+              bg-red-500 text-white hover:bg-red-600
+              dark:bg-red-600 dark:hover:bg-red-700
+              transition-colors duration-300"
           >
             장바구니 비우기
           </button>
@@ -90,7 +93,10 @@ export default function CartPage() {
                 router.push(`/store/${storeId}`);
               }
             }}
-            className="btn btn-green"
+            className="w-40 h-10 text-sm font-semibold rounded-md shadow-md
+              bg-green-600 text-white hover:bg-green-700
+              dark:bg-green-700 dark:hover:bg-green-800
+              transition-colors duration-300"
           >
             메뉴 추가
           </button>
@@ -102,7 +108,10 @@ export default function CartPage() {
                 router.push(`/store/${storeId}/checkout`);
               }
             }}
-            className="btn btn-blue"
+            className="w-40 h-10 text-sm font-semibold rounded-md shadow-md
+              bg-blue-600 text-white hover:bg-blue-700
+              dark:bg-blue-700 dark:hover:bg-blue-800
+              transition-colors duration-300"
           >
             주문하기
           </button>
@@ -118,52 +127,15 @@ export default function CartPage() {
                 router.push(`/store/${storeId}`);
               }
             }}
-            className="btn btn-green"
+            className="w-40 h-10 text-sm font-semibold rounded-md shadow-md
+              bg-green-600 text-white hover:bg-green-700
+              dark:bg-green-700 dark:hover:bg-green-800
+              transition-colors duration-300"
           >
             메뉴 추가
           </button>
         </div>
       )}
-
-      <style jsx>{`
-        .btn {
-          width: 160px;
-          height: 40px;
-          font-size: 0.875rem;
-          border-radius: 0.375rem;
-          font-weight: 600;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-          transition: background-color 0.3s ease;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          user-select: none;
-          border: none;
-        }
-        .btn-red {
-          background-color: #ef4444;
-          color: white;
-        }
-        .btn-red:hover {
-          background-color: #dc2626;
-        }
-        .btn-green {
-          background-color: #16a34a;
-          color: white;
-        }
-        .btn-green:hover {
-          background-color: #15803d;
-        }
-
-        .btn-blue {
-          background-color: #2563eb;
-          color: white;
-        }
-        .btn-blue:hover {
-          background-color: #1d4ed8;
-        }
-      `}</style>
     </div>
   );
 }

@@ -19,7 +19,7 @@ export default function CartView({
   );
 
   return (
-    <div className="max-w-md mx-auto px-1 sm:px-2 py-2 sm:py-3">
+    <div className="max-w-md mx-auto px-1 sm:px-2 py-2 sm:py-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-[300px]">
       <div className="flex items-center justify-between mb-3">
         <h4 className="text-2xl sm:text-3xl font-bold">🛒 장바구니</h4>
         {cartItems.length > 0 && (
@@ -30,18 +30,18 @@ export default function CartView({
       </div>
 
       {cartItems.length === 0 ? (
-        <p className="text-center text-gray-500 mt-10 text-base sm:text-lg">
+        <p className="text-center text-gray-500 dark:text-gray-400 mt-10 text-base sm:text-lg">
           장바구니가 비어 있습니다.
         </p>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {cartItems.map((item) => (
             <div
               key={item.menuId}
-              className="bg-gray-50 dark:bg-gray-800 rounded-lg p-2 sm:p-3 shadow mx-0"
+              className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 shadow-md"
             >
-              {/* 이미지 - 후에 필요하면 복원하자.
-              {item.imageUrl && (
+              {/* 이미지 복원 필요 시 주석 해제 */}
+              {/* {item.imageUrl && (
                 <img
                   src={item.imageUrl}
                   alt={item.name}
@@ -49,9 +49,9 @@ export default function CartView({
                 />
               )} */}
               <div className="mb-1">
-                <p className="text-xl sm:text-lg font-semibold text-gray-900 truncate">
+                <p className="text-xl sm:text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">
                   {item.name}
-                  <span className="text-sm sm:text-base text-gray-500 ml-2">
+                  <span className="text-sm sm:text-base text-gray-500 dark:text-gray-400 ml-2">
                     {item.baseLabel}
                   </span>
                 </p>
@@ -65,8 +65,8 @@ export default function CartView({
 
               <div className="space-y-2 mb-3">
                 {item.requiredOptions.length > 0 && (
-                  <div className="p-2 sm:p-2 bg-white dark:bg-gray-700 rounded border text-sm sm:text-base">
-                    <p className="font-semibold mb-1">✅ 필수 옵션</p>
+                  <div className="p-2 bg-white dark:bg-gray-700 rounded border border-gray-300 dark:border-gray-600 text-sm sm:text-base">
+                    <p className="font-semibold mb-1 text-gray-800 dark:text-gray-200">✅ 필수 옵션</p>
                     <ul className="list-disc list-inside space-y-0.5 text-gray-700 dark:text-gray-300">
                       {item.requiredOptions.map((opt, i) => (
                         <li key={i} className="truncate">
@@ -79,8 +79,8 @@ export default function CartView({
                 )}
 
                 {item.optionalOptions.length > 0 && (
-                  <div className="p-2 sm:p-2 bg-white dark:bg-gray-700 rounded border text-sm sm:text-base">
-                    <p className="font-semibold mb-1">➕ 선택 옵션</p>
+                  <div className="p-2 bg-white dark:bg-gray-700 rounded border border-gray-300 dark:border-gray-600 text-sm sm:text-base">
+                    <p className="font-semibold mb-1 text-gray-800 dark:text-gray-200">➕ 선택 옵션</p>
                     <ul className="list-disc list-inside space-y-0.5 text-gray-700 dark:text-gray-300">
                       {item.optionalOptions.map((opt, i) => (
                         <li key={i} className="truncate">
@@ -117,7 +117,7 @@ export default function CartView({
                         Math.max(1, item.quantity - 1)
                       )
                     }
-                    className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-600 text-white rounded-md flex items-center justify-center text-lg select-none hover:bg-blue-700 transition"
+                    className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-600 text-white rounded-md flex items-center justify-center text-lg select-none hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 transition"
                     aria-label="수량 감소"
                   >
                     −
@@ -134,7 +134,7 @@ export default function CartView({
                         onQuantityChange?.(item.menuId, val);
                       }
                     }}
-                    className="w-12 sm:w-14 h-7 sm:h-8 border rounded-md px-1 sm:px-2 py-0 text-center text-sm sm:text-base outline-none"
+                    className="w-12 sm:w-14 h-7 sm:h-8 border border-gray-300 dark:border-gray-600 rounded-md px-1 sm:px-2 py-0 text-center text-sm sm:text-base outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                     style={{ lineHeight: '28px' }}
                   />
 
@@ -143,7 +143,7 @@ export default function CartView({
                     onClick={() =>
                       onQuantityChange?.(item.menuId, item.quantity + 1)
                     }
-                    className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-600 text-white rounded-md flex items-center justify-center text-lg select-none hover:bg-blue-700 transition"
+                    className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-600 text-white rounded-md flex items-center justify-center text-lg select-none hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 transition"
                     aria-label="수량 증가"
                   >
                     +
