@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://next-tailwind-firebase-order-app.vercel.app/
+
+# Sitemaps
+Sitemap: https://next-tailwind-firebase-order-app.vercel.app/sitemap.xml
