@@ -84,7 +84,7 @@ export default function StoreMap({ stores }: StoreMapProps) {
     <>
       <NaverMapLoader onLoad={() => setNaverLoaded(true)} />
 
-      <div id="map" className="w-full h-[360px] rounded-lg mb-4" style={{ minHeight: '360px' }} />
+      <div id="map" className="w-full h-[320px] rounded-lg mb-4" style={{ minHeight: '320px' }} />
     </>
   );
 }

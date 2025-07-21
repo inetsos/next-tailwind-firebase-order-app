@@ -65,14 +65,13 @@ export default function CategoryStorePage({ params }: PageProps) {
         <>
           <StoreList stores={stores} />
 
+          {showMap && <StoreMap stores={stores} />}
           <button
             onClick={() => setShowMap(prev => !prev)}
             className="px-4 py-2 mt-4 mb-4 bg-blue-600 hover:bg-blue-700 text-white rounded"
           >
             {showMap ? '지도 닫기' : '지도 보기'}
-          </button>
-
-          {showMap && <StoreMap stores={stores} />}
+          </button>          
         </>
       )}
     </div>
