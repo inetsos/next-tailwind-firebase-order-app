@@ -1,14 +1,12 @@
-// app/page.tsx (서버 컴포넌트)
+// app/page.tsx
 import StoreList from '@/components/StoreList';
 import { db } from '@/firebase/firebaseConfig';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import { Store } from '@/types/store';
 import { convertFirestoreTimestamp } from '@/utils/firestoreUtils';
+import CategoryChips from '@/components/CategoryChips';
 
 export default async function Home() {
-  // 사이트 정식 오픈시 전략 필요
-  // - 접속수가 많아지면 리드 카운트가 폭증함, 비용 증가
-  // 추천 사이트 등 활용 가능
   const snapshot = await getDocs(
     query(collection(db, 'stores'), orderBy('createdAt', 'desc'))
   );
@@ -16,6 +14,17 @@ export default async function Home() {
   const stores: Store[] = snapshot.docs.map(doc =>
     convertFirestoreTimestamp({ id: doc.id, ...(doc.data() as Omit<Store, 'id'>) })
   );
+
+  // ✅ 카테고리 불러오기 (타입 일치시키기)
+  const categorySnap = await getDocs(query(collection(db, 'store-categories'), orderBy('sortOrder')));
+  const categories = categorySnap.docs.map(doc => {
+    const data = doc.data() as { name: string; sortOrder: number };
+    return {
+      id: doc.id,
+      name: data.name,
+      sortOrder: data.sortOrder,
+    };
+  });
 
   return (
     <div className="w-full px-0 py-4 text-gray-900 dark:text-white">
@@ -37,7 +46,6 @@ export default async function Home() {
             </p>            
           </div>
 
-          {/* 카카오 오픈채팅 링크 안내 추가 */}
           <div className="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900 rounded border border-yellow-300 dark:border-yellow-700 text-yellow-800 dark:text-yellow-200 text-center">
             <p>
               <strong>시지 라이프</strong> 각종 문의는{' '}
@@ -52,13 +60,18 @@ export default async function Home() {
               &nbsp;에서 해주세요.
             </p>
           </div>
-          
         </div>
       </div>
 
-      <div className="px-2 sm:px-4">
-        <StoreList stores={stores} />
+      {/* ✅ 카테고리 칩 리스트 삽입 */}
+      <div className="my-4">
+        <CategoryChips categories={categories} />
       </div>
+
+      {/* 매장 리스트 (임시 주석처리) */}
+      {/* <div className="px-2 sm:px-4">
+        <StoreList stores={stores} />
+      </div> */}
     </div>
   );
 }

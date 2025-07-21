@@ -39,19 +39,22 @@ export default function StoreManagePage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold dark:text-white">매장 관리</h1>
-        <Link
-          href="/store/register"
-          className="bg-blue-600 text-white text-sm px-4 py-2 rounded hover:bg-blue-700 transition"
-        >
-          + 매장 등록
-        </Link>
+        <h4 className="text-xl font-bold dark:text-white">매장 관리</h4>
+        <div className="flex gap-2">
+
+          <Link
+            href="/store/select-category"
+            className="bg-blue-600 text-white text-sm px-4 py-2 rounded hover:bg-blue-700 transition"
+          >
+            + 매장 등록
+          </Link>
+        </div>
       </div>
 
       {loading ? (
-        <p className="text-center text-sm text-gray-500">로딩 중...</p>
+        <p className="text-center text-sm text-gray-500 dark:text-gray-400">로딩 중...</p>
       ) : stores.length === 0 ? (
-        <p className="text-center text-sm text-gray-500">등록된 매장이 없습니다.</p>
+        <p className="text-center text-sm text-gray-500 dark:text-gray-400">등록된 매장이 없습니다.</p>
       ) : (
         <ul className="space-y-3">
           {stores.map(store => (

@@ -237,6 +237,10 @@ npm install axios
 npm install dayjs
 npm install react-to-print@latest
 
+npx shadcn@latest init
+npx shadcn@latest add input button
+
+
 
 ```
 next-tailwind-firebase-order-app

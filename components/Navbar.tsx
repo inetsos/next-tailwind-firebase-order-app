@@ -52,6 +52,16 @@ export default function Navbar() {
 
   const renderMenuItems = () => (
     <>
+      {userData?.role === 'operator' && (
+        <Link
+          href="/operator"
+          className="hover:underline hover:text-blue-300 text-sm ml-2"
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          운영자
+        </Link>
+      )}
+
       <Link
         href="/store/manage"
         className="hover:underline hover:text-blue-300 text-sm ml-2"

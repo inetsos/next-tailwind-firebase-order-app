@@ -1,9 +1,9 @@
-import MyPageContent from '@/components/MyPageContent';
+import MyProfile from '@/components/MyProfile';
 
 export default function MyPagePage() {
   return (
     <main>
-      <MyPageContent />
+      <MyProfile />
     </main>
   );
 }

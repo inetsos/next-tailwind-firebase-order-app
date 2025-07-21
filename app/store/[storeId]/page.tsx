@@ -149,9 +149,19 @@ export default function StoreLandingPage() {
       <div className="mt-2 text-sm">
         {days.map((day) => {
           const h = store.businessHours?.[day];
+          const isHoliday = !h?.opening || !h?.closing;
+
           return (
-            <div key={day} className={(!h?.opening || !h?.closing) ? 'text-red-500' : ''}>
-              {day}: {h?.opening && h?.closing ? `${h.opening} ~ ${h.closing}` : '휴무'}
+            <div key={day} className={isHoliday ? 'text-red-500' : ''}>
+              {/* 영업 여부 */}
+              {day}: {isHoliday ? '휴무' : `${h.opening} ~ ${h.closing}`}
+              
+              {/* 휴게 시간 표시 */}
+              {!isHoliday && h?.breakStart && h?.breakEnd && (
+                <span className="ml-2 text-gray-500 dark:text-gray-400">
+                  (휴게 시간: {h.breakStart} ~ {h.breakEnd})
+                </span>
+              )}
             </div>
           );
         })}
@@ -161,19 +171,30 @@ export default function StoreLandingPage() {
 
   return (
     <>
-      <div className="w-full space-y-6 mt-6 mb-6">
+      <div className="w-full space-y-6 mt-0 mb-6">
         <main
           className="w-full max-w-lg mx-auto bg-white dark:bg-gray-950 text-gray-900 
                      dark:text-gray-100 shadow-md text-sm mb-4 pb-4 pt-4 px-4 sm:px-6"
         >
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
+            {/* 상호명 + 카테고리 */}
             <div className="flex flex-col sm:flex-row sm:items-baseline gap-1">
               <h4 className="font-bold text-xl">{store.name}</h4>
               <p className="text-gray-600 dark:text-gray-400">{store.category}</p>
             </div>
+
+            {/* 오른쪽 링크 */}
+            <div className="mb-2 sm:mb-0 sm:ml-auto">
+              <Link
+                href={`/categories/${store.category}/stores`}
+                className="text-blue-600 dark:text-blue-400 text-sm hover:underline"
+              >
+                ← {store.category} 목록
+              </Link>
+            </div>
           </div>
 
-          <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap mb-2">{store.description}</p>
+          <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap mt-2 mb-2">{store.description}</p>
 
           <div className="flex items-start mb-2">
             <div className="w-24 shrink-0 font-semibold">영업시간</div>
@@ -201,6 +222,24 @@ export default function StoreLandingPage() {
             <div className="w-24 shrink-0 font-semibold">주소</div>
             <div className="flex-1 text-gray-800 dark:text-gray-200">
               {store.address} {store.detailAddress}
+            </div>
+          </div>
+
+          <div className="flex items-start mb-4">
+            <div className="w-24 shrink-0 font-semibold">홈페이지</div>
+            <div className="flex-1 text-blue-600 dark:text-blue-400 break-all">
+              {store.web ? (
+                <a
+                  href={store.web.startsWith('http') ? store.web : `https://${store.web}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline"
+                >
+                  {store.web}
+                </a>
+              ) : (
+                <span className="text-gray-500 dark:text-gray-500">등록된 홈페이지 없음</span>
+              )}
             </div>
           </div>
 

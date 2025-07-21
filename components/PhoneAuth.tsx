@@ -1,4 +1,3 @@
-// components/PhoneAuth.tsx
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -65,18 +64,18 @@ export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
 
   // 국제전화번호 형식 -> 일반전화번호 형식
   const formatE164ToKorean = (e164: string): string => {
-    // 예: +821012345678 → 010-1234-5678
-    if (!e164.startsWith('+82')) return e164; // 한국 번호가 아니면 그대로 반환
+    // 한국 번호가 아니면 그대로 반환
+    if (!e164.startsWith('+82')) return e164;
 
-    const local = '0' + e164.slice(3); // +82 제거 후 맨 앞에 0 추가
+    // +82 제거 후 맨 앞에 0 추가
+    const local = '0' + e164.slice(3);
     if (local.length === 11) {
       return `${local.slice(0, 3)}-${local.slice(3, 7)}-${local.slice(7)}`;
     }
     if (local.length === 10) {
       return `${local.slice(0, 3)}-${local.slice(3, 6)}-${local.slice(6)}`;
     }
-
-    return local; // fallback
+    return local;
   };
 
   // 인증 코드 전송
@@ -114,7 +113,7 @@ export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
       if (!docSnap.exists()) {
         await setDoc(userRef, {
           userId: user.uid,
-          phoneNumber,  //: user.phoneNumber,
+          phoneNumber,
           createdAt: serverTimestamp(),
           displayName: '',
           role: 'customer',
@@ -137,45 +136,53 @@ export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
     <div className="space-y-3">
       <input
         type="tel"
-        className="w-full border border-gray-300 px-3 py-2 rounded"
+        className="w-full border border-gray-300 px-3 py-2 rounded
+          bg-white text-black placeholder-gray-400
+          dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 dark:border-gray-600"
         placeholder="01012345678"
         value={phoneNumber}
         onChange={(e) => setPhoneNumber(e.target.value)}
       />
       <button
-        className="w-full bg-indigo-500 text-white py-2 rounded hover:bg-indigo-600"
+        className="w-full bg-indigo-500 text-white py-2 rounded hover:bg-indigo-600 transition-colors"
         onClick={sendCode}
       >
         인증번호 요청
       </button>
 
+      <p className="text-sm text-gray-500 text-center -mt-2 dark:text-gray-400">
+        처음 오시는 분은 전화번호 인증하시면 회원가입과 로그인이 됩니다.
+      </p>
+
       <input
         type="text"
-        className="w-full border border-gray-300 px-3 py-2 rounded"
+        className="w-full border border-gray-300 px-3 py-2 rounded
+          bg-white text-black placeholder-gray-400
+          dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 dark:border-gray-600"
         placeholder="인증번호 입력"
         value={verificationCode}
         onChange={(e) => setVerificationCode(e.target.value)}
       />
       <button
-        className="w-full bg-emerald-500 text-white py-2 rounded hover:bg-emerald-600"
+        className="w-full bg-emerald-500 text-white py-2 rounded hover:bg-emerald-600 transition-colors"
         onClick={verifyCode}
       >
         인증하기
       </button>
-      <p className="text-sm text-gray-500 text-center -mt-2">
+      <p className="text-sm text-gray-500 text-center -mt-2 dark:text-gray-400">
         인증번호는 해외에서 발송됩니다.
       </p>
 
-      <hr className="border-t border-gray-300 my-6" />
+      <hr className="border-t border-gray-300 my-6 dark:border-gray-600" />
 
       <button
-        className="w-full bg-[#FEE500] text-black py-2 px-4 rounded flex items-center justify-center gap-2 hover:brightness-95"
+        className="w-full bg-[#FEE500] text-black py-2 px-4 rounded flex items-center justify-center gap-2 hover:brightness-95 transition"
         onClick={() => {
           window.location.href = kakaoAuthUrl;
         }}
       >
         <img
-          src="/icons/kakao-logo.png" 
+          src="/icons/kakao-logo.png"
           alt="카카오 아이콘"
           className="w-5 h-5"
         />
@@ -183,7 +190,7 @@ export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
       </button>
 
       <button
-        className="w-full bg-[#03C75A] text-white py-2 px-4 rounded flex items-center justify-center gap-2 hover:brightness-110"
+        className="w-full bg-[#03C75A] text-white py-2 px-4 rounded flex items-center justify-center gap-2 hover:brightness-110 transition"
         onClick={() => {
           window.location.href = naverAuthUrl;
         }}

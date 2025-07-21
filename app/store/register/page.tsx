@@ -2,28 +2,33 @@
 
 import { useState, useEffect } from 'react';
 import { db } from '@/firebase/firebaseConfig';
-import { collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  query,
+  where,
+  getDocs,
+  doc,
+  getDoc
+} from 'firebase/firestore';
 import { Store, BusinessHour, DayOfWeek, HolidayRule } from '@/types/store';
 import Script from 'next/script';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useUserStore } from '@/stores/userStore';
 import BusinessHoursModal from '@/components/modals/BusinessHoursModal';
 import HolidayRuleModal from '@/components/modals/HolidayRuleModal';
-
-const categories = [
-  '한식', '중식', '일식', '양식', '분식', '치킨', '피자', '패스트푸드',
-  '고기/구이', '족발/보쌈', '찜/탕/찌개', '도시락', '야식', '해산물',
-  '디저트', '베이커리', '카페', '커피/음료', '샐러드', '브런치', '기타',
-];
+import CategoryFromSearchParams from '@/components/CategoryFromSearchParams';
+import { Suspense } from 'react';
 
 const emptyBusinessHours: Record<DayOfWeek, BusinessHour> = {
-  월: { opening: '', closing: '' },
-  화: { opening: '', closing: '' },
-  수: { opening: '', closing: '' },
-  목: { opening: '', closing: '' },
-  금: { opening: '', closing: '' },
-  토: { opening: '', closing: '' },
-  일: { opening: '', closing: '' },
+  월: { opening: '', closing: '', breakStart: '', breakEnd: '' },
+  화: { opening: '', closing: '', breakStart: '', breakEnd: '' },
+  수: { opening: '', closing: '', breakStart: '', breakEnd: '' },
+  목: { opening: '', closing: '', breakStart: '', breakEnd: '' },
+  금: { opening: '', closing: '', breakStart: '', breakEnd: '' },
+  토: { opening: '', closing: '', breakStart: '', breakEnd: '' },
+  일: { opening: '', closing: '', breakStart: '', breakEnd: '' },
 };
 
 const defaultHolidayRule: HolidayRule = {
@@ -31,9 +36,16 @@ const defaultHolidayRule: HolidayRule = {
   days: [],
 };
 
+interface Category {
+  id: string;
+  name: string;
+  industries?: string[]; // 상세 업종 리스트 (optional)
+}
+
 export default function StoreRegisterPage() {
-  const [form, setForm] = useState<Store>({
+  const [form, setForm] = useState<Store & { industry?: string }>({
     category: '',
+    industry: '',
     name: '',
     description: '',
     zipcode: '',
@@ -43,13 +55,74 @@ export default function StoreRegisterPage() {
     longitude: '',
     businessHours: emptyBusinessHours,
     holidayRule: defaultHolidayRule,
-    admin: ''
+    admin: '',
+    web: '',
   });
+
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategoryIndustries, setSelectedCategoryIndustries] = useState<string[]>([]);
 
   const [showBusinessHoursModal, setShowBusinessHoursModal] = useState(false);
   const [showHolidayRuleModal, setShowHolidayRuleModal] = useState(false);
   const router = useRouter();
   const { userData } = useUserStore();
+  
+  // 카테고리 리스트 Firestore에서 불러오기 (industries 포함)
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const q = query(collection(db, 'store-categories'));
+      const snapshot = await getDocs(q);
+      const list = snapshot.docs.map(doc => {
+        const data = doc.data() as Omit<Category, 'id'>;
+        return { ...data, id: doc.id };
+      });
+      setCategories(list);
+    };
+    fetchCategories();
+  }, []);
+
+  // URL 쿼리에서 categoryId가 있으면 해당 카테고리 이름으로 폼 업데이트
+  // useEffect(() => {
+  //   const categoryId = searchParams.get('categoryId');
+  //   if (!categoryId) return;
+
+  //   const fetchCategoryName = async () => {
+  //     try {
+  //       const docRef = doc(db, 'store-categories', categoryId);
+  //       const snapshot = await getDoc(docRef);
+  //       if (snapshot.exists()) {
+  //         const data = snapshot.data();
+  //         setForm(prev => ({ ...prev, category: data.name, industry: '' })); // industry 초기화
+  //       }
+  //     } catch (error) {
+  //       console.error('카테고리 조회 오류:', error);
+  //     }
+  //   };
+
+  //   fetchCategoryName();
+  // }, [searchParams]);
+
+  // 선택한 카테고리 변경 시 industries 리스트를 찾아 상태에 저장
+  useEffect(() => {
+    if (!form.category) {
+      setSelectedCategoryIndustries([]);
+      return;
+    }
+    const found = categories.find(c => c.name === form.category);
+    if (found && found.industries) {
+      setSelectedCategoryIndustries(found.industries);
+    } else {
+      setSelectedCategoryIndustries([]);
+    }
+  }, [form.category, categories]);
+
+  // 세부 업종 선택 토글 (radio 방식)
+  const handleSelectIndustry = (industry: string) => {
+    setForm(prev => ({
+      ...prev,
+      industry: prev.industry === industry ? '' : industry,
+    }));
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -119,6 +192,7 @@ export default function StoreRegisterPage() {
 
     const requiredFields = [
       { key: 'category', label: '업종' },
+      { key: 'industry', label: '세부 업종' },
       { key: 'name', label: '상호명' },
       { key: 'description', label: '소개말' },
       { key: 'zipcode', label: '우편번호' },
@@ -134,7 +208,6 @@ export default function StoreRegisterPage() {
       }
     }
 
-    // 영업시간 하나라도 설정됐는지 체크
     const hasValidHours = Object.values(form.businessHours).some(
       (day) => day.opening && day.closing
     );
@@ -178,27 +251,58 @@ export default function StoreRegisterPage() {
     <div className="max-w-xl mx-auto p-3">
       <h1 className="text-2xl font-bold mb-2 dark:text-white">매장 등록</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* 1. category는 변경 불가 텍스트로 보여주기 */}
+        
+        <div className="mb-4 space-y-2">
+          {/* 비동기 카테고리 선택 */}
+          <Suspense fallback={null}>
+            <CategoryFromSearchParams
+              onSetCategory={(category) => {
+                setForm((prev) => ({
+                  ...prev,
+                  category,
+                  industry: '', // 업종 초기화
+                }));
+              }}
+            />
+          </Suspense>
 
-        {/* 업종 선택 */}
-        <div>
-          <label className="block font-semibold mb-2 dark:text-gray-200">업종 선택</label>
-          <div className="flex flex-wrap gap-2">
-            {categories.map(c => (
-              <button
-                key={c}
-                type="button"
-                onClick={() => setForm(prev => ({ ...prev, category: c }))}
-                className={`px-3 py-1.5 rounded-full border text-xs transition
-                  ${
-                    form.category === c
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-600'
-                  }`}
-              >
-                {c}
-              </button>
-            ))}
+          {/* 선택된 카테고리 표시 */}
+          <div className="flex items-center gap-2">
+            <label className="font-semibold dark:text-gray-200">카테고리</label>
+            <p className="px-3 py-1 border rounded bg-gray-100 text-sm dark:bg-gray-700 dark:text-gray-300">
+              {form.category || '선택된 업종 없음'}
+            </p>
           </div>
+        </div>
+
+        {/* 2. industry 선택 chip 버튼 */}
+        <div>
+          <label className="block font-semibold mb-2 dark:text-gray-200">업종</label>
+          {selectedCategoryIndustries.length === 0 ? (
+            <p className="text-xs italic text-gray-500 dark:text-gray-400">업종이 없습니다.</p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {selectedCategoryIndustries.map((industry) => {
+                const selected = form.industry === industry;
+                return (
+                  <button
+                    key={industry}
+                    type="button"
+                    onClick={() => handleSelectIndustry(industry)}
+                    className={`px-3 py-1.5 rounded-full text-xs border cursor-pointer
+                      ${
+                        selected
+                          ? 'bg-blue-600 text-white border-blue-600'
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-600'
+                      }`}
+                  >
+                    {industry}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* 상호명 */}
@@ -247,12 +351,24 @@ export default function StoreRegisterPage() {
               {Object.entries(form.businessHours).map(([day, h]) => (
                 <li key={day}>
                   <span className="font-semibold">{day}</span>:&nbsp;
-                  {h.opening && h.closing ? `${h.opening} ~ ${h.closing}` : '휴무'}
+                  {h.opening && h.closing ? (
+                    <>
+                      {h.opening} ~ {h.closing}
+                      {h.breakStart && h.breakEnd ? (
+                        <span className="ml-2 text-gray-500 dark:text-gray-400">
+                          (휴게 {h.breakStart} ~ {h.breakEnd})
+                        </span>
+                      ) : null}
+                    </>
+                  ) : (
+                    '휴무'
+                  )}
                 </li>
               ))}
             </ul>
           )}
         </div>
+
 
         {/* 휴무일 설정 버튼 */}
         <button
@@ -306,6 +422,18 @@ export default function StoreRegisterPage() {
           name="detailAddress"
           placeholder="상세주소"
           value={form.detailAddress}
+          onChange={handleChange}
+          className="w-full p-2 text-xs rounded border
+            border-gray-300 bg-white text-black placeholder-gray-400
+            dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
+        />
+
+        {/* 홈페이지 */}
+        <input
+          type="url"
+          name="web"
+          placeholder="홈페이지 URL (예: https://www.example.com)"
+          value={form.web}
           onChange={handleChange}
           className="w-full p-2 text-xs rounded border
             border-gray-300 bg-white text-black placeholder-gray-400
