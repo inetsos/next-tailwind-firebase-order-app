@@ -1,5 +1,6 @@
-// app/categories/[categoryName]/stores/page.tsx
+'use client';
 
+import { use, useEffect, useState } from 'react';
 import { db } from '@/firebase/firebaseConfig';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { Store } from '@/types/store';
@@ -7,38 +8,71 @@ import { convertFirestoreTimestamp } from '@/utils/firestoreUtils';
 import StoreMap from '@/components/StoreMap';
 import StoreList from '@/components/StoreList';
 
-export const dynamic = 'force-dynamic'; // ✅ 중요
-
 interface PageProps {
   params: Promise<{
     categoryName: string;
   }>;
 }
 
-export default async function CategoryStorePage({ params }: PageProps) {
-   const { categoryName } = await params;
+export default function CategoryStorePage({ params }: PageProps) {
+  const { categoryName } = use(params);
   const decodedCategoryName = decodeURIComponent(categoryName);
+  const [showMap, setShowMap] = useState(false);
+  const [stores, setStores] = useState<Store[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const q = query(
-    collection(db, 'stores'),
-    where('category', '==', decodedCategoryName)
-  );
+  useEffect(() => {
+    let isMounted = true; // ✅ cleanup을 위한 flag
 
-  const snapshot = await getDocs(q);
+    const fetchStores = async () => {
+      try {
+        const q = query(
+          collection(db, 'stores'),
+          where('category', '==', decodedCategoryName)
+        );
+        const snapshot = await getDocs(q);
+        const data: Store[] = snapshot.docs.map(doc =>
+          convertFirestoreTimestamp({ id: doc.id, ...(doc.data() as Omit<Store, 'id'>) })
+        );
+        if (isMounted) {
+          setStores(data);
+        }
+      } catch (err) {
+        console.error('매장 불러오기 오류:', err);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
 
-  const stores: Store[] = snapshot.docs.map(doc =>
-    convertFirestoreTimestamp({ id: doc.id, ...(doc.data() as Omit<Store, 'id'>) })
-  );
+    fetchStores();
+
+    return () => {
+      isMounted = false; // 컴포넌트 언마운트 시 비동기 작업 취소
+    };
+  }, [decodedCategoryName]);
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">{decodedCategoryName} 카테고리</h1>
-      {stores.length === 0 ? (
+      <h4 className="text-2xl font-bold mb-4">{decodedCategoryName} 카테고리</h4>
+
+      {loading ? (
+        <p>로딩 중...</p>
+      ) : stores.length === 0 ? (
         <p>해당 카테고리의 매장이 없습니다.</p>
       ) : (
         <>
-          <StoreMap stores={stores} /> {/* ✅ 지도 먼저 보여주고 */}
-          <StoreList stores={stores} /> {/* ✅ 리스트도 함께 */}
+          <StoreList stores={stores} />
+
+          <button
+            onClick={() => setShowMap(prev => !prev)}
+            className="px-4 py-2 mt-4 mb-4 bg-blue-600 hover:bg-blue-700 text-white rounded"
+          >
+            {showMap ? '지도 닫기' : '지도 보기'}
+          </button>
+
+          {showMap && <StoreMap stores={stores} />}
         </>
       )}
     </div>

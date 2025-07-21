@@ -1,18 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 export interface Coordinates {
   lat: number;
   lng: number;
 }
 
-// 하버사인 공식으로 두 좌표 간 거리(km) 계산
-export function getDistanceFromLatLonInKm(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number
-) {
-  const R = 6371; // 지구 반경(km)
+// 하버사인 공식
+export function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371;
   const dLat = deg2rad(lat2 - lat1);
   const dLon = deg2rad(lon2 - lon1);
   const a =
@@ -29,12 +24,11 @@ function deg2rad(deg: number) {
   return deg * (Math.PI / 180);
 }
 
-// 현재 위치를 얻고 에러 상태도 알려주는 커스텀 훅
 export function useUserLocation() {
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const getLocation = useCallback(() => {
     if (!navigator.geolocation) {
       setError('브라우저가 위치 정보를 지원하지 않습니다.');
       return;
@@ -46,13 +40,14 @@ export function useUserLocation() {
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
         });
+        setError(null);
       },
       (err) => {
         setError('위치 정보를 가져올 수 없습니다.');
         console.error(err);
       }
     );
-  }, []);
+  }, []); // 빈 배열로 고정함
 
-  return { location, error };
+  return { location, error, getLocation };
 }
