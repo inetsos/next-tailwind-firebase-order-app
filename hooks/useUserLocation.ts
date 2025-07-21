@@ -45,6 +45,11 @@ export function useUserLocation() {
       (err) => {
         setError('위치 정보를 가져올 수 없습니다.');
         console.error(err);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0
       }
     );
   }, []); // 빈 배열로 고정함
