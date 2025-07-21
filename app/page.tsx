@@ -46,6 +46,11 @@ export default async function Home() {
             </p>            
           </div>
 
+          {/* ✅ 카테고리 칩 리스트 삽입 */}
+          <div className="my-6">
+            <CategoryChips categories={categories} />
+          </div>
+
           <div className="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900 rounded border border-yellow-300 dark:border-yellow-700 text-yellow-800 dark:text-yellow-200 text-center">
             <p>
               <strong>시지 라이프</strong> 각종 문의는{' '}
@@ -63,10 +68,7 @@ export default async function Home() {
         </div>
       </div>
 
-      {/* ✅ 카테고리 칩 리스트 삽입 */}
-      <div className="my-4">
-        <CategoryChips categories={categories} />
-      </div>
+      
 
       {/* 매장 리스트 (임시 주석처리) */}
       {/* <div className="px-2 sm:px-4">
