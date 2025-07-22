@@ -33,10 +33,12 @@ export default async function Home() {
         <h1 className="text-3xl font-bold mb-4">시지 라이프</h1>
 
         <div className="mb-6 space-y-4">
-          <p className="text-gray-600 dark:text-gray-300">
-            <strong>시지 지역 커뮤니티</strong> - 현재 테스트 배포 중입니다. <br />
-            본 사이트는 개발 중이며, 실제 매장과 연동되지 않습니다.
-          </p>
+          <div className='text-center'>
+            <p className="text-gray-600 dark:text-gray-300">
+              본 사이트는 <strong>개발 중</strong>이며, <br />
+              실제 매장과 연동되지 않습니다.(테스트 배포 중)
+            </p>
+          </div>
 
           <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
             <strong className="text-lg">🌿 우리 동네의 숨은 보석, 만나보세요!</strong>

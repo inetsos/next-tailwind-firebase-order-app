@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { db } from '@/firebase/firebaseConfig';
 import { collection, getDocs, query, orderBy, writeBatch, doc } from 'firebase/firestore';
 import {
@@ -19,6 +19,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface StoreCategory {
   id: string;
@@ -32,13 +33,13 @@ function SortableItem({
   name,
   industries,
   sortOrder,
-  onClick,
+  onItemClick,
 }: {
   id: string;
   name: string;
   industries: string[];
   sortOrder: number;
-  onClick: () => void;
+  onItemClick: (id: string) => void;
 }) {
   const {
     attributes,
@@ -55,18 +56,22 @@ function SortableItem({
     backgroundColor: isDragging ? '#e0f2fe' : '',
   };
 
+  const handleClick = useCallback(() => {
+    onItemClick(id);
+  }, [id, onItemClick]);
+
   return (
     <li
       ref={setNodeRef}
       style={style}
       {...attributes}
       className="border rounded-lg p-4 shadow-sm bg-white dark:bg-gray-800 flex items-center gap-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
-      onClick={onClick}
+      onClick={handleClick}
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          onClick();
+          handleClick();
         }
       }}
       role="link"
@@ -77,7 +82,7 @@ function SortableItem({
         {...listeners}
         className="cursor-grab p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
         title="드래그하여 순서 변경"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()} // 클릭 이벤트 분리
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -91,7 +96,7 @@ function SortableItem({
         </svg>
       </div>
 
-      {/* 내용 영역 */}
+      {/* 내용 */}
       <div className="flex-grow text-left">
         <h2 className="font-semibold text-lg text-gray-900 dark:text-white">
           {sortOrder + 1}. {name}
@@ -107,6 +112,7 @@ function SortableItem({
 export default function StoreCategoryListPage() {
   const [categories, setCategories] = useState<StoreCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -163,6 +169,16 @@ export default function StoreCategoryListPage() {
     }
   };
 
+  const handleItemClick = useCallback(
+    (id: string) => {
+      // 클릭 이벤트를 렌더링 이후로 명확히 분리
+      setTimeout(() => {
+        router.push(`/operator/store-categories/${id}/edit`);
+      }, 0);
+    },
+    [router]
+  );
+
   if (loading) return <p className="p-6 text-center">로딩 중...</p>;
 
   return (
@@ -191,9 +207,7 @@ export default function StoreCategoryListPage() {
                 name={cat.name}
                 industries={cat.industries}
                 sortOrder={cat.sortOrder}
-                onClick={() => {
-                  window.location.href = `/operator/store-categories/${cat.id}/edit`;
-                }}
+                onItemClick={handleItemClick}
               />
             ))}
           </ul>
