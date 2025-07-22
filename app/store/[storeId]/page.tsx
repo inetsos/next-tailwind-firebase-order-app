@@ -85,21 +85,58 @@ export default function StoreLandingPage() {
     if (!store || !mapRef.current) return;
     const initMap = async () => {
       await loadNaverMapScript();
+
       const { latitude, longitude, name, address } = store;
       const position = new window.naver.maps.LatLng(+latitude, +longitude);
+      
       const map = new window.naver.maps.Map(mapRef.current, { center: position, zoom: 15 });
       const marker = new window.naver.maps.Marker({ position, map, title: name });
 
       const isDark = document.documentElement.classList.contains('dark');
       const infoWindow = new window.naver.maps.InfoWindow({
         content: `
-          <div style="padding:10px; background-color: ${isDark ? '#1f2937' : '#ffffff'}; 
-                      color: ${isDark ? '#e5e7eb' : '#111827'}; border-radius: 8px; font-size: 10px;">
+          <div id="infoWindowContent" style="padding:10px; background-color: ${isDark ? '#1f2937' : '#ffffff'}; 
+                      color: ${isDark ? '#e5e7eb' : '#111827'}; border-radius: 8px; font-size: 10px; cursor: pointer;">
             <strong>${name}</strong><br/>${address}
           </div>`,
+        clickable: true, 
       });
-      infoWindow.open(map, marker);
+
+      //infoWindow.open(map, marker);
+
+      // ✅ 마커 클릭 시 InfoWindow 열기
+      window.naver.maps.Event.addListener(marker, 'click', () => {
+        infoWindow.open(map, marker);
+      });
+
+      //infoWindow 클릭하면 닫힘.
+      const observer = new MutationObserver(() => {
+        const el = document.getElementById('infoWindowContent');
+        if (el) {
+          el.addEventListener('click', () => {
+            infoWindow.close();
+          });
+
+          observer.disconnect(); // 더 이상 감지 필요 없음
+        }
+      });
+
+      // body 또는 infoWindow가 렌더링되는 container에서 감지
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
+
+      // setTimeout(() => {
+      //   const el = document.getElementById('infoWindowContent')
+      //   if (el) {
+      //     el.addEventListener('click', () => {
+      //       infoWindow.close()
+      //     })
+      //   }
+      // }, 0)
     };
+
     initMap();
   }, [store]);
 
@@ -176,22 +213,20 @@ export default function StoreLandingPage() {
           className="w-full max-w-lg mx-auto bg-white dark:bg-gray-950 text-gray-900 
                      dark:text-gray-100 shadow-md text-sm mb-4 pb-4 pt-4 px-4 sm:px-6"
         >
-          <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
-            {/* 상호명 + 카테고리 */}
-            <div className="flex flex-col sm:flex-row sm:items-baseline gap-1">
-              <h4 className="font-bold text-xl">{store.name}</h4>
-              <p className="text-gray-600 dark:text-gray-400">{store.category}</p>
+          <div className="flex justify-between items-center flex-wrap gap-1 mb-2">
+            {/* 상호명 + 업종 (모바일에서도 한 줄로) */}
+            <div className="flex items-baseline gap-2 text-base sm:text-lg font-semibold truncate">
+              <h4 className="font-bold text-xl truncate">{store.name}</h4>
+              <span className="text-gray-600 dark:text-gray-400 text-sm whitespace-nowrap">{store.industry}</span>
             </div>
 
             {/* 오른쪽 링크 */}
-            <div className="mb-2 sm:mb-0 sm:ml-auto">
-              <Link
-                href={`/categories/${store.category}/stores`}
-                className="text-blue-600 dark:text-blue-400 text-sm hover:underline"
-              >
-                ← {store.category} 목록
-              </Link>
-            </div>
+            <Link
+              href={`/categories/${store.category}/stores`}
+              className="text-blue-600 dark:text-blue-400 text-sm hover:underline ml-auto"
+            >
+              ← {store.category} 목록
+            </Link>
           </div>
 
           <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap mt-2 mb-2">{store.description}</p>
