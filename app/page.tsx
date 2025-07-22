@@ -73,12 +73,29 @@ export default async function Home() {
         </div>
       </div>
 
-      
+    <br />
+    <div className="my-2 p-4">
+      <h6 className="text-xl font-bold mb-6">📍 대구광역시 수성구 시지 지역은?</h6>
 
-      {/* 매장 리스트 (임시 주석처리) */}
-      {/* <div className="px-2 sm:px-4">
-        <StoreList stores={stores} />
-      </div> */}
+      <p className="text-lg leading-relaxed mb-4">
+        맑은 공기와 여유로운 분위기가 흐르는 <strong>시지 지역</strong>은
+        신매동, 욱수동, 사월동, 매호동, 노변동, 시지동 일대를 포괄합니다.
+      </p>
+
+      <p className="text-lg leading-relaxed mb-4">
+        넓은 녹지와 생활 인프라가 잘 조화를 이루며,
+        커피 향이 퍼지는 골목, 아이들 웃음소리가 들리는 공원,
+        그리고 도심 속 작은 쉼표 같은 공간들이 가득한 이곳은
+        주거와 문화, 교육까지 모두 갖춘 <strong>젊은 층 선호 1순위 지역</strong>입니다.
+      </p>
+
+      <p className="text-lg leading-relaxed">
+        하루의 소소한 행복, <br/>
+        그 시작은 바로 우리 동네 <strong>시지 라이프</strong>에서 🌸
+      </p>
+    </div>
+    <br />
+    <br />
     </div>
   );
 }
