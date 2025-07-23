@@ -11,7 +11,7 @@ import Script from 'next/script';
 import BusinessHoursModal from '@/components/modals/BusinessHoursModal';
 import HolidayRuleModal from '@/components/modals/HolidayRuleModal';
 import { cn } from '@/lib/utils'; // Tailwind 클래스 병합 유틸리티
-import { generateKeywords } from '@/utils/generateKeywords';
+import { generateAdvancedSearchKeywords } from '@/utils/keywords';
 
 const defaultHolidayRule: HolidayRule = {
   frequency: '매주',
@@ -192,7 +192,7 @@ export default function StoreEditPage() {
         ...form,
         latitude: parseFloat(form.latitude),
         longitude: parseFloat(form.longitude),        
-        name_keywords: generateKeywords(form.name.trim()),
+        name_keywords: generateAdvancedSearchKeywords(form.name.trim()),
         updatedAt: serverTimestamp(),
       });
       alert('매장 정보가 수정되었습니다.');

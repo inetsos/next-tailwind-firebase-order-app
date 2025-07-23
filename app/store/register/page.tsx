@@ -20,7 +20,7 @@ import BusinessHoursModal from '@/components/modals/BusinessHoursModal';
 import HolidayRuleModal from '@/components/modals/HolidayRuleModal';
 import CategoryFromSearchParams from '@/components/CategoryFromSearchParams';
 import { Suspense } from 'react';
-import { generateKeywords } from '@/utils/generateKeywords';
+import { generateAdvancedSearchKeywords } from '@/utils/keywords';
 
 const emptyBusinessHours: Record<DayOfWeek, BusinessHour> = {
   월: { opening: '', closing: '', breakStart: '', breakEnd: '' },
@@ -237,7 +237,7 @@ export default function StoreRegisterPage() {
         latitude: parseFloat(form.latitude),
         longitude: parseFloat(form.longitude),
         admin: userData.userId,
-        name_keywords: generateKeywords(form.name.trim()),
+        name_keywords: generateAdvancedSearchKeywords(form.name.trim()),
         createdAt: serverTimestamp(),
       });
 
