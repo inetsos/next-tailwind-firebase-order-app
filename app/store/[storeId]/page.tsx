@@ -221,12 +221,20 @@ export default function StoreLandingPage() {
             </div>
 
             {/* 오른쪽 링크 */}
-            <Link
+            {/* <Link
               href={`/categories/${store.category}/stores`}
               className="text-blue-600 dark:text-blue-400 text-sm hover:underline ml-auto"
             >
               ← {store.category} 목록
-            </Link>
+            </Link> */}
+            {/* 이전 페이지로 돌아가기 버튼 */}
+            <button
+              onClick={() => router.back()}
+              className="text-blue-600 dark:text-blue-400 text-sm hover:underline ml-auto"
+              type="button"
+            >
+              ← 이전 페이지로
+            </button>
           </div>
 
           <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap mt-2 mb-2">{store.description}</p>

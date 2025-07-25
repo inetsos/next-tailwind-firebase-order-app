@@ -8,7 +8,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { Menu, MenuPrice, OptionGroup } from '@/types/menu';
 import OptionGroupForm from './OptionGroupForm';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { logEvent } from '@/utils/logger';
 
 interface MenuFormProps {
@@ -27,6 +26,15 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
   const [imageUrl, setImageUrl] = useState(menuData?.imageUrl || '');
   const [isSoldOut, setIsSoldOut] = useState(menuData?.isSoldOut || false);
 
+  // 단일 가격 여부 상태 (menuData.price가 있으면 단일 가격 모드로 초기화)
+  const [isSinglePrice, setIsSinglePrice] = useState<boolean>(
+    menuData ? !!menuData.price : true
+  );
+
+  // 단일 가격
+  const [singlePrice, setSinglePrice] = useState<number>(menuData?.price ?? 0);
+
+  // 다중 가격
   const [prices, setPrices] = useState<MenuPrice[]>(menuData?.prices || []);
   const [sizeLabel, setSizeLabel] = useState('');
   const [sizePrice, setSizePrice] = useState<number>(0);
@@ -37,32 +45,25 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
   const router = useRouter();
 
   useEffect(() => {
-    const fetchCategoriesAndMenus = async () => {
+    async function fetchCategories() {
       try {
-        const [categorySnap, menuSnap] = await Promise.all([
-          getDocs(collection(db, 'stores', storeId, 'categories')),
-          getDocs(collection(db, 'stores', storeId, 'menus')),
-        ]);
-
+        const categorySnap = await getDocs(collection(db, 'stores', storeId, 'categories'));
         const categoryList = categorySnap.docs
           .map(doc => {
             const data = doc.data();
             return {
               name: data.name,
-              sortOrder: data.sortOrder ?? 0, // 정렬번호가 없으면 0 기본값
+              sortOrder: data.sortOrder ?? 0,
             };
           })
           .sort((a, b) => a.sortOrder - b.sortOrder);
-
         setCategories(categoryList.map(cat => cat.name));
-
       } catch (error) {
-        await logEvent('error', '카테고리 및 메뉴 불러오기 실패', { error });
+        await logEvent('error', '카테고리 불러오기 실패', { error });
       }
-    };
-
-    fetchCategoriesAndMenus();
-  }, [storeId, menuData]);
+    }
+    fetchCategories();
+  }, [storeId]);
 
   const handleImageUpload = async (): Promise<string> => {
     if (!imageFile) return imageUrl || '';
@@ -79,11 +80,11 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
   };
 
   const handleAddPrice = () => {
-    if (!sizeLabel || sizePrice <= 0) {
+    if (!sizeLabel.trim() || sizePrice <= 0) {
       alert('규격명과 가격을 올바르게 입력하세요.');
       return;
     }
-    setPrices((prev) => [...prev, { label: sizeLabel, price: sizePrice }]);
+    setPrices((prev) => [...prev, { label: sizeLabel.trim(), price: sizePrice }]);
     setSizeLabel('');
     setSizePrice(0);
   };
@@ -107,8 +108,16 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
   };
 
   const handleSubmit = async () => {
-    if (!name || prices.length === 0 || !category) {
-      alert('이름, 가격, 분류를 입력하세요.');
+    if (!name || !category) {
+      alert('이름과 분류를 입력하세요.');
+      return;
+    }
+    if (isSinglePrice && singlePrice <= 0) {
+      alert('단일 가격을 0원 초과로 입력하세요.');
+      return;
+    }
+    if (!isSinglePrice && prices.length === 0) {
+      alert('최소 한 개 이상의 가격을 등록하세요.');
       return;
     }
 
@@ -119,12 +128,14 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
         name,
         description,
         category,
-        prices,
         imageUrl: uploadedImageUrl,
         isSoldOut,
         requiredOptions,
         optionalOptions,
         sortOrder,
+        ...(isSinglePrice
+          ? { price: singlePrice, prices: [] }
+          : { prices, price: undefined }),
       };
 
       if (onSubmit) {
@@ -143,6 +154,8 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
       setName('');
       setDescription('');
       setCategory('');
+      setSortOrder(0);
+      setSinglePrice(0);
       setPrices([]);
       setSizeLabel('');
       setSizePrice(0);
@@ -151,6 +164,7 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
       setRequiredOptions([]);
       setOptionalOptions([]);
       setImageUrl('');
+      setIsSinglePrice(true);
 
       router.push(`/store/${storeId}/menus`);
     } catch (error) {
@@ -184,12 +198,11 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
                 key={cat}
                 type="button"
                 onClick={() => setCategory(cat)}
-                className={`px-4 py-1 rounded-full border text-sm transition 
-                  ${
-                    category === cat
-                      ? 'bg-blue-600 text-white border-blue-600 dark:bg-blue-500'
-                      : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700'
-                  }`}
+                className={`px-4 py-1 rounded-full border text-sm transition ${
+                  category === cat
+                    ? 'bg-blue-600 text-white border-blue-600 dark:bg-blue-500'
+                    : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700'
+                }`}
               >
                 {cat}
               </button>
@@ -208,6 +221,7 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
           />
         </div>
 
+        {/* 설명 */}
         <div className="space-y-1">
           <label className="block font-medium"><strong>설명</strong></label>
           <textarea
@@ -217,6 +231,7 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
           />
         </div>
 
+        {/* 정렬 순서 */}
         <div className="space-y-1">
           <label className="block font-medium"><strong>정렬 순서</strong></label>
           <input
@@ -228,6 +243,7 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
           />
         </div>
 
+        {/* 이미지 업로드 */}
         <label htmlFor="image-upload" className="font-semibold">
           메뉴 이미지
         </label>
@@ -247,55 +263,94 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
         )}
       </div>
 
-      <div>
-        <h2 className="text-lg font-semibold pb-2 mt-2">💰 규격 및 가격 *</h2>
-        <div className="flex items-center gap-2 mt-0">
-          <input
-            type="text"
-            placeholder="규격"
-            value={sizeLabel}
-            onChange={(e) => setSizeLabel(e.target.value)}
-            className="border p-2 rounded w-1/3 bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
-          />
-          <input
-            type="number"
-            placeholder="가격"
-            value={sizePrice}
-            onChange={(e) => setSizePrice(Number(e.target.value))}
-            onFocus={(e) => e.target.select()}
-            className="border p-2 rounded w-1/3 bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
-          />
-          <button
-            type="button"
-            onClick={handleAddPrice}
-            className="bg-green-600 text-white px-4 py-2 rounded w-1/3 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 whitespace-nowrap"
-          >
-            추가
-          </button>
+      {/* 단일 / 다중 가격 토글 */}
+      <div className="mt-4">
+        <label className="font-semibold mb-2 block">가격 형태 *</label>
+        <div className="flex items-center gap-4">
+          <label className="flex items-center gap-1 cursor-pointer">
+            <input
+              type="radio"
+              checked={isSinglePrice}
+              onChange={() => setIsSinglePrice(true)}
+              className="w-4 h-4"
+            />
+            단일 가격
+          </label>
+          <label className="flex items-center gap-1 cursor-pointer">
+            <input
+              type="radio"
+              checked={!isSinglePrice}
+              onChange={() => setIsSinglePrice(false)}
+              className="w-4 h-4"
+            />
+            다중 가격 (규격별)
+          </label>
         </div>
-
-        {prices.length > 0 && (
-          <ul className="mt-3 space-y-2">
-            {prices.map((p, idx) => (
-              <li
-                key={idx}
-                className="flex items-center gap-4 bg-gray-50 dark:bg-gray-800 p-2 rounded border dark:border-gray-700"
-              >
-                <span className="w-1/3 truncate">{p.label}</span>
-                <span className="w-1/3">{p.price.toLocaleString()}원</span>
-                <button
-                  onClick={() => handleRemovePrice(idx)}
-                  className="text-red-500 hover:text-red-700 text-xs bg-white border px-2 py-1 rounded dark:bg-gray-900 dark:border-red-700 dark:text-red-400 dark:hover:text-red-600"
-                >
-                  삭제
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
       </div>
 
-      <div className="flex items-center gap-2">
+      {/* 가격 입력 UI */}
+      {isSinglePrice ? (
+        <div className="mt-3">
+          <label className="block font-medium">가격 *</label>
+          <input
+            type="number"
+            min={0}
+            value={singlePrice}
+            onChange={(e) => setSinglePrice(Number(e.target.value))}
+            className="border p-2 rounded w-full bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+          />
+        </div>
+      ) : (
+        <div className="mt-3">
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="규격"
+              value={sizeLabel}
+              onChange={(e) => setSizeLabel(e.target.value)}
+              className="border p-2 rounded w-1/3 bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+            />
+            <input
+              type="number"
+              placeholder="가격"
+              value={sizePrice}
+              onChange={(e) => setSizePrice(Number(e.target.value))}
+              onFocus={(e) => e.target.select()}
+              className="border p-2 rounded w-1/3 bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+            />
+            <button
+              type="button"
+              onClick={handleAddPrice}
+              className="bg-green-600 text-white px-4 py-2 rounded w-1/3 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 whitespace-nowrap"
+            >
+              추가
+            </button>
+          </div>
+
+          {prices.length > 0 && (
+            <ul className="mt-3 space-y-2">
+              {prices.map((p, idx) => (
+                <li
+                  key={idx}
+                  className="flex items-center gap-4 bg-gray-50 dark:bg-gray-800 p-2 rounded border dark:border-gray-700"
+                >
+                  <span className="w-1/3 truncate">{p.label}</span>
+                  <span className="w-1/3">{p.price.toLocaleString()}원</span>
+                  <button
+                    onClick={() => handleRemovePrice(idx)}
+                    className="text-red-500 hover:text-red-700 text-xs bg-white border px-2 py-1 rounded dark:bg-gray-900 dark:border-red-700 dark:text-red-400 dark:hover:text-red-600"
+                  >
+                    삭제
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
+      {/* 품절 상태 */}
+      <div className="flex items-center gap-2 mt-4">
         <input
           type="checkbox"
           checked={isSoldOut}
@@ -307,7 +362,7 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
 
       {/* 필수 옵션 */}
       <div>
-        <h2 className="text-lg font-semibold pb-2">⚙️ 필수 옵션</h2>
+        <h2 className="text-lg font-semibold pb-2 mt-6">⚙️ 필수 옵션</h2>
         <OptionGroupForm
           isRequired={true}
           onAdd={(group) => setRequiredOptions((prev) => [...prev, group])}
@@ -332,9 +387,7 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
                         {opt.name} - {opt.price.toLocaleString()}원
                       </span>
                       <button
-                        onClick={() =>
-                          handleRemoveOptionItem(groupIdx, optIdx, true)
-                        }
+                        onClick={() => handleRemoveOptionItem(groupIdx, optIdx, true)}
                         className="text-xs text-red-400 hover:underline ml-2"
                       >
                         삭제
@@ -350,7 +403,7 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
 
       {/* 선택 옵션 */}
       <div>
-        <h2 className="text-lg font-semibold pb-2">🧩 선택 옵션</h2>
+        <h2 className="text-lg font-semibold pb-2 mt-4">🧩 선택 옵션</h2>
         <OptionGroupForm
           isRequired={false}
           onAdd={(group) => setOptionalOptions((prev) => [...prev, group])}
@@ -375,9 +428,7 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
                         {opt.name} - {opt.price.toLocaleString()}원
                       </span>
                       <button
-                        onClick={() =>
-                          handleRemoveOptionItem(groupIdx, optIdx, false)
-                        }
+                        onClick={() => handleRemoveOptionItem(groupIdx, optIdx, false)}
                         className="text-xs text-red-400 hover:underline ml-2"
                       >
                         삭제
@@ -391,20 +442,23 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
         )}
       </div>
 
-      <div className="flex gap-2">
-        <div className="relative w-full">
-          <button
-            onClick={handleSubmit}
-            disabled={!name || prices.length === 0 || !category}
-            className={`w-full py-3 rounded text-white font-semibold transition ${
-              !name || prices.length === 0 || !category
-                ? 'bg-blue-600 dark:bg-blue-600 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600'
-            }`}
-          >
-            ✅ {menuData ? '수정 완료' : '메뉴 등록'}
-          </button>
-        </div>
+      {/* 제출 / 취소 버튼 */}
+      <div className="flex gap-2 mt-6">
+        <button
+          onClick={handleSubmit}
+          disabled={
+            !name ||
+            !category ||
+            (isSinglePrice ? singlePrice <= 0 : prices.length === 0)
+          }
+          className={`w-full py-3 rounded text-white font-semibold transition ${
+            !name || !category || (isSinglePrice ? singlePrice <= 0 : prices.length === 0)
+              ? 'bg-blue-600 dark:bg-blue-600 cursor-not-allowed'
+              : 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600'
+          }`}
+        >
+          ✅ {menuData ? '수정 완료' : '메뉴 등록'}
+        </button>
 
         <button
           type="button"

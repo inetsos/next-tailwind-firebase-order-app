@@ -241,11 +241,14 @@ npx shadcn@latest init
 npx shadcn@latest add input button
 
 
-
 ```
 next-tailwind-firebase-order-app
 ├─ .firebaserc
 ├─ app
+│  ├─ categories
+│  │  └─ [categoryName]
+│  │     └─ stores
+│  │        └─ page.tsx
 │  ├─ favicon.ico
 │  ├─ globals.css
 │  ├─ kakao-callback
@@ -262,40 +265,75 @@ next-tailwind-firebase-order-app
 │  ├─ naver-map-view
 │  │  ├─ NaverMapViewClient.tsx
 │  │  └─ page.tsx
-│  ├─ page.tsx
-│  ├─ store
-│  │  ├─ edit
-│  │  │  └─ [storeId]
-│  │  │     └─ page.tsx
-│  │  ├─ manage
-│  │  │  └─ page.tsx
-│  │  ├─ register
-│  │  │  └─ page.tsx
-│  │  └─ [storeId]
-│  │     ├─ cart
+│  ├─ operator
+│  │  ├─ food-alleys
+│  │  │  ├─ create
+│  │  │  │  └─ page.tsx
+│  │  │  ├─ page.tsx
+│  │  │  └─ [foodAlleyId]
+│  │  │     ├─ page.tsx
+│  │  │     └─ stores
+│  │  │        ├─ create
+│  │  │        │  └─ page.tsx
+│  │  │        └─ page.tsx
+│  │  ├─ page.tsx
+│  │  └─ store-categories
+│  │     ├─ new
 │  │     │  └─ page.tsx
-│  │     ├─ categories
-│  │     │  └─ new
-│  │     │     └─ page.tsx
-│  │     ├─ menus
-│  │     │  ├─ new
-│  │     │  │  └─ page.tsx
-│  │     │  ├─ page.tsx
-│  │     │  ├─ sort
-│  │     │  │  ├─ MenuSortList.tsx
-│  │     │  │  └─ page.tsx
-│  │     │  └─ [menuId]
-│  │     │     ├─ edit
-│  │     │     │  └─ page.tsx
-│  │     │     └─ order
-│  │     │        └─ page.tsx
-│  │     └─ page.tsx
-│  └─ store-list
-│     └─ page.tsx
+│  │     ├─ page.tsx
+│  │     └─ [categoryId]
+│  │        └─ edit
+│  │           └─ page.tsx
+│  ├─ page.tsx
+│  ├─ search
+│  │  ├─ page.tsx
+│  │  └─ SearchResults.tsx
+│  └─ store
+│     ├─ edit
+│     │  └─ [storeId]
+│     │     └─ page.tsx
+│     ├─ manage
+│     │  └─ page.tsx
+│     ├─ register
+│     │  └─ page.tsx
+│     ├─ select-category
+│     │  └─ page.tsx
+│     └─ [storeId]
+│        ├─ admin
+│        │  └─ page.tsx
+│        ├─ cart
+│        │  └─ page.tsx
+│        ├─ categories
+│        │  └─ new
+│        │     └─ page.tsx
+│        ├─ checkout
+│        │  └─ page.tsx
+│        ├─ menus
+│        │  ├─ new
+│        │  │  └─ page.tsx
+│        │  ├─ page.tsx
+│        │  ├─ sort
+│        │  │  ├─ MenuSortList.tsx
+│        │  │  └─ page.tsx
+│        │  └─ [menuId]
+│        │     ├─ edit
+│        │     │  └─ page.tsx
+│        │     └─ order
+│        │        └─ page.tsx
+│        ├─ order-complete
+│        │  └─ page.tsx
+│        ├─ orders
+│        │  ├─ page.tsx
+│        │  └─ [orderId]
+│        │     └─ page.tsx
+│        └─ page.tsx
 ├─ components
 │  ├─ CartView.tsx
+│  ├─ CategoryChips.tsx
+│  ├─ CategoryFromSearchParams.tsx
 │  ├─ CategoryManager.tsx
 │  ├─ ErrorBoundaryClient.tsx
+│  ├─ FoodAlleyChips.tsx
 │  ├─ Footer.tsx
 │  ├─ GlobalErrorSetup.tsx
 │  ├─ GoogleRedirectHandler.tsx
@@ -306,13 +344,20 @@ next-tailwind-firebase-order-app
 │  ├─ modals
 │  │  ├─ BusinessHoursModal.tsx
 │  │  └─ HolidayRuleModal.tsx
-│  ├─ MyPageContent.tsx
+│  ├─ MyProfile.tsx
 │  ├─ Navbar.tsx
+│  ├─ NaverMapLoader.tsx
 │  ├─ OptionGroupForm copy.tsx
 │  ├─ OptionGroupForm.tsx
 │  ├─ PhoneAuth.tsx
 │  ├─ PhoneAuthModal.tsx
-│  └─ StoreList.tsx
+│  ├─ SearchForm.tsx
+│  ├─ StoreList.tsx
+│  ├─ StoreMap.tsx
+│  └─ ui
+│     ├─ button.tsx
+│     └─ input.tsx
+├─ components.json
 ├─ context
 │  └─ CartContext.tsx
 ├─ firebase
@@ -334,6 +379,9 @@ next-tailwind-firebase-order-app
 │  ├─ useAuth.ts
 │  ├─ useHandleGoogleRedirectLogin.ts
 │  └─ useUserLocation.ts
+├─ lib
+│  └─ utils.ts
+├─ next-sitemap.config.js
 ├─ next.config.ts
 ├─ package-lock.json
 ├─ package.json
@@ -347,6 +395,9 @@ next-tailwind-firebase-order-app
 │  │  └─ naver-logo.png
 │  ├─ kakao-login.png
 │  ├─ next.svg
+│  ├─ robots.txt
+│  ├─ sitemap-0.xml
+│  ├─ sitemap.xml
 │  ├─ vercel.svg
 │  └─ window.svg
 ├─ README.md
@@ -365,8 +416,13 @@ next-tailwind-firebase-order-app
    ├─ auth.ts
    ├─ cartStorage.ts
    ├─ firestoreUtils.ts
+   ├─ generateKeywords.ts
+   ├─ keywords.ts
    ├─ localCart.ts
    ├─ logger.ts
+   ├─ order.ts
+   ├─ orderNumber.ts
+   ├─ orderStorage.ts
    ├─ setupGlobalErrorHandler.ts
    └─ socialLogin.ts
 

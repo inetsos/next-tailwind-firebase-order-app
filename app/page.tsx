@@ -1,4 +1,3 @@
-// app/page.tsx
 import StoreList from '@/components/StoreList';
 import { db } from '@/firebase/firebaseConfig';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
@@ -6,6 +5,7 @@ import { Store } from '@/types/store';
 import { convertFirestoreTimestamp } from '@/utils/firestoreUtils';
 import CategoryChips from '@/components/CategoryChips';
 import SearchForm from '@/components/SearchForm';
+import FoodAlleyChips from '@/components/FoodAlleyChips'; // ✅ 추가
 
 export default async function Home() {
   const snapshot = await getDocs(
@@ -16,10 +16,22 @@ export default async function Home() {
     convertFirestoreTimestamp({ id: doc.id, ...(doc.data() as Omit<Store, 'id'>) })
   );
 
-  // ✅ 카테고리 불러오기 (타입 일치시키기)
+  // ✅ 카테고리 불러오기
   const categorySnap = await getDocs(query(collection(db, 'store-categories'), orderBy('sortOrder')));
   const categories = categorySnap.docs.map(doc => {
     const data = doc.data() as { name: string; sortOrder: number };
+    return {
+      id: doc.id,
+      name: data.name,
+      sortOrder: data.sortOrder,
+    };
+  });
+
+  // ✅ 먹자 골목 불러오기
+  const alleySnap = await getDocs(query(collection(db, 'foodAlleys'), orderBy('sortOrder')));
+  const foodAlleys = alleySnap.docs.map(doc => {
+    const data = doc.data() as { name: string; sortOrder: number };
+    //console.log(data);
     return {
       id: doc.id,
       name: data.name,
@@ -53,9 +65,14 @@ export default async function Home() {
             <SearchForm />
           </div>
 
-          {/* ✅ 카테고리 칩 리스트 삽입 */}
+          {/* ✅ 카테고리 칩 리스트 */}
           <div className="my-6">
             <CategoryChips categories={categories} />
+          </div>
+
+          {/* ✅ 먹자 골목 칩 리스트 */}
+          <div className="my-6">
+            <FoodAlleyChips foodAlleys={foodAlleys} />
           </div>
 
           <div className="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900 rounded border border-yellow-300 dark:border-yellow-700 text-yellow-800 dark:text-yellow-200 text-center">
@@ -75,7 +92,6 @@ export default async function Home() {
         </div>
       </div>
 
-      <br />
       <div className="my-2 p-4">
         <h6 className="text-xl font-bold mb-6">📍 대구광역시 수성구 시지 지역은?</h6>
 
@@ -96,7 +112,6 @@ export default async function Home() {
           그 시작은 바로 우리 동네 <strong>시지 라이프</strong>에서 
         </p>
       </div>
-
     </div>
   );
 }

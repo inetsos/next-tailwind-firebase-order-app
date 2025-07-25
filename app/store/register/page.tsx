@@ -82,27 +82,6 @@ export default function StoreRegisterPage() {
     fetchCategories();
   }, []);
 
-  // URL 쿼리에서 categoryId가 있으면 해당 카테고리 이름으로 폼 업데이트
-  // useEffect(() => {
-  //   const categoryId = searchParams.get('categoryId');
-  //   if (!categoryId) return;
-
-  //   const fetchCategoryName = async () => {
-  //     try {
-  //       const docRef = doc(db, 'store-categories', categoryId);
-  //       const snapshot = await getDoc(docRef);
-  //       if (snapshot.exists()) {
-  //         const data = snapshot.data();
-  //         setForm(prev => ({ ...prev, category: data.name, industry: '' })); // industry 초기화
-  //       }
-  //     } catch (error) {
-  //       console.error('카테고리 조회 오류:', error);
-  //     }
-  //   };
-
-  //   fetchCategoryName();
-  // }, [searchParams]);
-
   // 선택한 카테고리 변경 시 industries 리스트를 찾아 상태에 저장
   useEffect(() => {
     if (!form.category) {
@@ -119,10 +98,14 @@ export default function StoreRegisterPage() {
 
   // 세부 업종 선택 토글 (radio 방식)
   const handleSelectIndustry = (industry: string) => {
-    setForm(prev => ({
-      ...prev,
-      industry: prev.industry === industry ? '' : industry,
-    }));
+    setForm(prev => {
+      const nextIndustry = prev.industry === industry ? '' : industry;
+      //console.log('nextIndustry : ', nextIndustry)
+      return {
+        ...prev,
+        industry: nextIndustry,
+      };
+    });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -249,6 +232,11 @@ export default function StoreRegisterPage() {
     }
   };
 
+  // for debugging
+  // useEffect(() => {
+  //   console.log('form.industry changed:', form.industry);
+  // }, [form.industry]);
+
   return (
     <div className="max-w-xl mx-auto p-3">
       <h1 className="text-2xl font-bold mb-2 dark:text-white">매장 등록</h1>
@@ -258,13 +246,18 @@ export default function StoreRegisterPage() {
         <div className="mb-4 space-y-2">
           {/* 비동기 카테고리 선택 */}
           <Suspense fallback={null}>
-            <CategoryFromSearchParams
+                        <CategoryFromSearchParams
               onSetCategory={(category) => {
-                setForm((prev) => ({
-                  ...prev,
-                  category,
-                  industry: '', // 업종 초기화
-                }));
+                setForm(prev => {
+                  if (prev.category !== category) {
+                    return {
+                      ...prev,
+                      category,
+                      industry: '', // 카테고리가 바뀔 때만 초기화
+                    };
+                  }
+                  return prev; // 카테고리 변화 없으면 상태 유지
+                });
               }}
             />
           </Suspense>

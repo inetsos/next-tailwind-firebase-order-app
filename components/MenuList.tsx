@@ -50,8 +50,10 @@ export default function MenuList({ storeId }: MenuListProps) {
     fetchData();
   }, [storeId]);
 
-  if (loading) return <p className="text-center text-sm text-gray-600 dark:text-gray-300">⏳ 메뉴 불러오는 중...</p>;
-  if (menus.length === 0) return <p className="text-center text-sm text-gray-600 dark:text-gray-300">📭 등록된 메뉴가 없습니다.</p>;
+  if (loading)
+    return <p className="text-center text-sm text-gray-600 dark:text-gray-300">⏳ 메뉴 불러오는 중...</p>;
+  if (menus.length === 0)
+    return <p className="text-center text-sm text-gray-600 dark:text-gray-300">📭 등록된 메뉴가 없습니다.</p>;
 
   return (
     <div className="mt-4 space-y-6 px-2">
@@ -92,24 +94,30 @@ export default function MenuList({ storeId }: MenuListProps) {
                   <div>
                     <div className="flex justify-between items-center flex-wrap gap-y-1">
                       <h3 className="text-base font-medium text-gray-900 dark:text-gray-100">{menu.name}</h3>
-                      {menu.isSoldOut && (
-                        <span className="text-xs text-red-600 font-medium">품절</span>
-                      )}
+                      {menu.isSoldOut && <span className="text-xs text-red-600 font-medium">품절</span>}
                     </div>
 
-                    <p className="text-sm text-gray-600 dark:text-gray-300 break-words whitespace-pre-line">
-                      {menu.description}
-                    </p>
+                    {menu.description && (
+                      <p className="text-sm text-gray-600 dark:text-gray-300 break-words whitespace-pre-line">
+                        {menu.description}
+                      </p>
+                    )}
 
+                    {/* ✅ 가격 정보 출력 */}
                     <ul className="text-sm text-gray-800 dark:text-gray-200 mt-2 space-y-1">
-                      {menu.prices.map((price, idx) => (
-                        <li key={idx}>
-                          💰 {price.label} - {price.price.toLocaleString()}원
-                        </li>
-                      ))}
+                      {Array.isArray(menu.prices) && menu.prices.length > 0 ? (
+                        menu.prices.map((price, idx) => (
+                          <li key={idx}>💰 {price.label} - {price.price.toLocaleString()}원</li>
+                        ))
+                      ) : menu.price !== undefined ? (
+                        <li>💰 가격 - {menu.price.toLocaleString()}원</li>
+                      ) : (
+                        <li>💸 가격 정보 없음</li>
+                      )}
                     </ul>
                   </div>
 
+                  {/* ✅ 필수 옵션 */}
                   {menu.requiredOptions?.length > 0 && (
                     <div className="text-sm mt-2 text-gray-800 dark:text-gray-200">
                       <strong>⚙️ 필수 옵션</strong>
@@ -119,9 +127,7 @@ export default function MenuList({ storeId }: MenuListProps) {
                             <strong>{group.name}</strong>
                             <ul className="ml-4 list-circle">
                               {group.options.map((opt, i) => (
-                                <li key={i}>
-                                  {opt.name} - {opt.price.toLocaleString()}원
-                                </li>
+                                <li key={i}>{opt.name} - {opt.price.toLocaleString()}원</li>
                               ))}
                             </ul>
                           </li>
@@ -130,6 +136,7 @@ export default function MenuList({ storeId }: MenuListProps) {
                     </div>
                   )}
 
+                  {/* ✅ 선택 옵션 */}
                   {menu.optionalOptions?.length > 0 && (
                     <div className="text-sm mt-2 text-gray-800 dark:text-gray-200">
                       <strong>🧩 선택 옵션</strong>
@@ -139,9 +146,7 @@ export default function MenuList({ storeId }: MenuListProps) {
                             <strong>{group.name}</strong>
                             <ul className="ml-4 list-circle">
                               {group.options.map((opt, i) => (
-                                <li key={i}>
-                                  {opt.name} - {opt.price.toLocaleString()}원
-                                </li>
+                                <li key={i}>{opt.name} - {opt.price.toLocaleString()}원</li>
                               ))}
                             </ul>
                           </li>
