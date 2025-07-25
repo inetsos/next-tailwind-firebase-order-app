@@ -131,11 +131,17 @@ export default function MenuByCategory({ storeId }: MenuByCategoryProps) {
                   </p>
 
                   <ul className="text-sm text-gray-800 dark:text-gray-200 mt-2 space-y-1">
-                    {menu.prices.map((price, idx) => (
-                      <li key={idx}>
-                        💰 {price.label} - {price.price.toLocaleString()}원
+                    {menu.prices && menu.prices.length > 0 ? (
+                      menu.prices.map((price, idx) => (
+                        <li key={idx}>
+                          💰 {price.label} - {price.price.toLocaleString()}원
+                        </li>
+                      ))
+                    ) : menu.price !== undefined ? (
+                      <li>
+                        💰 {menu.price.toLocaleString()}원
                       </li>
-                    ))}
+                    ) : null}
                   </ul>
                 </Link>
               ))}

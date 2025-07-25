@@ -23,15 +23,11 @@ export default function OnlineOrderPage() {
   const [loading, setLoading] = useState(true);
   const [selectedPriceIdx, setSelectedPriceIdx] = useState<number>(0);
   const [quantity, setQuantity] = useState<number>(1);
-
-  // 필수 옵션은 그룹별로 선택된 옵션 인덱스를 저장 (ex: [0, 2, -1])
   const [selectedRequiredOptions, setSelectedRequiredOptions] = useState<number[]>([]);
-  // 선택 옵션은 그룹별로 선택된 옵션 인덱스 배열 저장 (ex: [[0,2], [1]])
   const [selectedOptionalOptions, setSelectedOptionalOptions] = useState<number[][]>([]);
 
   const { addItem } = useCart();
 
-  // 매장 이름 불러오기
   useEffect(() => {
     if (!storeId) return;
     const fetchStore = async () => {
@@ -40,13 +36,11 @@ export default function OnlineOrderPage() {
       if (snap.exists()) {
         const data = snap.data();
         setStoreName(data.name || '');
-        console.log('매장명 불러옴:', data.name);
       }
     };
     fetchStore();
   }, [storeId]);
 
-  // 메뉴 정보 불러오기
   useEffect(() => {
     const fetchMenu = async () => {
       if (!storeId || !menuId) return;
@@ -55,21 +49,15 @@ export default function OnlineOrderPage() {
       if (snap.exists()) {
         const data = snap.data();
         setMenu({ id: snap.id, ...data } as Menu);
-        console.log('메뉴 정보 불러옴:', { id: snap.id, ...data });
 
-        if (data.requiredOptions && data.requiredOptions.length > 0) {
-          setSelectedRequiredOptions(
-            (data.requiredOptions as OptionGroup[]).map(
-              (group: OptionGroup) => (group.options.length > 0 ? 0 : -1)
-            )
-          );
-          console.log('초기 필수 옵션 설정됨');
+        if (data.requiredOptions?.length > 0) {
+          setSelectedRequiredOptions(data.requiredOptions.map((group: OptionGroup) => (group.options.length > 0 ? 0 : -1)));
         } else {
           setSelectedRequiredOptions([]);
         }
-        if (data.optionalOptions && data.optionalOptions.length > 0) {
+
+        if (data.optionalOptions?.length > 0) {
           setSelectedOptionalOptions(data.optionalOptions.map(() => []));
-          console.log('초기 선택 옵션 설정됨');
         } else {
           setSelectedOptionalOptions([]);
         }
@@ -83,17 +71,18 @@ export default function OnlineOrderPage() {
   if (loading) return <p className="p-4 text-center text-sm">⏳ 로딩 중...</p>;
   if (!menu) return <p className="p-4 text-center text-sm">❌ 메뉴 정보를 불러올 수 없습니다.</p>;
 
-  const selectedPrice = menu.prices[selectedPriceIdx];
+  // ✅ 안전한 가격 선택 처리
+  const selectedPrice =
+    menu.prices && menu.prices.length > 0
+      ? menu.prices[selectedPriceIdx]
+      : { label: '기본', price: menu.price ?? 0 };
 
-  // 필수 옵션 가격 합산
   const requiredOptionsPrice = selectedRequiredOptions.reduce((sum, optionIdx, groupIdx) => {
     const group = menu.requiredOptions?.[groupIdx];
-    if (!group) return sum;
-    if (optionIdx === -1) return sum;
+    if (!group || optionIdx === -1) return sum;
     return sum + (group.options[optionIdx]?.price || 0);
   }, 0);
 
-  // 선택 옵션 가격 합산
   const optionalOptionsPrice = selectedOptionalOptions.reduce((sum, optionIndexes, groupIdx) => {
     const group = menu.optionalOptions?.[groupIdx];
     if (!group) return sum;
@@ -105,45 +94,36 @@ export default function OnlineOrderPage() {
 
   const total = (selectedPrice.price + requiredOptionsPrice + optionalOptionsPrice) * quantity;
 
-  // 필수 옵션 선택 변경 핸들러
   const onChangeRequiredOption = (groupIdx: number, optionIdx: number) => {
     setSelectedRequiredOptions(prev => {
       const newArr = [...prev];
       newArr[groupIdx] = optionIdx;
-      console.log(`필수 옵션 변경 - 그룹 ${groupIdx}, 옵션 ${optionIdx}`);
       return newArr;
     });
   };
 
-  // 선택 옵션 토글 핸들러
   const onToggleOptionalOption = (groupIdx: number, optionIdx: number) => {
     setSelectedOptionalOptions(prev => {
       const newArr = [...prev];
       const groupSelected = newArr[groupIdx] || [];
       if (groupSelected.includes(optionIdx)) {
         newArr[groupIdx] = groupSelected.filter(idx => idx !== optionIdx);
-        console.log(`선택 옵션 해제 - 그룹 ${groupIdx}, 옵션 ${optionIdx}`);
       } else {
-        // 최대 선택 개수 제한 확인
         const group = menu.optionalOptions?.[groupIdx];
         if (group && groupSelected.length >= group.maxSelect) {
           alert(`선택 옵션은 최대 ${group.maxSelect}개까지 선택 가능합니다.`);
-          return prev; // 변경 없음
+          return prev;
         }
         newArr[groupIdx] = [...groupSelected, optionIdx];
-        console.log(`선택 옵션 선택 - 그룹 ${groupIdx}, 옵션 ${optionIdx}`);
       }
       return newArr;
     });
   };
 
-  // 가격 옵션 변경 핸들러
   const onChangePriceOption = (priceIdx: number) => {
     setSelectedPriceIdx(priceIdx);
-    console.log(`가격 옵션 변경 - 인덱스: ${priceIdx}`);
   };
 
-  // 주문 처리 함수
   const handleOrder = () => {
     if (menu.requiredOptions?.some((_, idx) => selectedRequiredOptions[idx] === -1)) {
       alert('필수 옵션을 모두 선택해주세요.');
@@ -174,7 +154,6 @@ export default function OnlineOrderPage() {
       totalPrice: total,
     };
 
-    console.log('장바구니에 추가할 아이템:', itemToAdd);
     addItem(storeId, itemToAdd);
     sessionStorage.setItem('scrollToMenu', 'true');
     router.push(`/store/${storeId}`);
@@ -185,6 +164,7 @@ export default function OnlineOrderPage() {
       <Head>
         <title>{menu.name} 주문 - {storeName}</title>
       </Head>
+
       <div className="flex items-center justify-between mb-4 mt-2">
         <h4 className="text-lg font-bold">🛒 {menu.name} 주문</h4>
         <button
@@ -205,24 +185,26 @@ export default function OnlineOrderPage() {
 
       <p className="text-sm mb-4 whitespace-pre-line text-gray-700 dark:text-gray-300">{menu.description}</p>
 
-      {/* 가격 옵션 */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium mb-2">가격</label>
-        <fieldset className="border rounded p-3 bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700">
-          {menu.prices.map((price, idx) => (
-            <label key={idx} className="flex items-center gap-2 text-sm mb-2 cursor-pointer">
-              <input
-                type="radio"
-                name="price-option"
-                checked={selectedPriceIdx === idx}
-                onChange={() => onChangePriceOption(idx)}
-                className="cursor-pointer"
-              />
-              <span>{price.label} - {price.price.toLocaleString()}원</span>
-            </label>
-          ))}
-        </fieldset>
-      </div>
+      {/* ✅ 가격 옵션 조건부 렌더링 */}
+      {menu.prices && menu.prices.length > 0 && (
+        <div className="mb-6">
+          <label className="block text-sm font-medium mb-2">가격</label>
+          <fieldset className="border rounded p-3 bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700">
+            {menu.prices.map((price, idx) => (
+              <label key={idx} className="flex items-center gap-2 text-sm mb-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="price-option"
+                  checked={selectedPriceIdx === idx}
+                  onChange={() => onChangePriceOption(idx)}
+                  className="cursor-pointer"
+                />
+                <span>{price.label} - {price.price.toLocaleString()}원</span>
+              </label>
+            ))}
+          </fieldset>
+        </div>
+      )}
 
       {/* 필수 옵션 */}
       {menu.requiredOptions && menu.requiredOptions.length > 0 && (
