@@ -135,7 +135,7 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
         sortOrder,
         ...(isSinglePrice
           ? { price: singlePrice, prices: [] }
-          : { prices, price: undefined }),
+          : { prices, price: 0 }),
       };
 
       if (onSubmit) {
@@ -168,7 +168,13 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
 
       router.push(`/store/${storeId}/menus`);
     } catch (error) {
-      await logEvent('error', '메뉴 등록 실패', { storeId, menuName: name, error });
+      await logEvent('error', '메뉴 등록 실패', {
+        storeId,
+        menuName: name,
+        error: error instanceof Error ? error.message : String(error),
+      });
+
+      //await logEvent('error', '메뉴 등록 실패', { storeId, menuName: name, error });
       alert('메뉴 등록 중 오류가 발생했습니다.');
     }
   };

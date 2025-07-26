@@ -10,6 +10,13 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 
+declare global {
+  interface Window {
+    recaptchaVerifier: RecaptchaVerifier
+    Kakao: any
+  }
+}
+
 interface PhoneAuthProps {
   onLoginSuccess: () => void;
 }
@@ -151,7 +158,7 @@ export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
       </button>
 
       <p className="text-sm text-gray-500 text-center -mt-2 dark:text-gray-400">
-        처음 오시는 분은 전화번호 인증하시면 회원가입과 로그인이 됩니다.
+        처음 오시는 분은 전화번호 인증을 하셔야 회원가입과 로그인이 됩니다.
       </p>
 
       <input
@@ -170,7 +177,7 @@ export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
         인증하기
       </button>
       <p className="text-sm text-gray-500 text-center -mt-2 dark:text-gray-400">
-        인증번호는 해외에서 발송됩니다.
+        인증번호는 해외(Google)에서 발송됩니다.
       </p>
 
       <hr className="border-t border-gray-300 my-6 dark:border-gray-600" />

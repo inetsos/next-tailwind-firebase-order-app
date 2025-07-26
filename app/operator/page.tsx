@@ -21,14 +21,14 @@ export default function OperatorPage() {
         onClick={goToStoreCategories}
         className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md w-full"
       >
-        매장 분류
+        매장 분류 관리
       </button>
 
       <button
         onClick={goToFoodAlleys}
         className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md w-full"
       >
-        먹자 골목 등록
+        먹자 골목 관리
       </button>
     </div>
   );

@@ -4,12 +4,14 @@ import { CartItem } from '@/types/cart';
 
 interface CartViewProps {
   cartItems: CartItem[];
+  editable?: boolean; // 🔹 수량 조절 가능 여부 (기본값 true)
   onQuantityChange?: (menuId: string, quantity: number) => void;
   onRemoveItem?: (menuId: string) => void;
 }
 
 export default function CartView({
   cartItems,
+  editable = true,
   onQuantityChange,
   onRemoveItem,
 }: CartViewProps) {
@@ -21,7 +23,7 @@ export default function CartView({
   return (
     <div className="max-w-md mx-auto px-1 sm:px-2 py-2 sm:py-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-[300px]">
       <div className="flex items-center justify-between mb-3">
-        <h4 className="text-2xl sm:text-3xl font-bold">🛒 장바구니</h4>
+        <h4 className="text-xl sm:text-2xl font-bold">🛒 장바구니</h4>
         {cartItems.length > 0 && (
           <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 truncate max-w-[120px] sm:max-w-[180px]">
             매장: <strong>{cartItems[0].storeName}</strong>
@@ -56,14 +58,14 @@ export default function CartView({
                   </span>
                 </p>
               </div>
-              <p className="text-gray-700 dark:text-gray-300 mb-3 text-base sm:text-lg">
+              <p className="text-gray-700 dark:text-gray-300 mb-0 text-base sm:text-lg">
                 가격:{' '}
                 <span className="font-medium">
-                  ₩{item.basePrice.toLocaleString()}
+                  {item.basePrice.toLocaleString()} 원
                 </span>
               </p>
 
-              <div className="space-y-2 mb-3">
+              <div className="space-y-2 mb-0">
                 {item.requiredOptions.length > 0 && (
                   <div className="p-2 bg-white dark:bg-gray-700 rounded border border-gray-300 dark:border-gray-600 text-sm sm:text-base">
                     <p className="font-semibold mb-1 text-gray-800 dark:text-gray-200">✅ 필수 옵션</p>
@@ -101,62 +103,68 @@ export default function CartView({
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-1 sm:gap-2">
-                  <label
-                    htmlFor={`qty-${item.menuId}`}
-                    className="text-sm sm:text-base select-none"
-                  >
-                    수량
-                  </label>
+                {editable ? (
+                  <>
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <label
+                      htmlFor={`qty-${item.menuId}`}
+                      className="text-sm sm:text-base select-none"
+                    >
+                      수량
+                    </label>
 
-                  <button
-                    type="button"
-                    onClick={() =>
-                      onQuantityChange?.(
-                        item.menuId,
-                        Math.max(1, item.quantity - 1)
-                      )
-                    }
-                    className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-600 text-white rounded-md flex items-center justify-center text-lg select-none hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 transition"
-                    aria-label="수량 감소"
-                  >
-                    −
-                  </button>
-
-                  <input
-                    id={`qty-${item.menuId}`}
-                    type="number"
-                    min={1}
-                    value={item.quantity}
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value);
-                      if (!isNaN(val) && val > 0) {
-                        onQuantityChange?.(item.menuId, val);
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onQuantityChange?.(
+                          item.menuId,
+                          Math.max(1, item.quantity - 1)
+                        )
                       }
-                    }}
-                    className="w-12 sm:w-14 h-7 sm:h-8 border border-gray-300 dark:border-gray-600 rounded-md px-1 sm:px-2 py-0 text-center text-sm sm:text-base outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                    style={{ lineHeight: '28px' }}
-                  />
+                      className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-600 text-white rounded-md flex items-center justify-center text-lg select-none hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 transition"
+                      aria-label="수량 감소"
+                    >
+                      −
+                    </button>
+
+                    <input
+                      id={`qty-${item.menuId}`}
+                      type="number"
+                      min={1}
+                      value={item.quantity}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value);
+                        if (!isNaN(val) && val > 0) {
+                          onQuantityChange?.(item.menuId, val);
+                        }
+                      }}
+                      className="w-12 sm:w-14 h-7 sm:h-8 border border-gray-300 dark:border-gray-600 rounded-md px-1 sm:px-2 py-0 text-center text-sm sm:text-base outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      style={{ lineHeight: '28px' }}
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onQuantityChange?.(item.menuId, item.quantity + 1)
+                      }
+                      className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-600 text-white rounded-md flex items-center justify-center text-lg select-none hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 transition"
+                      aria-label="수량 증가"
+                    >
+                      +
+                    </button>
+                  </div>
 
                   <button
+                    onClick={() => onRemoveItem?.(item.menuId)}
                     type="button"
-                    onClick={() =>
-                      onQuantityChange?.(item.menuId, item.quantity + 1)
-                    }
-                    className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-600 text-white rounded-md flex items-center justify-center text-lg select-none hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 transition"
-                    aria-label="수량 증가"
+                    className="text-red-600 hover:underline text-sm sm:text-base"
                   >
-                    +
+                    삭제
                   </button>
-                </div>
-
-                <button
-                  onClick={() => onRemoveItem?.(item.menuId)}
-                  type="button"
-                  className="text-red-600 hover:underline text-sm sm:text-base"
-                >
-                  삭제
-                </button>
+                  </>
+                ) : (
+                  <span className="text-base sm:text-lg text-gray-700">수량: {item.quantity} </span>
+                )}
               </div>
 
               <p className="mt-3 text-right font-semibold text-base sm:text-lg text-gray-900 dark:text-white truncate">

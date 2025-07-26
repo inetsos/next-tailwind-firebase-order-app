@@ -91,19 +91,19 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">주문 확인</h1>
+    <div className="max-w-2xl mx-auto px-4 py-6">
+      <h1 className="text-2xl font-bold mb-2">주문 확인</h1>
 
-      <CartView cartItems={items} />
+      <CartView cartItems={items} editable={false}/>
 
-      <div className="mt-6">
+      <div className="mt-2">
         <label className="block font-medium mb-2">요청사항</label>
         <textarea
           value={requestNote}
           onChange={(e) => setRequestNote(e.target.value)}
           placeholder="예: 덜 맵게 해주세요."
           className="w-full border rounded p-2"
-          rows={4}
+          rows={2}
           disabled={isSubmitting}
         />
       </div>
@@ -115,7 +115,7 @@ export default function CheckoutPage() {
       <button
         onClick={handleOrderSubmit}
         disabled={isSubmitting}
-        className={`mt-6 w-full py-3 rounded text-white ${
+        className={`mt-4 w-full py-2 rounded text-white ${
           isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
         }`}
       >

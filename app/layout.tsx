@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: '지역 커뮤니티 - 시지 라이프',
   description: 'Next.js + Tailwind Layout Example',
   verification: {
+    // 구글 서치 콘솔
     google: 'f6qg1AVUd-2giHuyqps-X1yc7J1B0-ZNQi5p-j9DDaA',
   },
 };
@@ -24,7 +25,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Navbar />
           </Suspense>
 
-          {/* 네비게이션 고정으로 인한 본문 밀림 방지용 padding-top 추가 */}
           <ErrorBoundaryClient>
             <main className="flex-1 w-full  max-w-lg mx-auto px-1 sm:px-2">
               {children}

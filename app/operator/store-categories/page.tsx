@@ -184,7 +184,7 @@ export default function StoreCategoryListPage() {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold">매장 분류</h1>
+        <h1 className="text-xl font-bold">매장 분류 관리</h1>
         <Link href="/operator/store-categories/new" className="text-blue-500 underline">
           + 새 분류
         </Link>
