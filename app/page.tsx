@@ -42,13 +42,13 @@ export default async function Home() {
   return (
     <div className="w-full px-0 py-4 text-gray-900 dark:text-white">
       <div className="px-2 sm:px-4">
-        <h4 className="text-2xl font-bold mt-10 mb-10 text-center">시지 라이프</h4>
+        <h4 className="text-2xl font-bold mt-12 mb-6 text-center">시지 라이프</h4>
 
-        <div className="mb-6 space-y-4">
+        <div className="space-y-4">
           
           <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg ">
               골목길 작은 가게부터 정겨운 단골집까지—<br/>
-              이웃과 함께하는 소비, 그 속에 진짜 가치가 있습니다.          
+              이웃과 함께하는 소비, 소중한 가치입니다.          
           </div>
 
           <div className="my-8">
