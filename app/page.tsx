@@ -42,7 +42,7 @@ export default async function Home() {
   return (
     <div className="w-full px-0 py-4 text-gray-900 dark:text-white">
       <div className="px-2 sm:px-4">
-        <h4 className="text-2xl font-bold mt-12 mb-6 text-center">시지 라이프</h4>
+        <h4 className="text-2xl font-bold mt-8 mb-6 text-center">시지 라이프</h4>
 
         <div className="space-y-4">
           
