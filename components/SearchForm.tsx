@@ -20,7 +20,7 @@ export default function SearchForm() {
         type="text"
         value={keyword}
         onChange={e => setKeyword(e.target.value)}
-        placeholder="매장명을 검색하세요"
+        placeholder="시지 지역 상호로 검색하세요."
         className="flex-1 border p-2 rounded"
       />
       <button
