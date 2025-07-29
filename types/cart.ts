@@ -6,7 +6,7 @@ export interface OptionItem {
 }
 
 export interface CartItem {
-  id?: string; // 고유 식별자 (선택)
+  id: string; // 고유 식별자 (선택)
   storeId: string; // 매장 ID
   storeName: string; // 매장 이름
   menuId: string; // 메뉴 ID
@@ -26,4 +26,6 @@ export interface CartItem {
     groupName: string; // 선택 옵션 그룹명
     options: OptionItem[]; // 선택한 옵션 배열
   }[];
+
+  addedAt: number;
 }

@@ -4,7 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc,
+  collection, addDoc, serverTimestamp
+ } from 'firebase/firestore';
 import { db } from '@/firebase/firebaseConfig';
 import { Order } from '@/types/order';
 import { useParams } from 'next/navigation';
@@ -15,7 +17,7 @@ export default function OrderReceipt() {
   const { storeId, orderId } = useParams() as { storeId: string; orderId: string };
 
   const contentRef  = useRef<HTMLDivElement>(null);
-  const reactToPrintFn = useReactToPrint({ contentRef  });
+  const reactToPrintFn = useReactToPrint({ contentRef });
 
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
@@ -47,11 +49,25 @@ export default function OrderReceipt() {
   }, [storeId, orderId]);
 
   const handleChangeStatus = async (newStatus: Order['status']) => {
-    if (!order?.id) return;
+    if (!order?.id || !order.userId || !order.storeName) return;
+
     const orderRef = doc(db, 'stores', storeId, 'orders', orderId);
     await updateDoc(orderRef, { status: newStatus });
-    //alert(`상태가 "${newStatus}"로 변경되었습니다.`);
     setOrder((prev) => prev && { ...prev, status: newStatus });
+
+    // 🔽 메시지 저장 추가
+    const messageText = `${order.storeName} - 주문이 "${newStatus}" 상태로 변경되었습니다.`;
+    const messageRef = collection(db, 'users', order.userId, 'orderMessages');
+
+    await addDoc(messageRef, {
+      orderNumber: order.orderNumber,
+      storeId,
+      storeName: order.storeName,
+      status: newStatus,
+      message: messageText,
+      createdAt: serverTimestamp(),
+      read: false,
+    });
   };
 
   if (loading) return <p className="text-center py-10">로딩 중...</p>;
@@ -62,7 +78,7 @@ export default function OrderReceipt() {
       <div>        
         {/* 인쇄 영역 */}
         <div
-          ref={contentRef }
+          ref={contentRef}
           className="p-6 mt-4 mb-0 rounded-lg print:block bg-white text-black"
         >
           <h4 className="text-lg font-bold mb-2">
@@ -71,7 +87,7 @@ export default function OrderReceipt() {
           <p className="text-sm mb-1 flex items-center gap-2">
             상태:
             <span
-              className={`px-2 py-0.5 rounded-full text-xs font-semibold
+              className={`px-2 py-0.5 rounded-full text-sm font-semibold
                 ${order.status === '접수' ? 'bg-blue-100 text-blue-800' :
                   order.status === '준비' ? 'bg-yellow-100 text-yellow-800' :
                   order.status === '픽업' ? 'bg-green-100 text-green-800' :
@@ -88,7 +104,12 @@ export default function OrderReceipt() {
               : '-'}
           </p>
           {order.requestNote && (
-            <p className="text-sm mb-1">요청사항: {order.requestNote}</p>
+            <p className="whitespace-pre-wrap text-sm mt-1">
+              요청사항:<br/>
+              <span className="pl-6 block">
+                {order.requestNote}
+              </span>
+            </p>
           )}
 
           <hr className="my-3 border-t" />
@@ -99,20 +120,20 @@ export default function OrderReceipt() {
                 <div className="font-semibold">
                   {item.name} × {item.quantity}
                 </div>
-                <div className="text-xs text-gray-600 mb-1">
+                <div className="text-sm text-gray-600 mb-1">
                   {item.baseLabel} - {item.basePrice.toLocaleString()}원
                 </div>
 
                 {/* 필수 옵션 */}
                 {item.requiredOptions.map((req, idx) => (
-                  <div key={idx} className="text-xs ml-2">
+                  <div key={idx} className="text-sm ml-2">
                     ▸ {req.groupName}: {req.option.name} (+{req.option.price}원)
                   </div>
                 ))}
 
                 {/* 선택 옵션 */}
                 {item.optionalOptions.map((opt, idx) => (
-                  <div key={idx} className="text-xs ml-2">
+                  <div key={idx} className="text-sm ml-2">
                     ▸ {opt.groupName}:{' '}
                     {opt.options.map((o) => `${o.name} (+${o.price}원)`).join(', ')}
                   </div>
@@ -160,7 +181,7 @@ export default function OrderReceipt() {
               <button
                 key={statusValue}
                 onClick={() => handleChangeStatus(statusValue)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-200
+                className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-200
                   ${
                     order.status === statusValue
                       ? 'bg-blue-600 text-white border-blue-600 shadow'

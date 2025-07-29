@@ -5,7 +5,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { useCart } from '@/context/CartContext';
 import CartView from '@/components/CartView';
 import { createOrderWithTransaction } from '@/utils/order';
+import { db } from '@/firebase/firebaseConfig';
+import { collection, serverTimestamp, addDoc } from 'firebase/firestore';
 import { useAuth } from '@/hooks/useAuth';  // 로그인 유저 정보 가져오는 커스텀 훅
+import { useUserStore } from '@/stores/userStore';
 
 export default function CheckoutPage() {
   const { storeId: rawStoreId } = useParams();
@@ -18,12 +21,14 @@ export default function CheckoutPage() {
   const { carts, clearCart } = useCart();
   const { user } = useAuth();
 
+  const { userData } = useUserStore();
+
   const items = useMemo(() => {
     if (!storeId || typeof storeId !== 'string') return [];
     return carts[storeId] || [];
   }, [carts, storeId]);
 
-  const totalPrice = items.reduce((sum, item) => sum + item.totalPrice * item.quantity, 0);
+  const totalPrice = items.reduce((sum, item) => sum + item.totalPrice, 0);
 
   useEffect(() => {
     if (!storeId || typeof storeId !== 'string') {
@@ -35,7 +40,7 @@ export default function CheckoutPage() {
   const handleOrderSubmit = async () => {
     if (isSubmitting) return; // 중복 방지
 
-    if (!user) {
+    if (!user || !userData) {
       alert('로그인 후 주문해주세요.');
       return;
     }
@@ -52,7 +57,8 @@ export default function CheckoutPage() {
 
     try {
       const orderData = {
-        userId: user.uid,
+        userId: userData.userId,
+        userPhone: userData.phoneNumber ?? '',
         storeId: storeId,
         storeName: items[0].storeName,
         items,
@@ -62,6 +68,7 @@ export default function CheckoutPage() {
       };
 
       const { id: orderId, orderNumber } = await createOrderWithTransaction(orderData);
+
       alert(`주문이 접수되었습니다. 주문번호: ${orderNumber}`);
 
       clearCart(storeId);
@@ -70,7 +77,7 @@ export default function CheckoutPage() {
       router.push(`/store/${storeId}/order-complete?orderNumber=${orderNumber}`);
     } catch (error) {
       console.error(error);
-      alert('주문 처리 중 오류가 발생했습니다.');
+      alert(`주문 처리 중 오류 발생: ${(error as Error).message || '알 수 없는 오류입니다.'}`);
     } finally {
       setIsSubmitting(false);
     }

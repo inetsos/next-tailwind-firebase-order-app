@@ -3,11 +3,14 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { useParams, useRouter } from 'next/navigation';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc,
+  serverTimestamp
+ } from 'firebase/firestore';
 import { db } from '@/firebase/firebaseConfig';
 import { Menu, OptionGroup } from '@/types/menu';
 import { useCart } from '@/context/CartContext';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function OnlineOrderPage() {
   const params = useParams();
@@ -92,6 +95,7 @@ export default function OnlineOrderPage() {
     return sum + groupSum;
   }, 0);
 
+  console.log('selectedPrice.price: ', selectedPrice.price)
   const total = (selectedPrice.price + requiredOptionsPrice + optionalOptionsPrice) * quantity;
 
   const onChangeRequiredOption = (groupIdx: number, optionIdx: number) => {
@@ -124,7 +128,7 @@ export default function OnlineOrderPage() {
     setSelectedPriceIdx(priceIdx);
   };
 
-  const handleOrder = () => {
+  const handleOrder = async () => {
     if (menu.requiredOptions?.some((_, idx) => selectedRequiredOptions[idx] === -1)) {
       alert('필수 옵션을 모두 선택해주세요.');
       return;
@@ -141,6 +145,7 @@ export default function OnlineOrderPage() {
     })) || [];
 
     const itemToAdd = {
+      id: uuidv4(),
       storeId,
       storeName,
       menuId: menu.id,
@@ -152,10 +157,12 @@ export default function OnlineOrderPage() {
       requiredOptions: requiredSelected,
       optionalOptions: optionalSelected,
       totalPrice: total,
+      addedAt: Date.now()
     };
 
     addItem(storeId, itemToAdd);
     sessionStorage.setItem('scrollToMenu', 'true');
+
     router.push(`/store/${storeId}`);
   };
 

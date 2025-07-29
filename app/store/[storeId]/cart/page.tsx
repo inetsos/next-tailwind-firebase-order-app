@@ -52,17 +52,17 @@ export default function CartPage() {
     }
   }, [storeId, currentStoreId, carts, clearCart, switchStore, router]);
 
-  const handleQuantityChange = (menuId: string, quantity: number) => {
-    const index = items.findIndex((item) => item.menuId === menuId);
-    if (index !== -1 && storeId) {
-      updateItemQuantity(storeId, index, quantity);
+  const handleQuantityChange = (itemId: string, quantity: number) => {
+    //const index = items.findIndex((item) => item.id === itemId);
+    if (storeId) {
+      updateItemQuantity(storeId, itemId, quantity);
     }
   };
 
-  const handleRemoveItem = (menuId: string) => {
-    const index = items.findIndex((item) => item.menuId === menuId);
-    if (index !== -1 && storeId) {
-      removeItem(storeId, index);
+  const handleRemoveItem = (itemId: string) => {
+    //const index = items.findIndex((item) => item.id === itemId);
+    if (storeId) {
+      removeItem(storeId, itemId);
     }
   };
 

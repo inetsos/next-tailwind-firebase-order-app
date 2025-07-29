@@ -29,27 +29,27 @@ export default function StoreAdminDashboard() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">매장 관리자 대시보드</h1>
+    <div className="max-w-2xl mx-auto px-4 py-6">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">매장 관리자 대시보드</h1>
 
       <div className="space-y-4">
         <button
           onClick={goToOrderManagement}
-          className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded flex items-center justify-center gap-2"
+          className="w-full py-4 px-6 text-base sm:text-lg bg-blue-600 hover:bg-blue-700 text-white rounded-xl 
+                    flex items-center justify-center gap-3 shadow-sm transition"
         >
-          <ClipboardDocumentIcon className="w-6 h-6" />
+          <ClipboardDocumentIcon className="w-6 h-6 sm:w-7 sm:h-7" />
           주문 관리
         </button>
 
         <button
           onClick={goToMenuManagement}
-          className="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded flex items-center justify-center gap-2"
+          className="w-full py-4 px-6 text-base sm:text-lg bg-green-600 hover:bg-green-700 text-white rounded-xl 
+                    flex items-center justify-center gap-3 shadow-sm transition"
         >
-          <Squares2X2Icon className="w-6 h-6" />
+          <Squares2X2Icon className="w-6 h-6 sm:w-7 sm:h-7" />
           메뉴 관리
         </button>
-
-        {/* 필요시 추가 버튼 넣기 */}
       </div>
     </div>
   );

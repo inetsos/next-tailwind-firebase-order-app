@@ -5,6 +5,7 @@ import { CartItem } from './cart';
 export interface Order {
   id?: string;
   userId: string;       // 주문자 ID
+  userPhone: string,
   storeId: string;
   storeName: string;
   orderNumber?: string;

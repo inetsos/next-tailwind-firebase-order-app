@@ -11,15 +11,16 @@ import {
   mergeLocalCartToFirestore
 } from '@/utils/cartStorage'; // 아래에서 구현
 import { getLocalCart, saveLocalCart, clearLocalCart } from '@/utils/localCart';
+import { v4 as uuidv4 } from 'uuid';
 
 interface CartContextType {
   carts: { [storeId: string]: CartItem[] };
   currentStoreId: string | null;
   items: CartItem[];
   addItem: (storeId: string, item: CartItem) => void;
-  removeItem: (storeId: string, index: number) => void;
+  removeItem: (storeId: string, itemId: string) => void;
   clearCart: (storeId: string) => void;
-  updateItemQuantity: (storeId: string, index: number, quantity: number) => void;
+  updateItemQuantity: (storeId: string, itemId: string, quantity: number) => void;
   switchStore: (storeId: string) => void;
 }
 
@@ -72,27 +73,40 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const existing = prev[storeId] || [];
       return { ...prev, [storeId]: [...existing, item] };
     });
+
     if (!currentStoreId) setCurrentStoreId(storeId);
   };
 
-  const removeItem = (storeId: string, index: number) => {
+  const removeItem = (storeId: string, itemId: string) => {
     setCarts(prev => {
-      const updated = [...(prev[storeId] || [])];
-      updated.splice(index, 1);
+      const updated = (prev[storeId] || []).filter(item => item.id !== itemId);
+      return { ...prev, [storeId]: updated };
+    });
+  };
+
+  const updateItemQuantity = (storeId: string, itemId: string, quantity: number) => {
+    setCarts(prev => {
+      const updated = (prev[storeId] || []).map(item => {
+        if (item.id === itemId) {
+          const requiredOptionTotal = item.requiredOptions.reduce(
+            (sum, opt) => sum + opt.option.price, 0);
+          const optionalOptionTotal = item.optionalOptions.reduce(
+            (sum, group) => sum + group.options.reduce(
+              (innerSum, o) => innerSum + o.price, 0),
+            0
+          );
+          const newTotal = (item.basePrice + requiredOptionTotal + optionalOptionTotal) * quantity;
+
+          return { ...item, quantity, totalPrice: newTotal };
+        }
+        return item;
+      });
       return { ...prev, [storeId]: updated };
     });
   };
 
   const clearCart = (storeId: string) => {
     setCarts(prev => ({ ...prev, [storeId]: [] }));
-  };
-
-  const updateItemQuantity = (storeId: string, index: number, quantity: number) => {
-    setCarts(prev => {
-      const updated = [...(prev[storeId] || [])];
-      updated[index].quantity = quantity;
-      return { ...prev, [storeId]: updated };
-    });
   };
 
   const switchStore = (storeId: string) => {

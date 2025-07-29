@@ -35,7 +35,7 @@ export default function MyPageContent() {
 
   return (
     <div className="max-w-md mx-auto mt-4 p-4 rounded-xl shadow bg-white dark:bg-gray-800 space-y-4">
-      <h1 className="text-xl font-bold text-gray-900 dark:text-white">마이페이지</h1>
+      <h1 className="text-xl font-bold text-gray-900 dark:text-white">내프로필</h1>
 
       <div className="space-y-2.5 text-sm text-gray-800 dark:text-gray-200">
         <div className="flex">

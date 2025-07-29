@@ -127,14 +127,6 @@ export default function StoreLandingPage() {
         subtree: true,
       });
 
-      // setTimeout(() => {
-      //   const el = document.getElementById('infoWindowContent')
-      //   if (el) {
-      //     el.addEventListener('click', () => {
-      //       infoWindow.close()
-      //     })
-      //   }
-      // }, 0)
     };
 
     initMap();
@@ -220,14 +212,6 @@ export default function StoreLandingPage() {
               <span className="text-gray-600 dark:text-gray-400 text-sm whitespace-nowrap">{store.industry}</span>
             </div>
 
-            {/* 오른쪽 링크 */}
-            {/* <Link
-              href={`/categories/${store.category}/stores`}
-              className="text-blue-600 dark:text-blue-400 text-sm hover:underline ml-auto"
-            >
-              ← {store.category} 목록
-            </Link> */}
-            {/* 이전 페이지로 돌아가기 버튼 */}
             <button
               onClick={() => router.back()}
               className="text-blue-600 dark:text-blue-400 text-sm hover:underline ml-auto"
