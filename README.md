@@ -240,6 +240,8 @@ npm install react-to-print@latest
 npx shadcn@latest init
 npx shadcn@latest add input button
 
+npm install tailwind-scrollbar-hide
+
 
 ```
 next-tailwind-firebase-order-app

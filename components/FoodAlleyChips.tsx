@@ -16,7 +16,10 @@ export default function FoodAlleyChips({ foodAlleys }: Props) {
   const router = useRouter();
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+    <div className="flex gap-2 whitespace-nowrap px-2 py-1" style={{
+      msOverflowStyle: 'none',
+    }}>
       {foodAlleys.map(alley => {
         const encodedName = encodeURIComponent(alley.name);
         const url = `/food-alleys/${alley.id}?name=${encodeURIComponent(alley.name)}`;
@@ -32,6 +35,7 @@ export default function FoodAlleyChips({ foodAlleys }: Props) {
           </button>
         );
       })}
+    </div>
     </div>
   );
 }

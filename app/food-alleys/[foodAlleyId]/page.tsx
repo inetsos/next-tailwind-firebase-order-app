@@ -57,13 +57,13 @@ export default function FoodAlleyStoreListPage() {
     <div className="max-w-2xl mx-auto py-8 px-4">
       <div className="flex justify-between items-center mb-6">
         {/* 쿼리에서 받은 먹자골목 이름 출력 */}
-        <h1 className="text-2xl font-bold">{foodAlleyName || '먹자골목'} 매장 목록</h1>
+        <h1 className="text-2xl font-bold">{foodAlleyName || '먹자골목'}</h1>
       </div>
 
       {loading ? (
         <p>로딩 중...</p>
       ) : stores.length === 0 ? (
-        <p>해당 먹자골목에 등록된 매장이 없습니다.</p>
+        <p>{foodAlleyName} 먹자골목에 등록된 매장이 없습니다.</p>
       ) : (
         <>
           <StoreList stores={stores} />
