@@ -71,7 +71,6 @@ export default function SearchResults() {
           onChange={e => setInputValue(e.target.value)}
           placeholder="매장명을 검색하세요"
           className="flex-1 border p-2 rounded"
-          autoFocus
         />
         <button
           type="submit"
