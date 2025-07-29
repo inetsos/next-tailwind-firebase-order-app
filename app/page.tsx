@@ -47,8 +47,7 @@ export default async function Home() {
         <div className="space-y-4">
           
           <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg ">
-              골목길 작은 가게부터 정겨운 단골집까지—<br/>
-              이웃과 함께하는 소비, 소중한 가치입니다.          
+            동네 맛집, 온라인 주문 직접 픽업 플랫폼.          
           </div>
 
           <div className="my-8">
