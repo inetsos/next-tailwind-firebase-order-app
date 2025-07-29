@@ -44,13 +44,12 @@ export default async function Home() {
       <div className="px-2 sm:px-4">
         <h1 className="text-3xl font-bold mt-8 mb-6 text-center">시지 라이프</h1>
 
-        <div className="space-y-4">
-          
-          <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg ">
-            동네 맛집, 온라인 주문 직접 픽업 플랫폼.          
-          </div>
+        <div className="space-y-2">
 
           <div className="my-8">
+            <span className="text-xs ml-2">
+              동네 맛집, 온라인 주문 직접 픽업 플랫폼—
+            </span> 
             <SearchForm />
           </div>
 
