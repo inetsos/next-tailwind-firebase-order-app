@@ -13,6 +13,7 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import dayjs from 'dayjs';
 import { useUserStore } from '@/stores/userStore';
+import Link from 'next/link';
 
 interface OrderMessage {
   id: string;
@@ -20,6 +21,8 @@ interface OrderMessage {
   createdAt: string;
   orderNumber: string;
   status: string;
+  storeId: string; 
+  storeName: string;
 }
 
 interface FirestoreOrderMessage {
@@ -27,6 +30,8 @@ interface FirestoreOrderMessage {
   createdAt: Timestamp;
   orderNumber: string;
   status: string;
+  storeId: string;
+  storeName: string;
 }
 
 export default function MyOrderMessages() {
@@ -62,6 +67,8 @@ export default function MyOrderMessages() {
             : '-',
           orderNumber: docData.orderNumber,
           status: docData.status,
+          storeId: docData.storeId,      
+          storeName: docData.storeName,  
         };
       });
 
@@ -125,19 +132,21 @@ export default function MyOrderMessages() {
         <p className="text-sm text-gray-500 dark:text-gray-400">알림 메시지가 없습니다.</p>
       ) : (
         <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-200">
-          {messages.map((msg) => (
-            <li
-              key={msg.id}
-              className="p-3 border border-gray-200 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-700"
+        {messages.map((msg) => (
+          <li key={msg.id}>
+            <Link
+              href={`/mypage/orders/${msg.storeId}?storeName=${encodeURIComponent(msg.storeName)}`}
+              className="block p-3 border border-gray-200 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600"
             >
               <p>{msg.message}</p>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                주문번호: {msg.orderNumber} | 상태: {msg.status} |{' '}
-                <strong>{msg.createdAt}</strong>
+                주문번호: {msg.orderNumber} | 상태: {msg.status} | <strong>{msg.createdAt}</strong>
               </p>
-            </li>
-          ))}
-        </ul>
+            </Link>
+          </li>
+        ))}
+      </ul>
+
       )}
     </div>
   );

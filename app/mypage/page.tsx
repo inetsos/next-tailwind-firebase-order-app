@@ -11,10 +11,19 @@ export default function MyPagePage() {
             href="/mypage/order-messages"
             className="block p-4 bg-green-100 rounded hover:bg-green-200 dark:bg-green-900 dark:hover:bg-green-800"
           >
-            주문 상태 보기
+            내 주문 상태 보기
           </Link>
         </li>
         
+        <li>
+          <Link
+            href="/mypage/orders"
+            className="block p-4 bg-yellow-100 rounded hover:bg-yellow-200 dark:bg-yellow-900 dark:hover:bg-yellow-800"
+          >
+            내 주문 보기
+          </Link>
+        </li>
+
         <li>
           <Link
             href="/mypage/profile"

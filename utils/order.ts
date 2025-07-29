@@ -7,6 +7,7 @@ export const createOrderWithTransaction = async (
 ) => {
   const storeOrderCounterRef = doc(db, 'stores', order.storeId);
   const ordersRef = collection(db, 'stores', order.storeId, 'orders');
+  const userOrdersRef = collection(db, 'users', order.userId, 'orders');
 
   return await runTransaction(db, async (transaction) => {
     const counterDoc = await transaction.get(storeOrderCounterRef);
@@ -37,8 +38,6 @@ export const createOrderWithTransaction = async (
       createdAt: serverTimestamp(),
     });
 
-    // 회원 주문 기록 저장
-    const userOrdersRef = collection(db, 'users', order.userId, 'orders');
     // 회원 주문 기록 저장
     transaction.set(doc(userOrdersRef, newOrderRef.id), {
       storeId: order.storeId,
