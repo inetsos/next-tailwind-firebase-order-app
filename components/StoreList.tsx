@@ -104,10 +104,10 @@ export default function StoreList({ stores: initialStores }: StoreListProps) {
                 href={`/store/${store.id}`}
                 className="block p-4 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition"
               >
-                <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between">
+                <div className="flex items-center justify-between gap-2">
                   <h4 className="text-lg font-semibold">{store.name}</h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 sm:mt-0">
-                    {store.category}
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {store.industry}
                   </p>
                 </div>
 

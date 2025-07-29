@@ -55,7 +55,7 @@ export default function CategoryStorePage({ params }: PageProps) {
 
   return (
     <div className="p-4">
-      <h4 className="text-2xl font-bold mb-4">{decodedCategoryName} 카테고리</h4>
+      <h4 className="text-2xl font-bold mb-4">{decodedCategoryName}</h4>
 
       {loading ? (
         <p>로딩 중...</p>
