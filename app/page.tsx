@@ -47,7 +47,7 @@ export default async function Home() {
         <div className="space-y-2">
 
           <div className="my-8">
-            <span className="text-xs ml-2">
+            <span className="text-느 ml-2">
               동네 맛집, 온라인 주문 직접 픽업 플랫폼—
             </span> 
             <SearchForm />
