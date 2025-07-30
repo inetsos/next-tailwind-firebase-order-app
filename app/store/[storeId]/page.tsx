@@ -198,14 +198,6 @@ export default function StoreLandingPage() {
               <h4 className="font-bold text-xl truncate">{store.name}</h4>
               <span className="text-gray-600 dark:text-gray-400 text-sm whitespace-nowrap">{store.industry}</span>
             </div>
-
-            <button
-              onClick={() => router.back()}
-              className="text-blue-600 dark:text-blue-400 text-sm hover:underline ml-auto"
-              type="button"
-            >
-              ← 이전 페이지로
-            </button>
           </div>
 
           <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap mt-2 mb-2">{store.description}</p>

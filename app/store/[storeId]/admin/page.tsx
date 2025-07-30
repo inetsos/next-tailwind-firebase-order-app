@@ -5,7 +5,8 @@ import { useEffect } from 'react';
 import {
   ClipboardDocumentIcon,
   Squares2X2Icon,
-  ExclamationTriangleIcon, // 새 아이콘 추가
+  ExclamationTriangleIcon,
+  QrCodeIcon,
 } from '@heroicons/react/24/outline';
 
 export default function StoreAdminDashboard() {
@@ -21,21 +22,19 @@ export default function StoreAdminDashboard() {
   }, [storeId, router]);
 
   const goToOrderManagement = () => {
-    if (storeId) {
-      router.push(`/store/${storeId}/orders`);
-    }
+    if (storeId) router.push(`/store/${storeId}/orders`);
   };
 
   const goToMenuManagement = () => {
-    if (storeId) {
-      router.push(`/store/${storeId}/menus`);
-    }
+    if (storeId) router.push(`/store/${storeId}/menus`);
   };
 
   const goToSoldOutManagement = () => {
-    if (storeId) {
-      router.push(`/store/${storeId}/sold-out`);
-    }
+    if (storeId) router.push(`/store/${storeId}/sold-out`);
+  };
+
+  const goToQrCodePage = () => {
+    if (storeId) router.push(`/store/${storeId}/qr`);
   };
 
   return (
@@ -46,7 +45,7 @@ export default function StoreAdminDashboard() {
         <button
           onClick={goToOrderManagement}
           className="w-full py-2 px-6 text-sm sm:text-base bg-blue-600 hover:bg-blue-700 text-white rounded-xl 
-                    flex items-center justify-center gap-3 shadow-sm transition"
+                  flex items-center justify-center gap-3 shadow-sm transition"
         >
           <ClipboardDocumentIcon className="w-6 h-6 sm:w-7 sm:h-7" />
           주문 관리
@@ -55,7 +54,7 @@ export default function StoreAdminDashboard() {
         <button
           onClick={goToMenuManagement}
           className="w-full py-2 px-6 text-sm sm:text-base bg-green-600 hover:bg-green-700 text-white rounded-xl 
-                    flex items-center justify-center gap-3 shadow-sm transition"
+                  flex items-center justify-center gap-3 shadow-sm transition"
         >
           <Squares2X2Icon className="w-6 h-6 sm:w-7 sm:h-7" />
           메뉴 관리
@@ -64,10 +63,19 @@ export default function StoreAdminDashboard() {
         <button
           onClick={goToSoldOutManagement}
           className="w-full py-2 px-6 text-sm sm:text-base bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl 
-                    flex items-center justify-center gap-3 shadow-sm transition"
+                  flex items-center justify-center gap-3 shadow-sm transition"
         >
           <ExclamationTriangleIcon className="w-6 h-6 sm:w-7 sm:h-7" />
           품절 관리
+        </button>
+
+        <button
+          onClick={goToQrCodePage}
+          className="w-full py-2 px-6 text-sm sm:text-base bg-gray-700 hover:bg-gray-800 text-white rounded-xl 
+                  flex items-center justify-center gap-3 shadow-sm transition"
+        >
+          <QrCodeIcon className="w-6 h-6 sm:w-7 sm:h-7" />
+          QR 코드 생성
         </button>
       </div>
     </div>
