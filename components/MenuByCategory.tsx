@@ -103,11 +103,14 @@ export default function MenuByCategory({ storeId }: MenuByCategoryProps) {
               {categoryMenus.map((menu) => (
                 <Link
                   key={menu.id}
-                  href={`/store/${storeId}/menus/${menu.id}/order`}
-                  className="block border border-gray-200 dark:border-gray-700 rounded p-3 
-                             shadow-sm bg-white dark:bg-gray-900 
-                             text-gray-900 dark:text-gray-100 
-                             hover:shadow-md transition-shadow"
+                  href={menu.isSoldOut ? '#' : `/store/${storeId}/menus/${menu.id}/order`}
+                  className={`block border border-gray-200 dark:border-gray-700 rounded p-3 
+                              shadow-sm bg-white dark:bg-gray-900 
+                              text-gray-900 dark:text-gray-100 
+                              hover:shadow-md transition-shadow
+                              ${menu.isSoldOut ? 'opacity-50 pointer-events-none cursor-not-allowed' : ''}`}
+                  tabIndex={menu.isSoldOut ? -1 : 0} // 키보드 접근도 차단
+                  aria-disabled={menu.isSoldOut}   // 접근성 속성 추가
                 >
                   {menu.imageUrl && (
                     <img
@@ -122,7 +125,9 @@ export default function MenuByCategory({ storeId }: MenuByCategoryProps) {
                       {menu.name}
                     </h4>
                     {menu.isSoldOut && (
-                      <span className="text-xs text-red-600 font-medium">품절</span>
+                      <span className="text-base font-bold bg-red-600 text-white px-2 py-0.5 rounded inline-block select-none">
+                        품절
+                      </span>
                     )}
                   </div>
 

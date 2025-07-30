@@ -2,7 +2,11 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { ClipboardDocumentIcon, Squares2X2Icon } from '@heroicons/react/24/outline';
+import {
+  ClipboardDocumentIcon,
+  Squares2X2Icon,
+  ExclamationTriangleIcon, // 새 아이콘 추가
+} from '@heroicons/react/24/outline';
 
 export default function StoreAdminDashboard() {
   const { storeId: rawStoreId } = useParams();
@@ -28,14 +32,20 @@ export default function StoreAdminDashboard() {
     }
   };
 
+  const goToSoldOutManagement = () => {
+    if (storeId) {
+      router.push(`/store/${storeId}/sold-out`);
+    }
+  };
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
-      <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">매장 관리자 대시보드</h1>
+      <h1 className="text-xl sm:text-2xl font-bold mb-6 text-center">매장 운영 관리</h1>
 
       <div className="space-y-4">
         <button
           onClick={goToOrderManagement}
-          className="w-full py-4 px-6 text-base sm:text-lg bg-blue-600 hover:bg-blue-700 text-white rounded-xl 
+          className="w-full py-2 px-6 text-sm sm:text-base bg-blue-600 hover:bg-blue-700 text-white rounded-xl 
                     flex items-center justify-center gap-3 shadow-sm transition"
         >
           <ClipboardDocumentIcon className="w-6 h-6 sm:w-7 sm:h-7" />
@@ -44,11 +54,20 @@ export default function StoreAdminDashboard() {
 
         <button
           onClick={goToMenuManagement}
-          className="w-full py-4 px-6 text-base sm:text-lg bg-green-600 hover:bg-green-700 text-white rounded-xl 
+          className="w-full py-2 px-6 text-sm sm:text-base bg-green-600 hover:bg-green-700 text-white rounded-xl 
                     flex items-center justify-center gap-3 shadow-sm transition"
         >
           <Squares2X2Icon className="w-6 h-6 sm:w-7 sm:h-7" />
           메뉴 관리
+        </button>
+
+        <button
+          onClick={goToSoldOutManagement}
+          className="w-full py-2 px-6 text-sm sm:text-base bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl 
+                    flex items-center justify-center gap-3 shadow-sm transition"
+        >
+          <ExclamationTriangleIcon className="w-6 h-6 sm:w-7 sm:h-7" />
+          품절 관리
         </button>
       </div>
     </div>

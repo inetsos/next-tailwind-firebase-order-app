@@ -4,11 +4,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebase/firebaseConfig';
-import { Store, HolidayRule, DayOfWeek } from '@/types/store';
-import Link from 'next/link';
-import { useUserStore } from '@/stores/userStore';
-import { PencilSquareIcon, Squares2X2Icon, ArrowUpIcon } from '@heroicons/react/24/outline';
+import { Store, DayOfWeek } from '@/types/store';
 import MenuByCategory from '@/components/MenuByCategory';
+import { useStoreStore } from '@/stores/useStoreStore';
+import { ArrowUpIcon } from '@heroicons/react/24/outline';
 
 declare global {
   interface Window {
@@ -21,13 +20,16 @@ export default function StoreLandingPage() {
   const params = useParams();
   const storeId = params.storeId as string;
 
-  const [store, setStore] = useState<Store | null>(null);
+  // 전역 상태 store와 setter
+  const store = useStoreStore((state) => state.store);
+  const setStore = useStoreStore((state) => state.setStore);
+
   const [loading, setLoading] = useState(true);
   const [showAllBusinessHours, setShowAllBusinessHours] = useState(false);
   const mapRef = useRef<HTMLDivElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const { userData } = useUserStore();
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [showMap, setShowMap] = useState(false); // 지도 토글 상태
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,30 +43,21 @@ export default function StoreLandingPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const loadNaverMapScript = () => {
-    return new Promise<void>((resolve, reject) => {
-      if (window.naver?.maps) return resolve();
-      const clientId = process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID;
-      const script = document.createElement('script');
-      script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${clientId}`;
-      script.async = true;
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error('네이버 지도 스크립트 로드 실패'));
-      document.head.appendChild(script);
-    });
-  };
-
   useEffect(() => {
     if (!storeId) return router.push('/');
     const fetchStore = async () => {
       const docRef = doc(db, 'stores', storeId);
       const snap = await getDoc(docRef);
-      if (snap.exists()) setStore({ id: snap.id, ...snap.data() } as Store);
-      else router.push('/');
+      if (snap.exists()) {
+        const fetchedStore = { id: snap.id, ...snap.data() } as Store;
+        setStore(fetchedStore);  // 전역 상태에 저장
+      } else {
+        router.push('/');
+      }
       setLoading(false);
     };
     fetchStore();
-  }, [storeId, router]);
+  }, [storeId, router, setStore]);
 
   useEffect(() => {
     if (!store) return;
@@ -82,13 +75,23 @@ export default function StoreLandingPage() {
   }, [store]);
 
   useEffect(() => {
-    if (!store || !mapRef.current) return;
+    if (!store || !mapRef.current || !showMap) return;
+
     const initMap = async () => {
-      await loadNaverMapScript();
+      if (!window.naver?.maps) {
+        const clientId = process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID;
+        const script = document.createElement('script');
+        script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${clientId}`;
+        script.async = true;
+        document.head.appendChild(script);
+        await new Promise((resolve) => {
+          script.onload = () => resolve(null);
+        });
+      }
 
       const { latitude, longitude, name, address } = store;
       const position = new window.naver.maps.LatLng(+latitude, +longitude);
-      
+
       const map = new window.naver.maps.Map(mapRef.current, { center: position, zoom: 15 });
       const marker = new window.naver.maps.Marker({ position, map, title: name });
 
@@ -99,38 +102,26 @@ export default function StoreLandingPage() {
                       color: ${isDark ? '#e5e7eb' : '#111827'}; border-radius: 8px; font-size: 10px; cursor: pointer;">
             <strong>${name}</strong><br/>${address}
           </div>`,
-        clickable: true, 
+        clickable: true,
       });
 
-      //infoWindow.open(map, marker);
-
-      // ✅ 마커 클릭 시 InfoWindow 열기
       window.naver.maps.Event.addListener(marker, 'click', () => {
         infoWindow.open(map, marker);
       });
 
-      //infoWindow 클릭하면 닫힘.
       const observer = new MutationObserver(() => {
         const el = document.getElementById('infoWindowContent');
         if (el) {
-          el.addEventListener('click', () => {
-            infoWindow.close();
-          });
-
-          observer.disconnect(); // 더 이상 감지 필요 없음
+          el.addEventListener('click', () => infoWindow.close());
+          observer.disconnect();
         }
       });
 
-      // body 또는 infoWindow가 렌더링되는 container에서 감지
-      observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-      });
-
+      observer.observe(document.body, { childList: true, subtree: true });
     };
 
     initMap();
-  }, [store]);
+  }, [store, showMap]);
 
   if (loading || !store) return <p className="p-6 text-center">로딩 중...</p>;
 
@@ -182,10 +173,7 @@ export default function StoreLandingPage() {
 
           return (
             <div key={day} className={isHoliday ? 'text-red-500' : ''}>
-              {/* 영업 여부 */}
               {day}: {isHoliday ? '휴무' : `${h.opening} ~ ${h.closing}`}
-              
-              {/* 휴게 시간 표시 */}
               {!isHoliday && h?.breakStart && h?.breakEnd && (
                 <span className="ml-2 text-gray-500 dark:text-gray-400">
                   (휴게 시간: {h.breakStart} ~ {h.breakEnd})
@@ -206,7 +194,6 @@ export default function StoreLandingPage() {
                      dark:text-gray-100 shadow-md text-sm mb-4 pb-4 pt-4 px-4 sm:px-6"
         >
           <div className="flex justify-between items-center flex-wrap gap-1 mb-2">
-            {/* 상호명 + 업종 (모바일에서도 한 줄로) */}
             <div className="flex items-baseline gap-2 text-base sm:text-lg font-semibold truncate">
               <h4 className="font-bold text-xl truncate">{store.name}</h4>
               <span className="text-gray-600 dark:text-gray-400 text-sm whitespace-nowrap">{store.industry}</span>
@@ -270,10 +257,24 @@ export default function StoreLandingPage() {
             </div>
           </div>
 
-          <div
-            ref={mapRef}
-            className="relative z-0 w-full aspect-video border border-gray-200 dark:border-gray-700 rounded-md shadow-sm"
-          />
+          <div className="flex justify-end mt-4">
+            {!showMap ? (
+              <button onClick={() => setShowMap(true)} className="text-blue-600 hover:underline text-sm">
+                지도 보기
+              </button>
+            ) : (
+              <button onClick={() => setShowMap(false)} className="text-red-500 hover:underline text-sm">
+                지도 닫기
+              </button>
+            )}
+          </div>
+
+          {showMap && (
+            <div
+              ref={mapRef}
+              className="relative z-0 w-full aspect-video border border-gray-200 dark:border-gray-700 rounded-md shadow-sm mt-2"
+            />
+          )}
         </main>
 
         <div ref={menuRef} className="w-full max-w-lg mx-auto px-4 sm:px-6">

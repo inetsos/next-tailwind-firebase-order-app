@@ -3,14 +3,14 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { useParams, useRouter } from 'next/navigation';
-import { doc, setDoc, getDoc,
-  serverTimestamp
- } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebase/firebaseConfig';
 import { Menu, OptionGroup } from '@/types/menu';
 import { useCart } from '@/context/CartContext';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { v4 as uuidv4 } from 'uuid';
+import { useStoreStore } from '@/stores/useStoreStore'; // 전역 store 상태 가져오기
+import { DayOfWeek } from '@/types/store';
 
 export default function OnlineOrderPage() {
   const params = useParams();
@@ -22,7 +22,6 @@ export default function OnlineOrderPage() {
   const menuId = Array.isArray(rawMenuId) ? rawMenuId[0] : rawMenuId;
 
   const [menu, setMenu] = useState<Menu | null>(null);
-  const [storeName, setStoreName] = useState('');
   const [loading, setLoading] = useState(true);
   const [selectedPriceIdx, setSelectedPriceIdx] = useState<number>(0);
   const [quantity, setQuantity] = useState<number>(1);
@@ -30,23 +29,67 @@ export default function OnlineOrderPage() {
   const [selectedOptionalOptions, setSelectedOptionalOptions] = useState<number[][]>([]);
 
   const { addItem } = useCart();
+  const store = useStoreStore(state => state.store); // 전역 store 정보 가져오기
+
+  const [isOpen, setIsOpen] = useState(false);
+
+  // 현재 store 영업시간 및 휴무일 체크 함수
+  const checkIsOpen = () => {
+    if (!store?.businessHours || !store?.holidayRule) return false;
+
+    const days: DayOfWeek[] = ['일', '월', '화', '수', '목', '금', '토'];
+    const today = new Date();
+    const dayLabel = days[today.getDay()];
+    const hour = store.businessHours[dayLabel];
+    if (!hour || !hour.opening || !hour.closing) return false;
+
+    // ⏰ 시간 체크
+    const now = new Date();
+    const [openH, openM] = hour.opening.split(':').map(Number);
+    const [closeH, closeM] = hour.closing.split(':').map(Number);
+
+    const openTime = new Date(now);
+    openTime.setHours(openH, openM, 0, 0);
+    const closeTime = new Date(now);
+    closeTime.setHours(closeH, closeM, 0, 0);
+
+    const isWithinBusinessHours = now >= openTime && now < closeTime;
+
+    // 🛑 휴무일 체크
+    const { frequency, days: offDays, weeks } = store.holidayRule;
+
+    const isTodayOffDay = offDays.includes(dayLabel);
+
+    const currentDate = today.getDate();
+    const currentWeek = Math.floor((currentDate - 1) / 7) + 1;
+
+    let isHoliday = false;
+
+    if (frequency === '매주') {
+      isHoliday = isTodayOffDay;
+    } else if (frequency === '격주') {
+      isHoliday = isTodayOffDay && currentWeek % 2 === 0;
+    } else if (frequency === '매월') {
+      isHoliday = isTodayOffDay;
+    } else if (frequency === '매월 1회') {
+      isHoliday = isTodayOffDay && Array.isArray(weeks) && weeks.includes(1);
+    } else if (frequency === '매월 2회') {
+      isHoliday = isTodayOffDay && Array.isArray(weeks) && weeks.includes(currentWeek);
+    }
+    return isWithinBusinessHours && !isHoliday;
+  };
 
   useEffect(() => {
-    if (!storeId) return;
-    const fetchStore = async () => {
-      const storeRef = doc(db, 'stores', storeId);
-      const snap = await getDoc(storeRef);
-      if (snap.exists()) {
-        const data = snap.data();
-        setStoreName(data.name || '');
-      }
-    };
-    fetchStore();
-  }, [storeId]);
+    setIsOpen(checkIsOpen());
+  }, [store]);
+
+  // storeName은 store에서 바로 가져오기
+  const storeName = store?.name || '';
 
   useEffect(() => {
     const fetchMenu = async () => {
       if (!storeId || !menuId) return;
+      setLoading(true);
       const menuRef = doc(db, 'stores', storeId, 'menus', menuId);
       const snap = await getDoc(menuRef);
       if (snap.exists()) {
@@ -54,7 +97,11 @@ export default function OnlineOrderPage() {
         setMenu({ id: snap.id, ...data } as Menu);
 
         if (data.requiredOptions?.length > 0) {
-          setSelectedRequiredOptions(data.requiredOptions.map((group: OptionGroup) => (group.options.length > 0 ? 0 : -1)));
+          setSelectedRequiredOptions(
+            data.requiredOptions.map((group: OptionGroup) =>
+              group.options.length > 0 ? 0 : -1
+            )
+          );
         } else {
           setSelectedRequiredOptions([]);
         }
@@ -70,32 +117,37 @@ export default function OnlineOrderPage() {
     fetchMenu();
   }, [storeId, menuId]);
 
-  if (!storeId || !menuId) return <p className="p-4 text-center text-sm">잘못된 접근입니다.</p>;
+  if (!storeId || !menuId)
+    return <p className="p-4 text-center text-sm">잘못된 접근입니다.</p>;
   if (loading) return <p className="p-4 text-center text-sm">⏳ 로딩 중...</p>;
   if (!menu) return <p className="p-4 text-center text-sm">❌ 메뉴 정보를 불러올 수 없습니다.</p>;
 
-  // ✅ 안전한 가격 선택 처리
   const selectedPrice =
     menu.prices && menu.prices.length > 0
       ? menu.prices[selectedPriceIdx]
       : { label: '기본', price: menu.price ?? 0 };
 
-  const requiredOptionsPrice = selectedRequiredOptions.reduce((sum, optionIdx, groupIdx) => {
-    const group = menu.requiredOptions?.[groupIdx];
-    if (!group || optionIdx === -1) return sum;
-    return sum + (group.options[optionIdx]?.price || 0);
-  }, 0);
+  const requiredOptionsPrice = selectedRequiredOptions.reduce(
+    (sum, optionIdx, groupIdx) => {
+      const group = menu.requiredOptions?.[groupIdx];
+      if (!group || optionIdx === -1) return sum;
+      return sum + (group.options[optionIdx]?.price || 0);
+    },
+    0
+  );
 
-  const optionalOptionsPrice = selectedOptionalOptions.reduce((sum, optionIndexes, groupIdx) => {
-    const group = menu.optionalOptions?.[groupIdx];
-    if (!group) return sum;
-    const groupSum = optionIndexes.reduce((groupSum, optionIdx) => {
-      return groupSum + (group.options[optionIdx]?.price || 0);
-    }, 0);
-    return sum + groupSum;
-  }, 0);
+  const optionalOptionsPrice = selectedOptionalOptions.reduce(
+    (sum, optionIndexes, groupIdx) => {
+      const group = menu.optionalOptions?.[groupIdx];
+      if (!group) return sum;
+      const groupSum = optionIndexes.reduce((groupSum, optionIdx) => {
+        return groupSum + (group.options[optionIdx]?.price || 0);
+      }, 0);
+      return sum + groupSum;
+    },
+    0
+  );
 
-  console.log('selectedPrice.price: ', selectedPrice.price)
   const total = (selectedPrice.price + requiredOptionsPrice + optionalOptionsPrice) * quantity;
 
   const onChangeRequiredOption = (groupIdx: number, optionIdx: number) => {
@@ -129,20 +181,26 @@ export default function OnlineOrderPage() {
   };
 
   const handleOrder = async () => {
+    if (!isOpen) {
+      alert('현재 영업 시간이 아닙니다. 주문이 불가능합니다.');
+      return;
+    }
     if (menu.requiredOptions?.some((_, idx) => selectedRequiredOptions[idx] === -1)) {
       alert('필수 옵션을 모두 선택해주세요.');
       return;
     }
 
-    const requiredSelected = menu.requiredOptions?.map((group, gIdx) => ({
-      groupName: group.name,
-      option: group.options[selectedRequiredOptions[gIdx]],
-    })) || [];
+    const requiredSelected =
+      menu.requiredOptions?.map((group, gIdx) => ({
+        groupName: group.name,
+        option: group.options[selectedRequiredOptions[gIdx]],
+      })) || [];
 
-    const optionalSelected = menu.optionalOptions?.map((group, gIdx) => ({
-      groupName: group.name,
-      options: (selectedOptionalOptions[gIdx] || []).map(idx => group.options[idx]),
-    })) || [];
+    const optionalSelected =
+      menu.optionalOptions?.map((group, gIdx) => ({
+        groupName: group.name,
+        options: (selectedOptionalOptions[gIdx] || []).map(idx => group.options[idx]),
+      })) || [];
 
     const itemToAdd = {
       id: uuidv4(),
@@ -157,7 +215,7 @@ export default function OnlineOrderPage() {
       requiredOptions: requiredSelected,
       optionalOptions: optionalSelected,
       totalPrice: total,
-      addedAt: Date.now()
+      addedAt: Date.now(),
     };
 
     addItem(storeId, itemToAdd);
@@ -192,7 +250,7 @@ export default function OnlineOrderPage() {
 
       <p className="text-sm mb-4 whitespace-pre-line text-gray-700 dark:text-gray-300">{menu.description}</p>
 
-      {/* ✅ 가격 옵션 조건부 렌더링 */}
+      {/* 가격 옵션 */}
       {menu.prices && menu.prices.length > 0 && (
         <div className="mb-6">
           <label className="block text-sm font-medium mb-2">가격</label>
@@ -325,9 +383,20 @@ export default function OnlineOrderPage() {
         총액: {total.toLocaleString()}원
       </div>
 
+      {/* 영업시간 안내 */}
+      {!isOpen && (
+        <p className="mb-4 text-red-600 font-semibold text-center">
+          현재 영업 시간이 아닙니다. 주문이 불가능합니다.
+        </p>
+      )}
+
+      {/* 주문 버튼 */}
       <button
         onClick={handleOrder}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded text-sm font-medium"
+        disabled={!isOpen}
+        className={`w-full py-2 rounded text-sm font-medium text-white ${
+          isOpen ? 'bg-blue-600 hover:bg-blue-700 cursor-pointer' : 'bg-gray-400 cursor-not-allowed'
+        }`}
       >
         장바구니에 담기
       </button>

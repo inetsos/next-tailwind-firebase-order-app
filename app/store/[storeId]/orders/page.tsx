@@ -6,6 +6,7 @@ import { collection, query, where, getDocs, Timestamp, orderBy } from 'firebase/
 import { db } from '@/firebase/firebaseConfig';
 import { Order } from '@/types/order';
 import dayjs from 'dayjs';
+import Link from "next/link";
 
 export default function StoreOrdersPage() {
   const { storeId: rawStoreId } = useParams();
@@ -89,7 +90,14 @@ export default function StoreOrdersPage() {
 
   return (
     <div className="max-w-3xl mx-auto p-4 bg-white dark:bg-gray-900 min-h-screen">
-      <h4 className="text-xl font-bold mt-2 mb-1 text-gray-900 dark:text-gray-100">주문 목록</h4>
+      <div className="mb-4 flex justify-end">
+        <Link href={`/store/${storeId}/admin`}>
+          <span className="text-sm font-medium text-indigo-600 hover:text-indigo-700 transition flex items-center gap-1">
+            ← 매장 운영 관리
+          </span>
+        </Link>
+      </div>
+      <h4 className="text-xl font-bold mt-4 mb-4 text-gray-900 dark:text-gray-100">주문 목록</h4>
 
       <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
         총 {orders.length.toLocaleString()}건

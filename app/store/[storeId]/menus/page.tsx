@@ -14,6 +14,14 @@ export default function MenuManagementPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-2 py-4 space-y-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
+     <div className="mb-4 flex justify-end">
+        <Link href={`/store/${storeId}/admin`}>
+          <span className="text-sm font-medium text-indigo-600 hover:text-indigo-700 
+                          transition flex items-center gap-1">
+            ← 매장 운영 관리
+          </span>
+        </Link>
+      </div>
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <h3 className="text-xl sm:text-2xl font-bold">
           {storeName} 메뉴 관리
