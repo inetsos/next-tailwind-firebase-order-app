@@ -7,6 +7,7 @@ import {
   Squares2X2Icon,
   ExclamationTriangleIcon,
   QrCodeIcon,
+  BellIcon,
 } from '@heroicons/react/24/outline';
 
 export default function StoreAdminDashboard() {
@@ -35,6 +36,10 @@ export default function StoreAdminDashboard() {
 
   const goToQrCodePage = () => {
     if (storeId) router.push(`/store/${storeId}/qr`);
+  };
+
+  const goToNotificationPage = () => {
+    if (storeId) router.push(`/store/${storeId}/notifications`);
   };
 
   return (
@@ -76,6 +81,15 @@ export default function StoreAdminDashboard() {
         >
           <QrCodeIcon className="w-6 h-6 sm:w-7 sm:h-7" />
           QR 코드 생성
+        </button>
+
+        <button
+          onClick={goToNotificationPage}
+          className="w-full py-2 px-6 text-sm sm:text-base bg-pink-600 hover:bg-pink-700 text-white rounded-xl 
+                  flex items-center justify-center gap-3 shadow-sm transition"
+        >
+          <BellIcon className="w-6 h-6 sm:w-7 sm:h-7" />
+          고객 알림 등록
         </button>
       </div>
     </div>

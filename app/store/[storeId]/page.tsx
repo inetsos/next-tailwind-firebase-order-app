@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { db } from '@/firebase/firebaseConfig';
 import { Store, DayOfWeek } from '@/types/store';
+import { Notification } from '@/types/notification';
 import MenuByCategory from '@/components/MenuByCategory';
 import { useStoreStore } from '@/stores/useStoreStore';
 import { ArrowUpIcon } from '@heroicons/react/24/outline';
@@ -20,16 +21,16 @@ export default function StoreLandingPage() {
   const params = useParams();
   const storeId = params.storeId as string;
 
-  // 전역 상태 store와 setter
   const store = useStoreStore((state) => state.store);
   const setStore = useStoreStore((state) => state.setStore);
 
   const [loading, setLoading] = useState(true);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showAllBusinessHours, setShowAllBusinessHours] = useState(false);
   const mapRef = useRef<HTMLDivElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const [showMap, setShowMap] = useState(false); // 지도 토글 상태
+  const [showMap, setShowMap] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,7 +51,7 @@ export default function StoreLandingPage() {
       const snap = await getDoc(docRef);
       if (snap.exists()) {
         const fetchedStore = { id: snap.id, ...snap.data() } as Store;
-        setStore(fetchedStore);  // 전역 상태에 저장
+        setStore(fetchedStore);
       } else {
         router.push('/');
       }
@@ -58,6 +59,23 @@ export default function StoreLandingPage() {
     };
     fetchStore();
   }, [storeId, router, setStore]);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      const colRef = collection(db, 'stores', storeId, 'notifications');
+      const snapshot = await getDocs(colRef);
+      const now = new Date();
+      const list = snapshot.docs
+        .map((doc) => ({ ...(doc.data() as Notification), id: doc.id }))
+        .filter((n) => {
+          const start = n.startDate.toDate();
+          const end = n.endDate.toDate();
+          return now >= start && now <= end;
+        });
+      setNotifications(list);
+    };
+    fetchNotifications();
+  }, [storeId]);
 
   useEffect(() => {
     if (!store) return;
@@ -188,7 +206,7 @@ export default function StoreLandingPage() {
 
   return (
     <>
-      <div className="w-full space-y-6 mt-0 mb-6">
+      <div className="w-full space-y-6 mt-6 mb-6">
         <main
           className="w-full max-w-lg mx-auto bg-white dark:bg-gray-950 text-gray-900 
                      dark:text-gray-100 shadow-md text-sm mb-4 pb-4 pt-4 px-4 sm:px-6"
@@ -201,6 +219,35 @@ export default function StoreLandingPage() {
           </div>
 
           <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap mt-2 mb-2">{store.description}</p>
+
+          {/* 고객 알림 */}
+          {notifications.length > 0 ? (
+            <div className="flex flex-col gap-2 mt-4 mb-6">
+              {notifications.map((notification) => (
+                <div key={notification.id} className="flex items-start gap-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M11 5L6 9H3v6h3l5 4V5zM15 9a3 3 0 013 3 3 3 0 01-3 3"
+                    />
+                  </svg>
+                  <p className="text-yellow-700 dark:text-yellow-300 text-sm whitespace-pre-line">
+                    {notification.message}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-4 mb-6">공지사항이 없습니다.</p>
+          )}
 
           <div className="flex items-start mb-2">
             <div className="w-24 shrink-0 font-semibold">영업시간</div>
