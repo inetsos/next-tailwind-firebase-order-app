@@ -1,3 +1,4 @@
+// app/store/[storeId]/page.tsx (StoreLandingPage 컴포넌트)
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -23,6 +24,8 @@ export default function StoreLandingPage() {
 
   const store = useStoreStore((state) => state.store);
   const setStore = useStoreStore((state) => state.setStore);
+  const isInitialized = useStoreStore((state) => state.isInitialized);
+  const setInitialized = useStoreStore((state) => state.setInitialized);
 
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -45,22 +48,36 @@ export default function StoreLandingPage() {
   };
 
   useEffect(() => {
-    if (!storeId) return router.push('/');
-    const fetchStore = async () => {
-      const docRef = doc(db, 'stores', storeId);
-      const snap = await getDoc(docRef);
-      if (snap.exists()) {
-        const fetchedStore = { id: snap.id, ...snap.data() } as Store;
-        setStore(fetchedStore);
-      } else {
-        router.push('/');
-      }
+    if (!storeId) {
+      router.push('/');
+      return;
+    }
+    if (isInitialized && store) {
       setLoading(false);
+      return;
+    }
+
+    const fetchStore = async () => {
+      try {
+        const docRef = doc(db, 'stores', storeId);
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          const fetchedStore = { id: snap.id, ...snap.data() } as Store;
+          setStore(fetchedStore);
+          setInitialized(true);
+        } else {
+          router.push('/');
+        }
+      } finally {
+        setLoading(false);
+      }
     };
     fetchStore();
-  }, [storeId, router, setStore]);
+  }, [storeId, router, setStore, isInitialized, setInitialized, store]);
 
   useEffect(() => {
+    if (!storeId) return;
+
     const fetchNotifications = async () => {
       const colRef = collection(db, 'stores', storeId, 'notifications');
       const snapshot = await getDocs(colRef);
@@ -80,14 +97,14 @@ export default function StoreLandingPage() {
   useEffect(() => {
     if (!store) return;
     const scrolledFromOrder = sessionStorage.getItem('scrollToMenu') === 'true';
-    if (scrolledFromOrder) {
+    if (scrolledFromOrder && menuRef.current) {
       setTimeout(() => {
-        if (menuRef.current) {
-          const navbarHeight = 56;
-          const menuTop = menuRef.current.getBoundingClientRect().top + window.pageYOffset;
-          window.scrollTo({ top: menuTop - navbarHeight, behavior: 'smooth' });
-          sessionStorage.removeItem('scrollToMenu');
-        }
+        const navbarHeight = 56;
+        // 여기서도 menuRef.current가 null일 수 있으니 안전하게 다시 체크
+        if (!menuRef.current) return;
+        const menuTop = menuRef.current.getBoundingClientRect().top + window.pageYOffset;
+        window.scrollTo({ top: menuTop - navbarHeight, behavior: 'smooth' });
+        sessionStorage.removeItem('scrollToMenu');
       }, 100);
     }
   }, [store]);
