@@ -31,7 +31,7 @@ export default function FoodAlleyChips({ foodAlleys }: Props) {
     >
       {hovering && (
         <div className="absolute inset-x-0 top-0 flex justify-center pointer-events-none z-50">
-          <div className="bg-transparent text-yellow-800 px-0 py-0 rounded text-xs shadow-md">
+          <div className="bg-transparent text-yellow-800 px-0 py-0 text-xs">
             마우스 휠로 좌우 스크롤 할 수 있어요!
           </div>
         </div>
@@ -49,8 +49,8 @@ export default function FoodAlleyChips({ foodAlleys }: Props) {
               <button
                 key={alley.id}
                 onClick={() => router.push(url)}
-                className="px-4 py-2 rounded-full bg-green-100 dark:bg-green-800
-                          text-green-800 dark:text-green-100 text-base hover:bg-green-200 dark:hover:bg-green-700 cursor-pointer"
+                className="px-4 py-2 rounded-full bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100 
+                          text-base hover:bg-green-200 dark:hover:bg-green-700 cursor-pointer"
               >
                 {alley.name}
               </button>

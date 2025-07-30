@@ -30,7 +30,7 @@ export default function CategoryChips({ categories }: CategoryChipsProps) {
       {/* 알림 메시지 */}
       {hovering && (
         <div className="absolute inset-x-0 top-0 flex justify-center z-50 pointer-events-none">
-          <div className="bg-transparent text-yellow-800 px-0 py-0 rounded text-xs shadow-md">
+          <div className="bg-transparent text-yellow-800 px-0 py-0 text-xs">
             마우스 휠로 좌우 스크롤 할 수 있어요!
           </div>
         </div>
@@ -44,7 +44,8 @@ export default function CategoryChips({ categories }: CategoryChipsProps) {
             <Link
               key={category.id}
               href={`/categories/${encodeURIComponent(category.name)}/stores`}
-              className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-base hover:bg-blue-200 flex-shrink-0 cursor-pointer"
+              className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-base
+                        hover:bg-blue-200 flex-shrink-0 cursor-pointer"
             >
               {category.name}
             </Link>
