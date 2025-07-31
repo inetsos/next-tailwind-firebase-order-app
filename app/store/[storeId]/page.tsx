@@ -1,4 +1,4 @@
-// app/store/[storeId]/page.tsx (StoreLandingPage 컴포넌트)
+// app/store/[storeId]/page.tsx
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -8,7 +8,6 @@ import { db } from '@/firebase/firebaseConfig';
 import { Store, DayOfWeek } from '@/types/store';
 import { Notification } from '@/types/notification';
 import MenuByCategory from '@/components/MenuByCategory';
-import { useStoreStore } from '@/stores/useStoreStore';
 import { ArrowUpIcon } from '@heroicons/react/24/outline';
 
 declare global {
@@ -22,58 +21,39 @@ export default function StoreLandingPage() {
   const params = useParams();
   const storeId = params.storeId as string;
 
-  const store = useStoreStore((state) => state.store);
-  const setStore = useStoreStore((state) => state.setStore);
-  const isInitialized = useStoreStore((state) => state.isInitialized);
-  const setInitialized = useStoreStore((state) => state.setInitialized);
-
+  const [store, setStore] = useState<Store | null>(null);
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showAllBusinessHours, setShowAllBusinessHours] = useState(false);
+  const [showMap, setShowMap] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
   const mapRef = useRef<HTMLDivElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const [showScrollTop, setShowScrollTop] = useState(false);
-  const [showMap, setShowMap] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 300);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  useEffect(() => {
-    if (!storeId) {
-      router.push('/');
-      return;
-    }
-    if (isInitialized && store) {
-      setLoading(false);
-      return;
-    }
-
     const fetchStore = async () => {
+      if (!storeId) {
+        router.push('/');
+        return;
+      }
+
       try {
         const docRef = doc(db, 'stores', storeId);
         const snap = await getDoc(docRef);
-        if (snap.exists()) {
-          const fetchedStore = { id: snap.id, ...snap.data() } as Store;
-          setStore(fetchedStore);
-          setInitialized(true);
-        } else {
+        if (!snap.exists()) {
           router.push('/');
+          return;
         }
+        const data = snap.data() as Store;
+        setStore({ id: snap.id, ...data });
       } finally {
         setLoading(false);
       }
     };
+
     fetchStore();
-  }, [storeId, router, setStore, isInitialized, setInitialized, store]);
+  }, [storeId, router]);
 
   useEffect(() => {
     if (!storeId) return;
@@ -91,19 +71,26 @@ export default function StoreLandingPage() {
         });
       setNotifications(list);
     };
+
     fetchNotifications();
   }, [storeId]);
 
   useEffect(() => {
+    const handleScroll = () => setShowScrollTop(window.scrollY > 300);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  useEffect(() => {
     if (!store) return;
+
     const scrolledFromOrder = sessionStorage.getItem('scrollToMenu') === 'true';
     if (scrolledFromOrder && menuRef.current) {
       setTimeout(() => {
-        const navbarHeight = 56;
-        // 여기서도 menuRef.current가 null일 수 있으니 안전하게 다시 체크
-        if (!menuRef.current) return;
-        const menuTop = menuRef.current.getBoundingClientRect().top + window.pageYOffset;
-        window.scrollTo({ top: menuTop - navbarHeight, behavior: 'smooth' });
+        const menuTop = menuRef.current!.getBoundingClientRect().top + window.pageYOffset;
+        window.scrollTo({ top: menuTop - 56, behavior: 'smooth' });
         sessionStorage.removeItem('scrollToMenu');
       }, 100);
     }
@@ -119,14 +106,11 @@ export default function StoreLandingPage() {
         script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${clientId}`;
         script.async = true;
         document.head.appendChild(script);
-        await new Promise((resolve) => {
-          script.onload = () => resolve(null);
-        });
+        await new Promise((resolve) => (script.onload = () => resolve(null)));
       }
 
       const { latitude, longitude, name, address } = store;
       const position = new window.naver.maps.LatLng(+latitude, +longitude);
-
       const map = new window.naver.maps.Map(mapRef.current, { center: position, zoom: 15 });
       const marker = new window.naver.maps.Marker({ position, map, title: name });
 
@@ -140,9 +124,7 @@ export default function StoreLandingPage() {
         clickable: true,
       });
 
-      window.naver.maps.Event.addListener(marker, 'click', () => {
-        infoWindow.open(map, marker);
-      });
+      window.naver.maps.Event.addListener(marker, 'click', () => infoWindow.open(map, marker));
 
       const observer = new MutationObserver(() => {
         const el = document.getElementById('infoWindowContent');
