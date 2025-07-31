@@ -252,15 +252,24 @@ next-tailwind-firebase-order-app
 │  │     └─ stores
 │  │        └─ page.tsx
 │  ├─ favicon.ico
+│  ├─ food-alleys
+│  │  └─ [foodAlleyId]
+│  │     └─ page.tsx
 │  ├─ globals.css
 │  ├─ kakao-callback
 │  │  ├─ KakaoCallbackHandler.tsx
 │  │  └─ page.tsx
 │  ├─ layout.tsx
-│  ├─ login
-│  │  └─ page.tsx
 │  ├─ mypage
-│  │  └─ page.tsx
+│  │  ├─ order-messages
+│  │  │  └─ page.tsx
+│  │  ├─ orders
+│  │  │  ├─ page.tsx
+│  │  │  └─ [storeId]
+│  │  │     └─ page.tsx
+│  │  ├─ page.tsx
+│  │  └─ profile
+│  │     └─ page.tsx
 │  ├─ naver-callback
 │  │  ├─ NaverCallbackHandler.tsx
 │  │  └─ page.tsx
@@ -273,7 +282,6 @@ next-tailwind-firebase-order-app
 │  │  │  │  └─ page.tsx
 │  │  │  ├─ page.tsx
 │  │  │  └─ [foodAlleyId]
-│  │  │     ├─ page.tsx
 │  │  │     └─ stores
 │  │  │        ├─ create
 │  │  │        │  └─ page.tsx
@@ -322,13 +330,21 @@ next-tailwind-firebase-order-app
 │        │     │  └─ page.tsx
 │        │     └─ order
 │        │        └─ page.tsx
+│        ├─ notifications
+│        │  ├─ new
+│        │  │  └─ page.tsx
+│        │  └─ page.tsx
 │        ├─ order-complete
 │        │  └─ page.tsx
 │        ├─ orders
 │        │  ├─ page.tsx
 │        │  └─ [orderId]
 │        │     └─ page.tsx
-│        └─ page.tsx
+│        ├─ page.tsx
+│        ├─ qr
+│        │  └─ page.tsx
+│        └─ sold-out
+│           └─ page.tsx
 ├─ components
 │  ├─ CartView.tsx
 │  ├─ CategoryChips.tsx
@@ -346,6 +362,7 @@ next-tailwind-firebase-order-app
 │  ├─ modals
 │  │  ├─ BusinessHoursModal.tsx
 │  │  └─ HolidayRuleModal.tsx
+│  ├─ MyOrderMessages.tsx
 │  ├─ MyProfile.tsx
 │  ├─ Navbar.tsx
 │  ├─ NaverMapLoader.tsx
@@ -380,6 +397,7 @@ next-tailwind-firebase-order-app
 ├─ hooks
 │  ├─ useAuth.ts
 │  ├─ useHandleGoogleRedirectLogin.ts
+│  ├─ useInitializeStore.ts
 │  └─ useUserLocation.ts
 ├─ lib
 │  └─ utils.ts
@@ -404,13 +422,15 @@ next-tailwind-firebase-order-app
 │  └─ window.svg
 ├─ README.md
 ├─ stores
-│  └─ userStore.ts
+│  ├─ userStore.ts
+│  └─ useStoreStore.ts
 ├─ tailwind.config.js
 ├─ tsconfig.json
 ├─ types
 │  ├─ cart.ts
 │  ├─ menu.ts
 │  ├─ naver.d.ts
+│  ├─ notification.ts
 │  ├─ order.ts
 │  ├─ store.ts
 │  └─ UserData.ts
@@ -422,6 +442,7 @@ next-tailwind-firebase-order-app
    ├─ keywords.ts
    ├─ localCart.ts
    ├─ logger.ts
+   ├─ notifications.ts
    ├─ order.ts
    ├─ orderNumber.ts
    ├─ orderStorage.ts

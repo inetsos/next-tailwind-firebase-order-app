@@ -25,11 +25,43 @@ export default function StoreAdminDashboard() {
     return <p className="p-6 text-center">로딩 중...</p>;
   }
 
-  const goToOrderManagement = () => router.push(`/store/${storeId}/orders`);
-  const goToMenuManagement = () => router.push(`/store/${storeId}/menus`);
-  const goToSoldOutManagement = () => router.push(`/store/${storeId}/sold-out`);
-  const goToQrCodePage = () => router.push(`/store/${storeId}/qr`);
-  const goToNotificationPage = () => router.push(`/store/${storeId}/notifications`);
+  const cardItems = [
+    {
+      title: '주문 관리',
+      description: '고객의 주문 목록을 확인하고 처리할 수 있어요.',
+      icon: <ClipboardDocumentIcon className="w-8 h-8 text-blue-600" />,
+      bg: 'bg-blue-50',
+      onClick: () => router.push(`/store/${storeId}/orders`),
+    },
+    {
+      title: '메뉴 관리',
+      description: '판매 중인 메뉴를 등록하거나 수정할 수 있어요.',
+      icon: <Squares2X2Icon className="w-8 h-8 text-green-600" />,
+      bg: 'bg-green-50',
+      onClick: () => router.push(`/store/${storeId}/menus`),
+    },
+    {
+      title: '품절 관리',
+      description: '품절된 메뉴를 설정하거나 해제할 수 있어요.',
+      icon: <ExclamationTriangleIcon className="w-8 h-8 text-yellow-600" />,
+      bg: 'bg-yellow-50',
+      onClick: () => router.push(`/store/${storeId}/sold-out`),
+    },
+    {
+      title: 'QR 코드 생성',
+      description: '내 가게의 URL 주소 QR 코드를 생성할 수 있어요.',
+      icon: <QrCodeIcon className="w-8 h-8 text-gray-700" />,
+      bg: 'bg-gray-100',
+      onClick: () => router.push(`/store/${storeId}/qr`),
+    },
+    {
+      title: '고객 알림 등록',
+      description: '고객에게 알림 메시지를 전송할 수 있어요.',
+      icon: <BellIcon className="w-8 h-8 text-pink-600" />,
+      bg: 'bg-pink-50',
+      onClick: () => router.push(`/store/${storeId}/notifications`),
+    },
+  ];
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
@@ -37,51 +69,22 @@ export default function StoreAdminDashboard() {
         {store.name} 운영 관리
       </h1>
 
-      <div className="space-y-4">
-        <button
-          onClick={goToOrderManagement}
-          className="w-full py-2 px-6 text-sm sm:text-base bg-blue-600 hover:bg-blue-700 text-white rounded-xl
-                  flex items-center justify-center gap-3 shadow-sm transition"
-        >
-          <ClipboardDocumentIcon className="w-6 h-6 sm:w-7 sm:h-7" />
-          주문 관리
-        </button>
-
-        <button
-          onClick={goToMenuManagement}
-          className="w-full py-2 px-6 text-sm sm:text-base bg-green-600 hover:bg-green-700 text-white rounded-xl
-                  flex items-center justify-center gap-3 shadow-sm transition"
-        >
-          <Squares2X2Icon className="w-6 h-6 sm:w-7 sm:h-7" />
-          메뉴 관리
-        </button>
-
-        <button
-          onClick={goToSoldOutManagement}
-          className="w-full py-2 px-6 text-sm sm:text-base bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl
-                  flex items-center justify-center gap-3 shadow-sm transition"
-        >
-          <ExclamationTriangleIcon className="w-6 h-6 sm:w-7 sm:h-7" />
-          품절 관리
-        </button>
-
-        <button
-          onClick={goToQrCodePage}
-          className="w-full py-2 px-6 text-sm sm:text-base bg-gray-700 hover:bg-gray-800 text-white rounded-xl
-                  flex items-center justify-center gap-3 shadow-sm transition"
-        >
-          <QrCodeIcon className="w-6 h-6 sm:w-7 sm:h-7" />
-          QR 코드 생성
-        </button>
-
-        <button
-          onClick={goToNotificationPage}
-          className="w-full py-2 px-6 text-sm sm:text-base bg-pink-600 hover:bg-pink-700 text-white rounded-xl
-                  flex items-center justify-center gap-3 shadow-sm transition"
-        >
-          <BellIcon className="w-6 h-6 sm:w-7 sm:h-7" />
-          고객 알림 등록
-        </button>
+      <div className="grid grid-cols-1 gap-4">
+        {cardItems.map((item, index) => (
+          <div
+            key={index}
+            onClick={item.onClick}
+            className={`cursor-pointer ${item.bg} p-4 rounded-xl shadow-sm hover:shadow-md transition border border-gray-200 hover:border-gray-300`}
+          >
+            <div className="flex items-center gap-4">
+              {item.icon}
+              <div>
+                <h2 className="text-lg font-semibold">{item.title}</h2>
+                <p className="text-sm text-gray-600">{item.description}</p>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
