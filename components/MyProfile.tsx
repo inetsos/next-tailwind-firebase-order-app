@@ -3,11 +3,13 @@
 import { useAuth } from '@/hooks/useAuth';
 import { signInWithGoogle, signInWithKakao, signInWithNaver } from '@/utils/socialLogin';
 import { useUserStore } from '@/stores/userStore';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '@/firebase/firebaseConfig';
 
 export default function MyPageContent() {
   const { user: firebaseUser } = useAuth();
   const { userData } = useUserStore();
-
+ 
   if (!firebaseUser || !userData)
     return <div className="text-center p-4 text-gray-500 dark:text-gray-400">로그인이 필요합니다.</div>;
 
@@ -30,6 +32,29 @@ export default function MyPageContent() {
     } catch (error) {
       alert('네이버 로그인 실패');
       console.error(error);
+    }
+  };
+
+  const unlinkProvider = async (provider: 'kakao' | 'naver') => {
+
+    const confirmed = confirm(`${provider.toUpperCase()} 연동을 해제하시겠습니까?`);
+    if (!confirmed) return;
+
+    try {
+      // 기존 uids 배열에서 해당 provider UID 제거
+      const newUids = userData.uids.filter(uid => !uid.startsWith(provider + ':'));
+      // Firestore 업데이트
+      const userRef = doc(db, 'users', userData.userId);
+      await updateDoc(userRef, { uids: newUids });
+      // zustand 전역 상태도 동기화
+      useUserStore.getState().setUserData({
+        ...userData,
+        uids: newUids,
+      });
+      alert(`${provider.toUpperCase()} 연동이 해제되었습니다.`);
+    } catch (err) {
+      console.error(err);
+      alert('연동 해제 중 오류가 발생했습니다.');
     }
   };
 
@@ -72,10 +97,18 @@ export default function MyPageContent() {
             <span className="text-sm font-medium">카카오 로그인 연동</span>
           </button>
 
-          <div className="flex justify-end mt-1 mr-2">
+          <div className="flex justify-end items-center mt-1 mr-2 gap-2">
             <span className="text-xs text-gray-600 dark:text-gray-400">
               {isLinked('kakao') ? '✅ 연동됨' : '❌ 미연동'}
             </span>
+            {isLinked('kakao') && (
+              <button
+                onClick={() => unlinkProvider('kakao')}
+                className="text-xs text-gray-500 underline hover:text-gray-600"
+              >
+                연동 해제
+              </button>
+            )}
           </div>
         </div>
 
@@ -88,10 +121,18 @@ export default function MyPageContent() {
             <span className="text-sm font-medium">네이버 로그인 연동</span>
           </button>
 
-          <div className="flex justify-end mt-1 mr-2">
+          <div className="flex justify-end items-center mt-1 mr-2 gap-2">
             <span className="text-xs text-gray-600 dark:text-gray-400">
               {isLinked('naver') ? '✅ 연동됨' : '❌ 미연동'}
             </span>
+            {isLinked('naver') && (
+              <button
+                onClick={() => unlinkProvider('naver')}
+                className="text-xs text-gray-500 underline hover:text-gray-600"
+              >
+                연동 해제
+              </button>
+            )}
           </div>
         </div>
       </div>

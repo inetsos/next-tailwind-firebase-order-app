@@ -50,6 +50,7 @@ export async function signInWithGoogle() {
         uids: docData.uids ?? [],
       };
 
+      useUserStore.getState().setFirebaseUser(currentUser);
       useUserStore.getState().setUserData(updatedUserData);
     }
 

@@ -29,13 +29,13 @@ export default function CategoryChips({ categories }: CategoryChipsProps) {
     >
       {/* 알림 메시지 */}
       {hovering && (
-        <div className="absolute inset-x-0 top-0 flex justify-center z-50 pointer-events-none">
+        <div className="absolute inset-x-0 top-0 justify-center z-50 pointer-events-none hidden sm:flex">
           <div className="bg-transparent text-yellow-800 px-0 py-0 text-xs">
             마우스 휠로 좌우 스크롤 할 수 있어요!
           </div>
         </div>
       )}
-
+      
       {/* 카테고리 칩들 */}
       <div className="flex gap-2 whitespace-nowrap px-2 py-1">
         {categories

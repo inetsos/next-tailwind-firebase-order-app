@@ -70,6 +70,7 @@ export default function KakaoCallbackHandler() {
               createdAt: data.createdAt,
               uids: data.uids ?? [],
             }
+            useUserStore.getState().setFirebaseUser(currentUser)
             useUserStore.getState().setUserData(userData)
           } 
           else
@@ -83,8 +84,7 @@ export default function KakaoCallbackHandler() {
           }         
 
           const userData = useUserStore.getState().userData
-          const shouldUpdateName =
-            !userData?.displayName || userData.displayName.trim() === ''
+          const shouldUpdateName = !userData?.displayName || userData.displayName.trim() === ''
           if (userData?.userId && shouldUpdateName) {
             const userRef = doc(db, 'users', userData.userId)
             await updateDoc(userRef, {
@@ -93,6 +93,9 @@ export default function KakaoCallbackHandler() {
           }
 
           console.log('카카오 계정으로 신규 로그인 완료:', currentUser.uid)
+          if (!hasRedirected.current) {
+            router.replace('/')
+          }
 
         } else {
           // 🔗 이미 로그인된 상태면 연결만 수행
@@ -108,12 +111,12 @@ export default function KakaoCallbackHandler() {
           if (isLinked) {
               alert('✅ 이미 연동되어 있습니다.')
           } else {
-
             currentUser = user
 
             // 사용자 문서에 kakaoUid 추가
             const userRef = doc(db, 'users', currentUser.uid)
             await updateDoc(userRef, {
+              displayName: nickname,
               uids: arrayUnion(kakaoUid),
             })
           
@@ -121,27 +124,29 @@ export default function KakaoCallbackHandler() {
             const finalSnap = await getDoc(userRef)
             if (finalSnap.exists()) {
               const data = finalSnap.data()
+              console.log('nickname: ', nickname)
               const userData: UserData = {
                 userId: data.userId,
                 phoneNumber: data.phoneNumber ?? '',
-                displayName: data.displayName,
+                displayName: nickname,
                 role: data.role,
                 createdAt: data.createdAt,
                 uids: data.uids ?? [],
               }
+              useUserStore.getState().setFirebaseUser(user)
               useUserStore.getState().setUserData(userData)
-            }
-
-            alert('✅ 카카오 계정으로 로그인 되었습니다')          
+              alert('✅ 카카오 계정으로 연동 완료')
+            }       
+          }
+          
+          if (!hasRedirected.current) {
+            router.replace('/mypage/profile')
           }
         }
       } catch (error: any) {
         console.error('❌ 카카오 로그인 실패:', error)
         alert(`카카오 로그인 중 오류 발생: ${error.message}`)
-      } finally {
-        if (!hasRedirected.current) {
-          router.replace('/')
-        }
+      } finally {        
         setLoading(false);
       }
     })

@@ -9,6 +9,9 @@ import {
   setDoc,
   serverTimestamp,
 } from 'firebase/firestore';
+import { useRouter } from 'next/navigation'
+import type { UserData } from '@/types/UserData'
+import { useUserStore } from '@/stores/userStore'
 
 declare global {
   interface Window {
@@ -25,6 +28,8 @@ const KAKAO_CLIENT_ID = process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID!;
 const NAVER_CLIENT_ID = process.env.NEXT_PUBLIC_NAVER_CLIENT_ID!;
 
 export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
+  const router = useRouter()
+
   const [phoneNumber, setPhoneNumber] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
@@ -110,26 +115,33 @@ export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
       const result = await confirmationResult.confirm(verificationCode);
       const user = result.user;
 
+      // 국제번호 형식을 일반번호 형식으로
+      const phoneNumber = formatE164ToKorean(user.phoneNumber);
+
+      const userData: UserData = {
+        userId: user.uid,
+        phoneNumber,
+        createdAt: serverTimestamp(),
+        displayName: '',
+        role: 'customer',
+        uids: [user.uid]
+      }
+
       // Firestore에 사용자 정보 저장
       const userRef = doc(db, 'users', user.uid);
       const docSnap = await getDoc(userRef);
 
-      // 국제번호 형식을 일반번호 형식으로
-      const phoneNumber = formatE164ToKorean(user.phoneNumber);
-
       if (!docSnap.exists()) {
-        await setDoc(userRef, {
-          userId: user.uid,
-          phoneNumber,
-          createdAt: serverTimestamp(),
-          displayName: '',
-          role: 'customer',
-          uids: [user.uid]
-        });
+        await setDoc(userRef, userData)     
+
         console.log('신규 사용자 등록');
+        router.replace('/mypage/profile')
       } else {
         console.log('기존 사용자 로그인');
+        router.replace('/')
       }
+      useUserStore.getState().setFirebaseUser(user)
+      useUserStore.getState().setUserData(userData)
 
       // 로그인 성공 콜백 호출 → 모달 닫기 등
       onLoginSuccess();
@@ -141,6 +153,9 @@ export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
 
   return (
     <div className="space-y-3">
+      <p className="text-xs -mb-0 text-gray-500 dark:text-gray-400">
+        처음 오시는 분은 전화번호 인증을 먼저 하셔야 합니다.
+      </p>
       <input
         type="tel"
         className="w-full border border-gray-300 px-3 py-2 rounded
@@ -155,11 +170,7 @@ export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
         onClick={sendCode}
       >
         인증번호 요청
-      </button>
-
-      <p className="text-sm text-gray-500 text-center -mt-2 dark:text-gray-400">
-        처음 오시는 분은 전화번호 인증을 하셔야 회원가입과 로그인이 됩니다.
-      </p>
+      </button>     
 
       <input
         type="text"
@@ -176,7 +187,7 @@ export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
       >
         인증하기
       </button>
-      <p className="text-sm text-gray-500 text-center -mt-2 dark:text-gray-400">
+      <p className="text-xs -mt-2 text-gray-500 dark:text-gray-400">
         인증번호는 해외(Google)에서 발송됩니다.
       </p>
 

@@ -30,7 +30,7 @@ export default function FoodAlleyChips({ foodAlleys }: Props) {
       onMouseLeave={() => setHovering(false)}
     >
       {hovering && (
-        <div className="absolute inset-x-0 top-0 flex justify-center pointer-events-none z-50">
+        <div className="absolute inset-x-0 top-0 justify-center pointer-events-none z-50  hidden sm:flex">
           <div className="bg-transparent text-yellow-800 px-0 py-0 text-xs">
             마우스 휠로 좌우 스크롤 할 수 있어요!
           </div>

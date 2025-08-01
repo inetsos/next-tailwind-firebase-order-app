@@ -55,8 +55,7 @@ export default function NaverCallbackHandler() {
           : 'https://www.sijilife.kr/naver-callback';
 
         const result: any = await naverLogin({ code, state, naverRedirectUri })
-        const { firebaseToken, naverUid, displayName } = result.data
-
+        const { firebaseToken, naverUid, nickname } = result.data 
         let currentUser: User
 
         if (!user) {
@@ -82,6 +81,7 @@ export default function NaverCallbackHandler() {
               createdAt: data.createdAt,
               uids: data.uids ?? [],
             }
+            useUserStore.getState().setFirebaseUser(currentUser)
             useUserStore.getState().setUserData(userData)
           } else {
             alert('✅ 네이버 계정이 연결되어 있지 않습니다.\n전화번호 인증 후 로그인 계정 연동해야 합니다.')
@@ -94,10 +94,14 @@ export default function NaverCallbackHandler() {
           const userData = useUserStore.getState().userData
           if (userData?.userId && (!userData.displayName || userData.displayName.trim() === '')) {
             const userRef = doc(db, 'users', userData.userId)
-            await updateDoc(userRef, { displayName })
+            await updateDoc(userRef, { displayName: nickname })
           }
 
           console.log('네이버 계정으로 신규 로그인 완료:', currentUser.uid)
+
+          if (!hasRedirected.current) {
+            router.replace('/')
+          }
 
         } else {
           
@@ -115,33 +119,35 @@ export default function NaverCallbackHandler() {
 
             const userRef = doc(db, 'users', currentUser.uid)
             await updateDoc(userRef, {
+              displayName: nickname, 
               uids: arrayUnion(naverUid),
             })
 
             const snap = await getDoc(userRef)
             if (snap.exists()) {
-              const data = snap.data()
+              const data = snap.data() 
               const userData: UserData = {
                 userId: data.userId,
                 phoneNumber: data.phoneNumber ?? '',
-                displayName: data.displayName,
+                displayName: nickname, 
                 role: data.role,
                 createdAt: data.createdAt,
                 uids: data.uids ?? [],
               }
+              useUserStore.getState().setFirebaseUser(user)
               useUserStore.getState().setUserData(userData)
               alert('✅ 네이버 계정으로 연동 완료')
             }          
+          }
+
+          if (!hasRedirected.current) {
+            router.replace('/mypage/profile')
           }
         }
       } catch (error: any) {
         console.error('❌ 네이버 로그인 실패:', error)
         alert('네이버 로그인 오류: ' + error.message)
-      } finally {
-        if (!hasRedirected.current) {
-          router.replace('/')
-        }
-
+      } finally {      
         setLoading(false);
       }
     })

@@ -18,7 +18,7 @@ interface UserData {
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
-  const { setUserData, clearUserData } = useUserStore();
+  const { setUserData, setFirebaseUser, clearUserData } = useUserStore();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -49,7 +49,7 @@ export function useAuth() {
               email: data.email || '',
               uids: data.uids,
             };
-
+            setFirebaseUser(firebaseUser)
             setUserData(userData);
           } else {
             console.warn('유효하지 않은 사용자 데이터:', data);
