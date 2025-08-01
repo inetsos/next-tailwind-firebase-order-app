@@ -38,6 +38,8 @@ export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
   const [kakaoAuthUrl, setKakaoAuthUrl] = useState('');
   const [naverAuthUrl, setNaverAuthUrl] = useState('');
 
+  const [isVerifying, setIsVerifying] = useState(false);
+
   // reCAPTCHA 설정
   useEffect(() => {
 
@@ -111,6 +113,8 @@ export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
       return;
     }
 
+    setIsVerifying(true); // 인증 중 표시
+
     try {
       const result = await confirmationResult.confirm(verificationCode);
       const user = result.user;
@@ -147,7 +151,9 @@ export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
       onLoginSuccess();
     } catch (error: any) {
       console.error(error);
-      alert(`인증 실패: ${error.message}`);
+      alert(`인증 실패: ${error.message}`);    
+    } finally {
+      setIsVerifying(false); // 완료 시 복원
     }
   };
 
@@ -182,10 +188,15 @@ export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
         onChange={(e) => setVerificationCode(e.target.value)}
       />
       <button
-        className="w-full bg-emerald-500 text-white py-2 rounded hover:bg-emerald-600 transition-colors"
+        className={`w-full py-2 rounded transition-colors ${
+          isVerifying
+            ? 'bg-gray-400 cursor-not-allowed text-white'
+            : 'bg-emerald-500 hover:bg-emerald-600 text-white'
+        }`}
         onClick={verifyCode}
+        disabled={isVerifying}
       >
-        인증하기
+        {isVerifying ? '인증 중...' : '인증하기'}
       </button>
       <p className="text-xs -mt-2 text-gray-500 dark:text-gray-400">
         인증번호는 해외(Google)에서 발송됩니다.
