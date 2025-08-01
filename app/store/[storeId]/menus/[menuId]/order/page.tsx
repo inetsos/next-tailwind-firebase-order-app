@@ -34,6 +34,10 @@ export default function OnlineOrderPage() {
   const [selectedOptionalOptions, setSelectedOptionalOptions] = useState<number[][]>([]);
   const [isOpen, setIsOpen] = useState(false);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // 가게 정보 불러오기
   useEffect(() => {
     const fetchStore = async () => {

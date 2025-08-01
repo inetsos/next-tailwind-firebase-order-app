@@ -313,6 +313,16 @@ export default function StoreLandingPage() {
               className="relative z-0 w-full aspect-video border border-gray-200 dark:border-gray-700 rounded-md shadow-sm mt-2"
             />
           )}
+
+          {/* ✅ 가게 정보 링크 추가 */}
+          <div className="mt-4 text-right">
+            <button
+              onClick={() => router.push(`/store/${storeId}/infoView`)}
+              className="text-blue-600 hover:underline text-sm"
+            >
+              가게정보 · 원산지
+            </button>
+          </div>
         </main>
 
         <div ref={menuRef} className="w-full max-w-lg mx-auto px-4 sm:px-6">

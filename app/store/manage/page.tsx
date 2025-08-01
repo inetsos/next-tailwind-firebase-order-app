@@ -79,6 +79,14 @@ export default function StoreManagePage() {
                 >
                   정보 수정
                 </Link>
+
+                <Link
+                  href={`/store/${store.id}/info`}
+                  className="text-indigo-600 text-sm underline hover:text-indigo-800"
+                >
+                  가게 정보
+                </Link>
+
                 <Link
                   href={`/store/${store.id}/admin`}
                   className="ml-auto bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded transition"

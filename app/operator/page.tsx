@@ -13,8 +13,12 @@ export default function OperatorPage() {
     router.push('/operator/food-alleys');
   };
 
+  const goToUserManagement = () => {
+    router.push('/operator/users');
+  };
+
   return (
-    <div className="max-w-xl mx-auto py-10 px-4 space-y-4">
+    <div className="max-w-xl mx-auto py-4 px-4 space-y-4">
       <h1 className="text-2xl font-bold mb-6">운영자 페이지</h1>
 
       <button
@@ -29,6 +33,13 @@ export default function OperatorPage() {
         className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md w-full"
       >
         먹자 골목 관리
+      </button>
+
+      <button
+        onClick={goToUserManagement}
+        className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-md w-full"
+      >
+        회원 관리
       </button>
     </div>
   );

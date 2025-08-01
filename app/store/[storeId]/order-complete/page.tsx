@@ -21,7 +21,8 @@ export default function OrderCompletePage() {
       )}
 
       <p className="mb-8">
-        고객님의 소중한 주문을 확인했습니다. 정성을 다하여 준비해드릴게요!
+        고객님의 소중한 주문을 확인했습니다.<br/>
+        정성을 다하여 준비해드릴게요!
       </p>
 
       <div className="flex justify-center gap-4">

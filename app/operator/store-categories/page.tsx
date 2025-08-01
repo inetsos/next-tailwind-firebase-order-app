@@ -183,6 +183,15 @@ export default function StoreCategoryListPage() {
 
   return (
     <div className="p-6">
+      {/* ⬇️ 운영자 페이지로 돌아가기 링크 */}
+      <div className="mb-4 text-end">
+        <Link
+          href="/operator"
+          className="text-sm text-blue-600 hover:underline"
+        >
+          ← 운영자 페이지로 돌아가기
+        </Link>
+      </div>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-bold">매장 분류 관리</h1>
         <Link href="/operator/store-categories/new" className="text-blue-500 underline">

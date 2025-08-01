@@ -29,6 +29,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import Link from 'next/link';
 
 interface FoodAlley {
   id: string;
@@ -85,15 +86,25 @@ export default function FoodAlleyListPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-10 px-4">
+    <div className="max-w-2xl mx-auto py-4 px-4">
+      {/* ⬇️ 운영자 페이지로 돌아가기 링크 */}
+      <div className="mb-4 text-end">
+        <Link
+          href="/operator"
+          className="text-sm text-blue-600 hover:underline"
+        >
+          ← 운영자 페이지로 돌아가기
+        </Link>
+      </div>
+
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">먹자 골목 관리</h1>
-        <button
-          onClick={() => router.push('/operator/food-alleys/create')}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm"
+        <Link
+          href="/operator/food-alleys/create"
+          className="text-blue-500 underline"
         >
           + 먹자 골목 등록
-        </button>
+        </Link>
       </div>
 
       <DndContext
