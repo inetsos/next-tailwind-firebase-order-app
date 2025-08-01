@@ -81,10 +81,10 @@ export default function MyOrderMessages() {
   };
 
   useEffect(() => {
-    if (user) {
+    if (user && userData) {
       fetchMessages(selectedDate);
     }
-  }, [user, selectedDate]);
+  }, [user, userData, selectedDate]);
 
   const handlePrevDay = () => {
     setSelectedDate((prev) => prev.subtract(1, 'day'));

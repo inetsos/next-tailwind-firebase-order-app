@@ -159,13 +159,51 @@ export default function Navbar() {
       {/* 모바일 드로어 */}
       {mounted && mobileMenuOpen && (
         <div
-          className="sm:hidden bg-gray-800 text-white px-4 py-4 space-y-3 fixed top-[56px] left-0 right-0 z-40"
+          className="sm:hidden bg-gray-800 text-white px-4 py-2 fixed top-[56px] left-0 right-0 z-40 space-y-2 flex flex-col"
           role="menu"
           aria-label="모바일 메뉴"
         >
-          {user ? renderMenuItems() : (
+          {user ? (
+            <>
+              {userData?.role === 'operator' && (
+                <Link
+                  href="/operator"
+                  className="w-full block text-left px-4 py-0 rounded hover:bg-gray-700"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  운영자
+                </Link>
+              )}
+
+              <Link
+                href="/store/manage"
+                className="w-full block text-left px-4 py-2 rounded hover:bg-gray-700"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                매장 관리
+              </Link>
+
+              <Link
+                href="/mypage"
+                className="w-full block text-left px-4 py-2 rounded hover:bg-gray-700"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                마이페이지
+              </Link>
+
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-left bg-red-500 px-4 py-2 rounded hover:bg-red-600"
+              >
+                로그아웃
+              </button>
+            </>
+          ) : (
             <button
-              className="bg-blue-500 px-4 py-1 rounded text-sm hover:bg-blue-600 w-full"
+              className="w-full bg-blue-500 px-4 py-2 rounded text-sm hover:bg-blue-600"
               onClick={() => {
                 setShowModal(true);
                 setMobileMenuOpen(false);
@@ -178,6 +216,7 @@ export default function Navbar() {
           )}
         </div>
       )}
+
 
       {/* 로그인 모달 */}
       {mounted && (
