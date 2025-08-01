@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
-<url><loc>https://next-tailwind-firebase-order-app.vercel.app/mypage/profile</loc><lastmod>2025-07-30T09:59:37.673Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://next-tailwind-firebase-order-app.vercel.app/naver-map-view</loc><lastmod>2025-07-30T09:59:37.677Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://next-tailwind-firebase-order-app.vercel.app/operator/food-alleys/create</loc><lastmod>2025-07-30T09:59:37.677Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://next-tailwind-firebase-order-app.vercel.app/operator/food-alleys</loc><lastmod>2025-07-30T09:59:37.677Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://next-tailwind-firebase-order-app.vercel.app/operator/store-categories</loc><lastmod>2025-07-30T09:59:37.677Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://next-tailwind-firebase-order-app.vercel.app/naver-callback</loc><lastmod>2025-07-30T09:59:37.677Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://next-tailwind-firebase-order-app.vercel.app/operator</loc><lastmod>2025-07-30T09:59:37.677Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://next-tailwind-firebase-order-app.vercel.app/search</loc><lastmod>2025-07-30T09:59:37.677Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://next-tailwind-firebase-order-app.vercel.app/operator/store-categories/new</loc><lastmod>2025-07-30T09:59:37.677Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://next-tailwind-firebase-order-app.vercel.app/mypage</loc><lastmod>2025-07-30T09:59:37.677Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://next-tailwind-firebase-order-app.vercel.app/kakao-callback</loc><lastmod>2025-07-30T09:59:37.677Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://next-tailwind-firebase-order-app.vercel.app/mypage/orders</loc><lastmod>2025-07-30T09:59:37.677Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://next-tailwind-firebase-order-app.vercel.app/store/manage</loc><lastmod>2025-07-30T09:59:37.677Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://next-tailwind-firebase-order-app.vercel.app/store/select-category</loc><lastmod>2025-07-30T09:59:37.677Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://next-tailwind-firebase-order-app.vercel.app/store/register</loc><lastmod>2025-07-30T09:59:37.677Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://next-tailwind-firebase-order-app.vercel.app/mypage/order-messages</loc><lastmod>2025-07-30T09:59:37.677Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://next-tailwind-firebase-order-app.vercel.app</loc><lastmod>2025-07-30T09:59:37.677Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://www.sijilife.kr/kakao-callback</loc><lastmod>2025-08-01T00:36:30.364Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://www.sijilife.kr/naver-map-view</loc><lastmod>2025-08-01T00:36:30.365Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://www.sijilife.kr/mypage/order-messages</loc><lastmod>2025-08-01T00:36:30.365Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://www.sijilife.kr/operator/food-alleys/create</loc><lastmod>2025-08-01T00:36:30.365Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://www.sijilife.kr/mypage/orders</loc><lastmod>2025-08-01T00:36:30.365Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://www.sijilife.kr/operator/food-alleys</loc><lastmod>2025-08-01T00:36:30.365Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://www.sijilife.kr/operator</loc><lastmod>2025-08-01T00:36:30.365Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://www.sijilife.kr/mypage/profile</loc><lastmod>2025-08-01T00:36:30.365Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://www.sijilife.kr/mypage</loc><lastmod>2025-08-01T00:36:30.365Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://www.sijilife.kr/operator/store-categories</loc><lastmod>2025-08-01T00:36:30.365Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://www.sijilife.kr/operator/store-categories/new</loc><lastmod>2025-08-01T00:36:30.365Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://www.sijilife.kr/search</loc><lastmod>2025-08-01T00:36:30.365Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://www.sijilife.kr/naver-callback</loc><lastmod>2025-08-01T00:36:30.365Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://www.sijilife.kr/store/manage</loc><lastmod>2025-08-01T00:36:30.365Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://www.sijilife.kr/store/register</loc><lastmod>2025-08-01T00:36:30.365Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://www.sijilife.kr/store/select-category</loc><lastmod>2025-08-01T00:36:30.365Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://www.sijilife.kr</loc><lastmod>2025-08-01T00:36:30.365Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
 </urlset>

@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Host
-Host: https://next-tailwind-firebase-order-app.vercel.app/
+Host: https://www.sijilife.kr/
 
 # Sitemaps
-Sitemap: https://next-tailwind-firebase-order-app.vercel.app/sitemap.xml
+Sitemap: https://www.sijilife.kr/sitemap.xml

@@ -40,14 +40,14 @@ export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
       const isLocal = window.location.hostname === 'localhost';
       const kakaoRedirectUri = isLocal
         ? 'http://localhost:3000/kakao-callback'
-        : 'https://next-tailwind-firebase-order-app.vercel.app/kakao-callback';
+        : 'https://www.sijilife.kr/kakao-callback';
       const kakaoRedirectUriEncoding = encodeURIComponent(kakaoRedirectUri);
       const kakaoUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_CLIENT_ID}&redirect_uri=${kakaoRedirectUriEncoding}`;
       setKakaoAuthUrl(kakaoUrl);
 
       const naverRedirectUri = isLocal
         ? 'http://localhost:3000/naver-callback'
-        : 'https://next-tailwind-firebase-order-app.vercel.app/naver-callback';
+        : 'https://www.sijilife.kr/naver-callback';
       const naverRedirectUriEncoding = encodeURIComponent(naverRedirectUri);
       const NAVER_STATE = Math.random().toString(36).substring(2);
       const naverUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${NAVER_CLIENT_ID}&redirect_uri=${naverRedirectUriEncoding}&state=${NAVER_STATE}`;
