@@ -9,17 +9,22 @@ import { Menu, OptionGroup } from '@/types/menu';
 import { useCart } from '@/context/CartContext';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { v4 as uuidv4 } from 'uuid';
-import { useStoreStore } from '@/stores/useStoreStore'; // 전역 store 상태 가져오기
-import { DayOfWeek } from '@/types/store';
+import { useStoreStore } from '@/stores/useStoreStore';
+import { Store, DayOfWeek } from '@/types/store';
 
 export default function OnlineOrderPage() {
   const params = useParams();
   const router = useRouter();
+  const { addItem } = useCart();
+  const setStore = useStoreStore((s) => s.setStore);
+  const setInitialized = useStoreStore((s) => s.setInitialized);
+  const isInitialized = useStoreStore((s) => s.isInitialized);
+  const store = useStoreStore((s) => s.store);
 
-  const rawStoreId = params.storeId;
-  const rawMenuId = params.menuId;
-  const storeId = Array.isArray(rawStoreId) ? rawStoreId[0] : rawStoreId;
-  const menuId = Array.isArray(rawMenuId) ? rawMenuId[0] : rawMenuId;
+  const rawStoreId = params?.storeId;
+  const rawMenuId = params?.menuId;
+  const storeId = typeof rawStoreId === 'string' ? rawStoreId : Array.isArray(rawStoreId) ? rawStoreId[0] : '';
+  const menuId = typeof rawMenuId === 'string' ? rawMenuId : Array.isArray(rawMenuId) ? rawMenuId[0] : '';
 
   const [menu, setMenu] = useState<Menu | null>(null);
   const [loading, setLoading] = useState(true);
@@ -27,100 +32,123 @@ export default function OnlineOrderPage() {
   const [quantity, setQuantity] = useState<number>(1);
   const [selectedRequiredOptions, setSelectedRequiredOptions] = useState<number[]>([]);
   const [selectedOptionalOptions, setSelectedOptionalOptions] = useState<number[][]>([]);
-
-  const { addItem } = useCart();
-  const store = useStoreStore(state => state.store); // 전역 store 정보 가져오기
-
   const [isOpen, setIsOpen] = useState(false);
 
-  // 현재 store 영업시간 및 휴무일 체크 함수
-  const checkIsOpen = () => {
-    if (!store?.businessHours || !store?.holidayRule) return false;
-
-    const days: DayOfWeek[] = ['일', '월', '화', '수', '목', '금', '토'];
-    const today = new Date();
-    const dayLabel = days[today.getDay()];
-    const hour = store.businessHours[dayLabel];
-    if (!hour || !hour.opening || !hour.closing) return false;
-
-    // ⏰ 시간 체크
-    const now = new Date();
-    const [openH, openM] = hour.opening.split(':').map(Number);
-    const [closeH, closeM] = hour.closing.split(':').map(Number);
-
-    const openTime = new Date(now);
-    openTime.setHours(openH, openM, 0, 0);
-    const closeTime = new Date(now);
-    closeTime.setHours(closeH, closeM, 0, 0);
-
-    const isWithinBusinessHours = now >= openTime && now < closeTime;
-
-    // 🛑 휴무일 체크
-    const { frequency, days: offDays, weeks } = store.holidayRule;
-
-    const isTodayOffDay = offDays.includes(dayLabel);
-
-    const currentDate = today.getDate();
-    const currentWeek = Math.floor((currentDate - 1) / 7) + 1;
-
-    let isHoliday = false;
-
-    if (frequency === '매주') {
-      isHoliday = isTodayOffDay;
-    } else if (frequency === '격주') {
-      isHoliday = isTodayOffDay && currentWeek % 2 === 0;
-    } else if (frequency === '매월') {
-      isHoliday = isTodayOffDay;
-    } else if (frequency === '매월 1회') {
-      isHoliday = isTodayOffDay && Array.isArray(weeks) && weeks.includes(1);
-    } else if (frequency === '매월 2회') {
-      isHoliday = isTodayOffDay && Array.isArray(weeks) && weeks.includes(currentWeek);
-    }
-    return isWithinBusinessHours && !isHoliday;
-  };
-
+  // 가게 정보 불러오기
   useEffect(() => {
-    setIsOpen(checkIsOpen());
-  }, [store]);
+    const fetchStore = async () => {
+      if (!storeId) return;
+      if (isInitialized && store?.id === storeId) return;
 
-  // storeName은 store에서 바로 가져오기
-  const storeName = store?.name || '';
+      try {
+        const storeRef = doc(db, 'stores', storeId);
+        const storeSnap = await getDoc(storeRef);
+        if (storeSnap.exists()) {
+          const storeData = storeSnap.data() as Store;
+          setStore(storeData);
+        } else {
+          setStore(null);
+        }
+      } catch (err) {
+        console.error('가게 정보 로드 오류:', err);
+        setStore(null);
+      } finally {
+        setInitialized(true);
+      }
+    };
 
+    fetchStore();
+  }, [storeId, isInitialized, store?.id, setStore, setInitialized]);
+
+  // 메뉴 정보 불러오기
   useEffect(() => {
     const fetchMenu = async () => {
       if (!storeId || !menuId) return;
-      setLoading(true);
-      const menuRef = doc(db, 'stores', storeId, 'menus', menuId);
-      const snap = await getDoc(menuRef);
-      if (snap.exists()) {
-        const data = snap.data();
-        setMenu({ id: snap.id, ...data } as Menu);
 
-        if (data.requiredOptions?.length > 0) {
-          setSelectedRequiredOptions(
-            data.requiredOptions.map((group: OptionGroup) =>
-              group.options.length > 0 ? 0 : -1
-            )
-          );
-        } else {
-          setSelectedRequiredOptions([]);
-        }
+      try {
+        setLoading(true);
+        const menuRef = doc(db, 'stores', storeId, 'menus', menuId);
+        const snap = await getDoc(menuRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          setMenu({ id: snap.id, ...data } as Menu);
 
-        if (data.optionalOptions?.length > 0) {
-          setSelectedOptionalOptions(data.optionalOptions.map(() => []));
+          if (data.requiredOptions?.length > 0) {
+            setSelectedRequiredOptions(
+              data.requiredOptions.map((group: OptionGroup) =>
+                group.options.length > 0 ? 0 : -1
+              )
+            );
+          }
+
+          if (data.optionalOptions?.length > 0) {
+            setSelectedOptionalOptions(data.optionalOptions.map(() => []));
+          }
         } else {
-          setSelectedOptionalOptions([]);
+          setMenu(null);
         }
+      } catch (err) {
+        console.error('메뉴 로드 실패:', err);
+        setMenu(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
+
     fetchMenu();
   }, [storeId, menuId]);
 
-  if (!storeId || !menuId)
-    return <p className="p-4 text-center text-sm">잘못된 접근입니다.</p>;
-  if (loading) return <p className="p-4 text-center text-sm">⏳ 로딩 중...</p>;
-  if (!menu) return <p className="p-4 text-center text-sm">❌ 메뉴 정보를 불러올 수 없습니다.</p>;
+  // 영업 시간 체크
+  useEffect(() => {
+    if (!store) return;
+
+    const checkIsOpen = (): boolean => {
+      if (!store.businessHours || !store.holidayRule) return false;
+
+      const days: DayOfWeek[] = ['일', '월', '화', '수', '목', '금', '토'];
+      const today = new Date();
+      const dayLabel = days[today.getDay()];
+      const hour = store.businessHours[dayLabel];
+      if (!hour?.opening || !hour?.closing) return false;
+
+      const now = new Date();
+      const [openH, openM] = hour.opening.split(':').map(Number);
+      const [closeH, closeM] = hour.closing.split(':').map(Number);
+      const openTime = new Date(now);
+      openTime.setHours(openH, openM, 0, 0);
+      const closeTime = new Date(now);
+      closeTime.setHours(closeH, closeM, 0, 0);
+      const isWithinBusinessHours = now >= openTime && now < closeTime;
+
+      const { frequency, days: offDays, weeks } = store.holidayRule;
+      const isTodayOffDay = offDays.includes(dayLabel);
+      const currentDate = today.getDate();
+      const currentWeek = Math.floor((currentDate - 1) / 7) + 1;
+
+      let isHoliday = false;
+      if (frequency === '매주') {
+        isHoliday = isTodayOffDay;
+      } else if (frequency === '격주') {
+        isHoliday = isTodayOffDay && currentWeek % 2 === 0;
+      } else if (frequency === '매월') {
+        isHoliday = isTodayOffDay;
+      } else if (frequency === '매월 1회') {
+        isHoliday = isTodayOffDay && (weeks?.includes(1) ?? false);
+      } else if (frequency === '매월 2회') {
+        isHoliday = isTodayOffDay && (weeks?.includes(currentWeek) ?? false);
+      }
+
+      return isWithinBusinessHours && !isHoliday;
+    };
+
+    setIsOpen(checkIsOpen());
+  }, [store]);
+
+  if (!isInitialized) return <div className="p-4 text-center">⏳ 가게 정보 로딩 중...</div>;
+  if (!store) return <div className="p-4 text-center">❌ 존재하지 않는 가게입니다.</div>;
+  if (!storeId || !menuId) return <div className="p-4 text-center">❌ 잘못된 접근입니다.</div>;
+  if (loading) return <div className="p-4 text-center">⏳ 메뉴 불러오는 중...</div>;
+  if (!menu) return <div className="p-4 text-center">❌ 메뉴를 찾을 수 없습니다.</div>;
 
   const selectedPrice =
     menu.prices && menu.prices.length > 0
@@ -151,7 +179,7 @@ export default function OnlineOrderPage() {
   const total = (selectedPrice.price + requiredOptionsPrice + optionalOptionsPrice) * quantity;
 
   const onChangeRequiredOption = (groupIdx: number, optionIdx: number) => {
-    setSelectedRequiredOptions(prev => {
+    setSelectedRequiredOptions((prev) => {
       const newArr = [...prev];
       newArr[groupIdx] = optionIdx;
       return newArr;
@@ -159,11 +187,11 @@ export default function OnlineOrderPage() {
   };
 
   const onToggleOptionalOption = (groupIdx: number, optionIdx: number) => {
-    setSelectedOptionalOptions(prev => {
+    setSelectedOptionalOptions((prev) => {
       const newArr = [...prev];
       const groupSelected = newArr[groupIdx] || [];
       if (groupSelected.includes(optionIdx)) {
-        newArr[groupIdx] = groupSelected.filter(idx => idx !== optionIdx);
+        newArr[groupIdx] = groupSelected.filter((idx) => idx !== optionIdx);
       } else {
         const group = menu.optionalOptions?.[groupIdx];
         if (group && groupSelected.length >= group.maxSelect) {
@@ -199,13 +227,13 @@ export default function OnlineOrderPage() {
     const optionalSelected =
       menu.optionalOptions?.map((group, gIdx) => ({
         groupName: group.name,
-        options: (selectedOptionalOptions[gIdx] || []).map(idx => group.options[idx]),
+        options: (selectedOptionalOptions[gIdx] || []).map((idx) => group.options[idx]),
       })) || [];
 
     const itemToAdd = {
       id: uuidv4(),
       storeId,
-      storeName,
+      storeName: store?.name ?? '',
       menuId: menu.id,
       name: menu.name,
       imageUrl: menu.imageUrl,
@@ -227,7 +255,7 @@ export default function OnlineOrderPage() {
   return (
     <div className="max-w-md mx-auto p-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
       <Head>
-        <title>{menu.name} 주문 - {storeName}</title>
+        <title>{menu.name} 주문 - {store?.name}</title>
       </Head>
 
       <div className="flex items-center justify-between mb-4 mt-2">
