@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '@/firebase/firebaseConfig';
-import { collection, getDocs } from 'firebase/firestore';
-import { Menu } from '@/types/menu';
 import Link from 'next/link';
 
 interface MenuByCategoryProps {
@@ -15,6 +14,8 @@ interface CategoryInfo {
   sortOrder: number;
 }
 
+import { Menu } from '@/types/menu';
+
 export default function MenuByCategory({ storeId }: MenuByCategoryProps) {
   const [menus, setMenus] = useState<Menu[]>([]);
   const [categories, setCategories] = useState<CategoryInfo[]>([]);
@@ -23,33 +24,46 @@ export default function MenuByCategory({ storeId }: MenuByCategoryProps) {
   const categoryRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [menuSnapshot, categorySnapshot] = await Promise.all([
-          getDocs(collection(db, 'stores', storeId, 'menus')),
-          getDocs(collection(db, 'stores', storeId, 'categories')),
-        ]);
+    if (!storeId) return;
 
-        const menuItems: Menu[] = menuSnapshot.docs.map((doc) => ({
+    setLoading(true);
+
+    const unsubscribeMenus = onSnapshot(
+      collection(db, 'stores', storeId, 'menus'),
+      (snapshot) => {
+        const menuItems: Menu[] = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         })) as Menu[];
+        setMenus(menuItems);
+        setLoading(false);
+      },
+      (error) => {
+        console.error('메뉴 구독 에러:', error);
+        setLoading(false);
+      }
+    );
 
-        const categoryList: CategoryInfo[] = categorySnapshot.docs.map((doc) => ({
+    const unsubscribeCategories = onSnapshot(
+      collection(db, 'stores', storeId, 'categories'),
+      (snapshot) => {
+        const categoryList: CategoryInfo[] = snapshot.docs.map((doc) => ({
           name: doc.data().name,
           sortOrder: doc.data().sortOrder || 0,
         }));
-
-        setMenus(menuItems);
         setCategories(categoryList.sort((a, b) => a.sortOrder - b.sortOrder));
-      } catch (error) {
-        console.error('데이터 불러오기 실패:', error);
-      } finally {
+        setLoading(false);
+      },
+      (error) => {
+        console.error('카테고리 구독 에러:', error);
         setLoading(false);
       }
-    };
+    );
 
-    fetchData();
+    return () => {
+      unsubscribeMenus();
+      unsubscribeCategories();
+    };
   }, [storeId]);
 
   const handleCategoryClick = (categoryName: string) => {
@@ -59,8 +73,8 @@ export default function MenuByCategory({ storeId }: MenuByCategoryProps) {
     }
   };
 
-  if (loading) return <p className="text-center text-sm">⏳ 메뉴 불러오는 중...</p>;
-  if (menus.length === 0) return <p className="text-center text-sm">📭 등록된 메뉴가 없습니다.</p>;
+  if (loading) return <p className="text-center text-sm py-6">⏳ 메뉴 불러오는 중...</p>;
+  if (menus.length === 0) return <p className="text-center text-sm py-6">📭 등록된 메뉴가 없습니다.</p>;
 
   return (
     <div className="space-y-6">
@@ -109,8 +123,8 @@ export default function MenuByCategory({ storeId }: MenuByCategoryProps) {
                               text-gray-900 dark:text-gray-100 
                               hover:shadow-md transition-shadow
                               ${menu.isSoldOut ? 'opacity-50 pointer-events-none cursor-not-allowed' : ''}`}
-                  tabIndex={menu.isSoldOut ? -1 : 0} // 키보드 접근도 차단
-                  aria-disabled={menu.isSoldOut}   // 접근성 속성 추가
+                  tabIndex={menu.isSoldOut ? -1 : 0}
+                  aria-disabled={menu.isSoldOut}
                 >
                   {menu.imageUrl && (
                     <img
