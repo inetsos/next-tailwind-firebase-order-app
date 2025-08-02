@@ -62,10 +62,12 @@ export default function FoodAlleyListPage() {
     }
   };
 
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: isMobile ? { distance: 10 } : undefined,
+      activationConstraint: {
+        delay: 150, // 터치 후 150ms 후 드래그 시작
+        tolerance: 5, // 손가락이 5px 이상 움직여야 드래그 시작
+      },
     })
   );
 
