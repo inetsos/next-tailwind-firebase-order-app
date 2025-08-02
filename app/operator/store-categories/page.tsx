@@ -54,7 +54,6 @@ function SortableItem({
     transform: CSS.Transform.toString(transform),
     transition,
     backgroundColor: isDragging ? '#e0f2fe' : '',
-    touchAction: 'none', 
   };
 
   const handleClick = useCallback(() => {
@@ -84,6 +83,7 @@ function SortableItem({
         className="cursor-grab p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
         title="드래그하여 순서 변경"
         onClick={(e) => e.stopPropagation()} // 클릭 이벤트 분리
+        style={{ touchAction: 'none' }}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

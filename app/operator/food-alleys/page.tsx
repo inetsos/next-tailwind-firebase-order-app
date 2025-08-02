@@ -155,7 +155,6 @@ function SortableItem({
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-    touchAction: 'none', 
   };
 
   return (
@@ -171,6 +170,7 @@ function SortableItem({
           {...listeners}
           className="cursor-grab mt-1 text-gray-400 hover:text-black p-2"
           title="드래그로 순서 변경"
+          style={{ touchAction: 'none' }}
         >
           ☰
         </div>
