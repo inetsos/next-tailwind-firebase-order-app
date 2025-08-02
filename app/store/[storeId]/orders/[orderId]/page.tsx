@@ -84,6 +84,9 @@ export default function OrderReceipt() {
           <h4 className="text-lg font-bold mb-2">
             주문번호: {order.orderNumber ?? order.id}
           </h4>
+          {order.userPhone && (
+            <p className="text-base mb-1">주문자: {order.userPhone}</p>
+          )}
           <p className="text-sm mb-1 flex items-center gap-2">
             상태:
             <span

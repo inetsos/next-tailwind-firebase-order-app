@@ -66,10 +66,18 @@ export default function MenuByCategory({ storeId }: MenuByCategoryProps) {
     };
   }, [storeId]);
 
+  const NAVBAR_HEIGHT = 64; // 고정된 navbar의 높이 (px)
+
   const handleCategoryClick = (categoryName: string) => {
     const target = categoryRefs.current[categoryName];
     if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const rect = target.getBoundingClientRect();
+      const offsetTop = window.scrollY + rect.top - NAVBAR_HEIGHT;
+
+      window.scrollTo({
+        top: offsetTop,
+        behavior: 'smooth',
+      });
     }
   };
 

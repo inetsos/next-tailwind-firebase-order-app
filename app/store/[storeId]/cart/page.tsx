@@ -75,10 +75,10 @@ export default function CartPage() {
       />
 
       {items.length > 0 && (
-        <div className="flex justify-center gap-4 mt-6 flex-wrap">
+        <div className="flex justify-center gap-2 mt-4">
           <button
             onClick={() => storeId && clearCart(storeId)}
-            className="w-40 h-10 text-sm font-semibold rounded-md shadow-md
+            className="w-40 h-10 text-sm rounded-md shadow-md
               bg-red-500 text-white hover:bg-red-600
               dark:bg-red-600 dark:hover:bg-red-700
               transition-colors duration-300"
@@ -93,7 +93,7 @@ export default function CartPage() {
                 router.push(`/store/${storeId}`);
               }
             }}
-            className="w-40 h-10 text-sm font-semibold rounded-md shadow-md
+            className="w-40 h-10 text-sm rounded-md shadow-md
               bg-green-600 text-white hover:bg-green-700
               dark:bg-green-700 dark:hover:bg-green-800
               transition-colors duration-300"
@@ -108,7 +108,7 @@ export default function CartPage() {
                 router.push(`/store/${storeId}/checkout`);
               }
             }}
-            className="w-40 h-10 text-sm font-semibold rounded-md shadow-md
+            className="w-40 h-10 text-sm rounded-md shadow-md
               bg-blue-600 text-white hover:bg-blue-700
               dark:bg-blue-700 dark:hover:bg-blue-800
               transition-colors duration-300"

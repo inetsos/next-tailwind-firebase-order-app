@@ -43,7 +43,7 @@ export default function StoreOrdersPage() {
           ordersRef,
           where('createdAt', '>=', Timestamp.fromDate(start)),
           where('createdAt', '<', Timestamp.fromDate(end)),
-          orderBy('createdAt', 'desc')
+          orderBy('createdAt', 'asc')
         );
 
         const snapshot = await getDocs(q);
@@ -115,7 +115,7 @@ export default function StoreOrdersPage() {
           onClick={goToPrevDay}
           className="px-3 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
         >
-          ← 이전날
+          ◀ 이전
         </button>
 
         <input
@@ -129,7 +129,7 @@ export default function StoreOrdersPage() {
           onClick={goToNextDay}
           className="px-3 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
         >
-          다음날 →
+          다음 ▶
         </button>
       </div>
 

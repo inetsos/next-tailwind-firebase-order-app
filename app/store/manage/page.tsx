@@ -91,7 +91,7 @@ export default function StoreManagePage() {
                   href={`/store/${store.id}/admin`}
                   className="ml-auto bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded transition"
                 >
-                  관리하기
+                  운영관리
                 </Link>
               </div>
             </li>

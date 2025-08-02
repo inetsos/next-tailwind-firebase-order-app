@@ -34,7 +34,7 @@ export default function MyOrdersPage() {
   
   useEffect(() => {
     const fetchOrders = async () => {
-      if (!user?.uid || !storeId) return;
+      if (!user?.uid || !storeId || !userData?.userId) return;
 
       setLoading(true);
       try {
@@ -75,7 +75,7 @@ export default function MyOrdersPage() {
     };
 
     fetchOrders();
-  }, [user?.uid, selectedDate, storeId]);
+  }, [user?.uid, selectedDate, storeId, userData?.userId])
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newDate = new Date(e.target.value);
@@ -165,12 +165,9 @@ export default function MyOrdersPage() {
                   key={order.id}
                   className="mb-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-sm dark:shadow-md hover:shadow-md dark:hover:shadow-lg transition text-gray-900 dark:text-gray-100"
                 >
-                  <Link href={`/mypage/orders/${order.storeId}`} className="cursor-pointer block">
-                    <div className="mb-2 font-semibold text-blue-600 hover:underline">
-                      주문번호: {order.orderNumber}
-                    </div>
-                  </Link>
-
+                  <div className="mb-2 font-semibold text-gray-800 dark:text-gray-100">
+                    주문번호: {order.orderNumber}
+                  </div>
                   <div className="flex justify-between">
                     <div>
                       <p><strong>상태:</strong> {order.status}</p>
