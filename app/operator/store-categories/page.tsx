@@ -54,6 +54,7 @@ function SortableItem({
     transform: CSS.Transform.toString(transform),
     transition,
     backgroundColor: isDragging ? '#e0f2fe' : '',
+    touchAction: 'none', 
   };
 
   const handleClick = useCallback(() => {

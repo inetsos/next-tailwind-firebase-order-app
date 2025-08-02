@@ -18,6 +18,7 @@ import {
   DndContext,
   closestCenter,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
@@ -63,12 +64,8 @@ export default function FoodAlleyListPage() {
   };
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        delay: 150, // 터치 후 150ms 후 드래그 시작
-        tolerance: 5, // 손가락이 5px 이상 움직여야 드래그 시작
-      },
-    })
+    useSensor(PointerSensor),
+    useSensor(TouchSensor)
   );
 
   const handleDragEnd = async (event: any) => {
@@ -158,6 +155,7 @@ function SortableItem({
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+    touchAction: 'none', 
   };
 
   return (
@@ -171,7 +169,7 @@ function SortableItem({
         {/* Drag Handle */}
         <div
           {...listeners}
-          className="cursor-grab mt-1 text-gray-400 hover:text-black"
+          className="cursor-grab mt-1 text-gray-400 hover:text-black p-2"
           title="드래그로 순서 변경"
         >
           ☰
