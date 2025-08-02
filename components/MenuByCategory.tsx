@@ -87,21 +87,19 @@ export default function MenuByCategory({ storeId }: MenuByCategoryProps) {
   return (
     <div className="space-y-6">
       {/* 카테고리 버튼 */}
-      <div className="mb-4 overflow-x-auto scrollbar-hide">
-        <div className="flex gap-2 px-1 w-max">
-          {categories.map((category) => (
-            <button
-              key={category.name}
-              className="px-3 py-1 rounded-full border border-gray-400 text-sm 
-                        hover:bg-gray-200 dark:hover:bg-gray-700 
-                        dark:border-gray-600 dark:text-white whitespace-nowrap"
-              onClick={() => handleCategoryClick(category.name)}
-              type="button"
-            >
-              {category.name}
-            </button>
-          ))}
-        </div>
+      <div className="flex flex-wrap gap-2 mb-4">
+        {categories.map((category) => (
+          <button
+            key={category.name}
+            className="px-3 py-1 rounded-full border border-gray-400 text-sm 
+                       hover:bg-gray-200 dark:hover:bg-gray-700 
+                       dark:border-gray-600 dark:text-white"
+            onClick={() => handleCategoryClick(category.name)}
+            type="button"
+          >
+            {category.name}
+          </button>
+        ))}
       </div>
 
       {/* 메뉴 리스트 */}
