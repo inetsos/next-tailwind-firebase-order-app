@@ -62,8 +62,11 @@ export default function FoodAlleyListPage() {
     }
   };
 
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: isMobile ? { distance: 10 } : undefined,
+    })
   );
 
   const handleDragEnd = async (event: any) => {
@@ -130,8 +133,6 @@ export default function FoodAlleyListPage() {
     </div>
   );
 }
-
-// ...생략된 코드 위에는 동일
 
 function SortableItem({
   alley,
