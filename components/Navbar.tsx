@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import PhoneAuthModal from './PhoneAuthModal';
+import EmailAuthModal from './EmailAuthModal';
 import { useAuth } from '@/hooks/useAuth';
 import { logout } from '@/utils/auth';
 import { useUserStore } from '@/stores/userStore';
@@ -91,7 +91,8 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className="fixed top-0 left-0 right-0 z-50 bg-gray-800 text-white px-4 py-3 flex items-center justify-between shadow-md print:hidden"
+        className={"fixed top-0 left-0 right-0 z-50 bg-gray-800 text-white " + 
+          "px-4 py-3 flex items-center justify-between shadow-md print:hidden"}
         role="navigation"
         aria-label="주요 네비게이션"
       >
@@ -220,7 +221,7 @@ export default function Navbar() {
 
       {/* 로그인 모달 */}
       {mounted && (
-        <PhoneAuthModal isOpen={showModal} onClose={() => setShowModal(false)} />
+        <EmailAuthModal isOpen={showModal} onClose={() => setShowModal(false)} />
       )}
 
       {/* 네비게이션 높이만큼 padding-top 추가 (고정 네비게이션과 겹치지 않게) */}

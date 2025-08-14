@@ -48,7 +48,6 @@ export async function logEvent(
       userAgent,
       timestamp: serverTimestamp(),
     };
-console.log(logData);
     await addDoc(collection(db, 'logs'), logData);
 
     if (process.env.NODE_ENV !== 'production') {

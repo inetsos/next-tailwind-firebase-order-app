@@ -75,7 +75,7 @@ export default function KakaoCallbackHandler() {
           } 
           else
           {
-            alert('✅ 카카오 계정이 연결되어 있지 않습니다.\n전화번호 인증 후 로그인 계정 연동해야 합니다.');
+            alert('✅ 카카오 계정이 연결되어 있지 않습니다.\n회원가입 후 로그인 계정 연동해야 합니다.');
             // 🔒 로그아웃 처리
             await auth.signOut();
             hasRedirected.current = true;

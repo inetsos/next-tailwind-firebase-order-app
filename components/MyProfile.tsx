@@ -1,21 +1,38 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { signInWithGoogle, signInWithKakao, signInWithNaver } from '@/utils/socialLogin';
+import { signInWithKakao, signInWithNaver } from '@/utils/socialLogin';
 import { useUserStore } from '@/stores/userStore';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/firebase/firebaseConfig';
 
-export default function MyPageContent() {
+export default function MyProfileContent() {
   const { user: firebaseUser } = useAuth();
-  const { userData } = useUserStore();
- 
-  if (!firebaseUser || !userData)
-    return <div className="text-center p-4 text-gray-500 dark:text-gray-400">로그인이 필요합니다.</div>;
+  const { userData, setUserData } = useUserStore();
 
-  const isLinked = (provider: 'google' | 'kakao' | 'naver') => {
-    return userData.uids?.some((uid: string) => uid.startsWith(provider + ':'));
-  };
+  const [displayName, setDisplayName] = useState(userData?.displayName || '');
+  const [phoneNumber, setPhoneNumber] = useState(userData?.phoneNumber || '');
+  
+  // userData가 준비되면 state 업데이트
+  useEffect(() => {
+    if (userData) {
+      setDisplayName(userData.displayName || '');
+      setPhoneNumber(userData.phoneNumber || '');
+    }
+  }, [userData]);
+
+  const [loadingField, setLoadingField] = useState<string | null>(null);
+
+  if (!firebaseUser || !userData)
+    return (
+      <div className="text-center p-4 text-gray-500 dark:text-gray-400">
+        로그인이 필요합니다.
+      </div>
+    );
+
+  const isLinked = (provider: 'google' | 'kakao' | 'naver') =>
+    userData.uids?.some((uid: string) => uid.startsWith(provider + ':'));
 
   const handleKakaoLogin = async () => {
     try {
@@ -36,25 +53,45 @@ export default function MyPageContent() {
   };
 
   const unlinkProvider = async (provider: 'kakao' | 'naver') => {
-
     const confirmed = confirm(`${provider.toUpperCase()} 연동을 해제하시겠습니까?`);
     if (!confirmed) return;
 
     try {
-      // 기존 uids 배열에서 해당 provider UID 제거
-      const newUids = userData.uids.filter(uid => !uid.startsWith(provider + ':'));
-      // Firestore 업데이트
+      const newUids = userData.uids.filter((uid) => !uid.startsWith(provider + ':'));
       const userRef = doc(db, 'users', userData.userId);
       await updateDoc(userRef, { uids: newUids });
-      // zustand 전역 상태도 동기화
-      useUserStore.getState().setUserData({
+
+      setUserData({
         ...userData,
         uids: newUids,
       });
+
       alert(`${provider.toUpperCase()} 연동이 해제되었습니다.`);
     } catch (err) {
       console.error(err);
       alert('연동 해제 중 오류가 발생했습니다.');
+    }
+  };
+
+  // 개별 필드 저장
+  const updateField = async (field: 'displayName' | 'phoneNumber') => {
+    try {
+      setLoadingField(field);
+      const value = field === 'displayName' ? displayName : phoneNumber;
+      const userRef = doc(db, 'users', userData.userId);
+      await updateDoc(userRef, { [field]: value });
+
+      setUserData({
+        ...userData,
+        [field]: value,
+      });
+
+      //alert('저장되었습니다.');
+    } catch (error) {
+      console.error(error);
+      alert('저장 실패');
+    } finally {
+      setLoadingField(null);
     }
   };
 
@@ -64,21 +101,50 @@ export default function MyPageContent() {
 
       <div className="space-y-2.5 text-sm text-gray-800 dark:text-gray-200">
         <div className="flex">
-          <span className="w-24 font-semibold text-gray-600 dark:text-gray-400">UID</span>
-          <span>{userData.userId}</span>
+          <span className="w-24 font-semibold text-gray-600 dark:text-gray-400">이메일</span>
+          <span>{userData.email}</span>
         </div>
-        <div className="flex">
+
+        {/* 전화번호 */}
+        <div className="flex items-center gap-0">
           <span className="w-24 font-semibold text-gray-600 dark:text-gray-400">전화번호</span>
-          <span>{userData.phoneNumber}</span>
+          <input
+            type="tel"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            className="flex-1 border rounded mr-2 px-2 py-1 text-gray-800 dark:text-gray-200 bg-transparent border-gray-300 dark:border-gray-600"
+          />
+          <button
+            onClick={() => updateField('phoneNumber')}
+            disabled={loadingField === 'phoneNumber'}
+            className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+          >
+            {loadingField === 'phoneNumber' ? '저장중...' : '저장'}
+          </button>
         </div>
-        <div className="flex">
-          <span className="w-24 font-semibold text-gray-600 dark:text-gray-400">이름</span>
-          <span>{userData.displayName || '-'}</span>
+
+        {/* 이름 */}
+        <div className="flex items-center gap-0">
+          <span className="w-24 font-semibold text-gray-600 dark:text-gray-400">이름(별명)</span>
+          <input
+            type="text"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            className="flex-1 border rounded mr-2 px-2 py-1 text-gray-800 dark:text-gray-200 bg-transparent border-gray-300 dark:border-gray-600"
+          />
+          <button
+            onClick={() => updateField('displayName')}
+            disabled={loadingField === 'displayName'}
+            className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+          >
+            {loadingField === 'displayName' ? '저장중...' : '저장'}
+          </button>
         </div>
-        <div className="flex">
+
+        {/* <div className="flex">
           <span className="w-24 font-semibold text-gray-600 dark:text-gray-400">역할</span>
           <span>{userData.role || '-'}</span>
-        </div>
+        </div> */}
         <div className="flex">
           <span className="w-24 font-semibold text-gray-600 dark:text-gray-400">가입일</span>
           <span>{userData.createdAt?.toDate?.().toLocaleString() ?? '-'}</span>

@@ -26,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </Suspense>
 
           <ErrorBoundaryClient>
-            <main className="flex-1 w-full  max-w-lg mx-auto px-1 sm:px-2">
+            <main className="flex-1 w-full max-w-lg mx-auto px-1 sm:px-2">
               {children}
             </main>
           </ErrorBoundaryClient>

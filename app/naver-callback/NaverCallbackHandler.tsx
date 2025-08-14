@@ -84,7 +84,7 @@ export default function NaverCallbackHandler() {
             useUserStore.getState().setFirebaseUser(currentUser)
             useUserStore.getState().setUserData(userData)
           } else {
-            alert('✅ 네이버 계정이 연결되어 있지 않습니다.\n전화번호 인증 후 로그인 계정 연동해야 합니다.')
+            alert('✅ 네이버 계정이 연결되어 있지 않습니다.\n회원가입 후 로그인 계정 연동해야 합니다.')
             await signOut(auth)
             hasRedirected.current = true
             router.replace('/?login=true')
