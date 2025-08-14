@@ -5,51 +5,82 @@ import { useEffect, useMemo, useState } from 'react';
 import { useCart } from '@/context/CartContext';
 import CartView from '@/components/CartView';
 import { createOrderWithTransaction } from '@/utils/order';
-import { db } from '@/firebase/firebaseConfig';
-import { collection, serverTimestamp, addDoc } from 'firebase/firestore';
-import { useAuth } from '@/hooks/useAuth';  // 로그인 유저 정보 가져오는 커스텀 훅
+import { useAuth } from '@/hooks/useAuth';
 import { useUserStore } from '@/stores/userStore';
+import EmailAuthModal from '@/components/EmailAuthModal';
 
 export default function CheckoutPage() {
   const { storeId: rawStoreId } = useParams();
   const storeId = Array.isArray(rawStoreId) ? rawStoreId[0] : rawStoreId;
 
   const router = useRouter();
+  const { carts, clearCart } = useCart();
+  const { user } = useAuth();
+  const { userData, setPrevPath, isLoginModalOpen, setLoginModalOpen } = useUserStore();
+
   const [requestNote, setRequestNote] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { carts, clearCart } = useCart();
-  const { user } = useAuth();
-
-  const { userData } = useUserStore();
-
   const items = useMemo(() => {
-    if (!storeId || typeof storeId !== 'string') return [];
+    if (!storeId) return [];
     return carts[storeId] || [];
   }, [carts, storeId]);
 
   const totalPrice = items.reduce((sum, item) => sum + item.totalPrice, 0);
 
   useEffect(() => {
-    if (!storeId || typeof storeId !== 'string') {
+    if (!user) {
+      setPrevPath(`/store/${storeId}/checkout`);
+      setLoginModalOpen(true); // 🔹 모달 열기
+    }
+    else {
+      setPrevPath(null);
+      setLoginModalOpen(false); // 🔹 모달 닫기
+    }
+  }, [user, storeId, setPrevPath, setLoginModalOpen]);
+
+  // 매장 ID 없으면 홈으로
+  useEffect(() => {
+    if (!storeId) {
       alert('잘못된 접근입니다.');
       router.push('/');
     }
   }, [storeId, router]);
 
-  const handleOrderSubmit = async () => {
-    if (isSubmitting) return; // 중복 방지
+  // 로그인 여부 체크
+  useEffect(() => {
+    if (!user) {
+      // ✅ 로그인 전 현재 경로 저장
+      setPrevPath(`/store/${storeId}/checkout`);
+      setLoginModalOpen(true);
+    }
+    else {
+      setPrevPath(null);
+      setLoginModalOpen(false);
+    }
+  }, [user, storeId, setPrevPath]);
 
+  const handleOrderSubmit = async () => {
+    
     if (!user || !userData) {
       alert('로그인 후 주문해주세요.');
+      setPrevPath(`/store/${storeId}/checkout`);
+      setLoginModalOpen(true); // 🔹 모달 열기
       return;
     }
-    if (!storeId) {
-      alert('주문할 매장을 선택해주세요.');
-      return;
+    else {
+      setPrevPath(null);
+      setLoginModalOpen(false); // 🔹 모달 열기
     }
+
     if (!items || items.length === 0) {
       alert('장바구니가 비어있습니다.');
+      return;
+    }
+
+    if (!storeId) {
+      alert('주문할 매장을 선택해주세요.');
+      router.push('/');
       return;
     }
 
@@ -59,25 +90,22 @@ export default function CheckoutPage() {
       const orderData = {
         userId: userData.userId,
         userPhone: userData.phoneNumber ?? '',
-        storeId: storeId,
+        storeId,
         storeName: items[0].storeName,
         items,
         totalPrice,
         status: '접수' as const,
-        requestNote,  // 요청사항 포함
+        requestNote,
       };
 
-      const { id: orderId, orderNumber } = await createOrderWithTransaction(orderData);
-
-      //alert(`주문이 접수되었습니다. 주문번호: ${orderNumber}`);
+      const { orderNumber } = await createOrderWithTransaction(orderData);
 
       clearCart(storeId);
 
-      // 주문 완료 후 이동할 페이지(예: 주문완료 페이지 또는 매장 메인)
       router.push(`/store/${storeId}/order-complete?orderNumber=${orderNumber}`);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      alert(`주문 처리 중 오류 발생: ${(error as Error).message || '알 수 없는 오류입니다.'}`);
+      alert(`주문 처리 중 오류 발생: ${error.message || '알 수 없는 오류입니다.'}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -101,7 +129,7 @@ export default function CheckoutPage() {
     <div className="max-w-2xl mx-auto px-4 py-6">
       <h1 className="text-2xl font-bold mb-2">주문 확인</h1>
 
-      <CartView cartItems={items} editable={false}/>
+      <CartView cartItems={items} editable={false} />
 
       <div className="mt-2">
         <label className="block font-medium mb-2">요청사항</label>
@@ -128,6 +156,15 @@ export default function CheckoutPage() {
       >
         {isSubmitting ? '주문 처리 중...' : '주문하기'}
       </button>
+
+      {/* 로그인 모달 */}
+      {isLoginModalOpen && (
+        <EmailAuthModal
+          isOpen={isLoginModalOpen}
+          onClose={() => setLoginModalOpen(false)}
+          redirectTo={`/store/${storeId}/checkout`}
+        />
+      )}
     </div>
   );
 }

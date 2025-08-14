@@ -9,13 +9,38 @@ import {
 } from '@headlessui/react';
 import { Fragment } from 'react';
 import EmailAuth from './EmailAuth';
+import { useRouter } from 'next/navigation';
 
 interface EmailAuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onLoginSuccess?: () => void; // optional
+  redirectTo?: string; // 로그인 후 이동할 경로
 }
 
-export default function EmailAuthModal({ isOpen, onClose }: EmailAuthModalProps) {
+export default function EmailAuthModal({
+  isOpen,
+  onClose,
+  onLoginSuccess,
+  redirectTo,
+}: EmailAuthModalProps) {
+  const router = useRouter();
+
+  const handleLoginSuccess = () => {
+    // 모달 닫기
+    onClose();
+
+    // 외부 callback이 있으면 호출
+    if (onLoginSuccess) {
+      onLoginSuccess();
+    }
+
+    // redirectTo가 있으면 이동
+    if (redirectTo) {
+      router.replace(redirectTo);
+    }
+  };
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>
@@ -48,7 +73,7 @@ export default function EmailAuthModal({ isOpen, onClose }: EmailAuthModalProps)
                 이메일 로그인
               </DialogTitle>
 
-              <EmailAuth onLoginSuccess={onClose} />
+              <EmailAuth onLoginSuccess={handleLoginSuccess} />
             </DialogPanel>
           </TransitionChild>
         </div>

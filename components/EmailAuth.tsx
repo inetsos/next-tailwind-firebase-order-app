@@ -147,7 +147,7 @@ export default function EmailAuth({ onLoginSuccess }: EmailAuthProps) {
       </button>
 
       <p
-        className="text-xs text-center text-gray-500 cursor-pointer hover:underline"
+        className="text-xs text-center text-gray-800 cursor-pointer hover:underline"
         onClick={() => setIsSignUp(!isSignUp)}
       >
         {isSignUp ? '이미 계정이 있으신가요? 로그인' : '계정이 없으신가요? 회원가입'}

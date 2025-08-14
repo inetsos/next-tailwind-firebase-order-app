@@ -31,7 +31,10 @@ export default function NaverCallbackHandler() {
   const hasRun = useRef(false)
   const hasRedirected = useRef(false)
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true)
+
+  // 🔹 prevPath 가져오기
+  const { prevPath, setPrevPath, setFirebaseUser, setUserData } = useUserStore()
 
   useEffect(() => {
     const code = searchParams.get('code')
@@ -40,26 +43,24 @@ export default function NaverCallbackHandler() {
     if (!code || !state || hasRun.current) return
 
     const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
-      //onAuthStateChanged 상태 변화로 인한 중복 실행시 재실행 방지
       if (hasRun.current) return
       hasRun.current = true
 
       try {
         const functions = getFunctions(undefined, 'asia-northeast3')
         const naverLogin = httpsCallable(functions, 'naverLogin')
-        
-        // 로컬 또는 배포 상태에 따른 처리
-        const isLocal = window.location.hostname === 'localhost';
+
+        const isLocal = window.location.hostname === 'localhost'
         const naverRedirectUri = isLocal
           ? 'http://localhost:3000/naver-callback'
-          : 'https://www.sijilife.kr/naver-callback';
+          : 'https://www.sijilife.kr/naver-callback'
 
         const result: any = await naverLogin({ code, state, naverRedirectUri })
-        const { firebaseToken, naverUid, nickname } = result.data 
+        const { firebaseToken, naverUid, nickname } = result.data
         let currentUser: User
 
         if (!user) {
-          // 로그인 상태가 아니므로 로그인한다.
+          // 신규 로그인
           const signInResult = await signInWithCustomToken(auth, firebaseToken)
           currentUser = signInResult.user
 
@@ -81,8 +82,8 @@ export default function NaverCallbackHandler() {
               createdAt: data.createdAt,
               uids: data.uids ?? [],
             }
-            useUserStore.getState().setFirebaseUser(currentUser)
-            useUserStore.getState().setUserData(userData)
+            setFirebaseUser(currentUser)
+            setUserData(userData)
           } else {
             alert('✅ 네이버 계정이 연결되어 있지 않습니다.\n회원가입 후 로그인 계정 연동해야 합니다.')
             await signOut(auth)
@@ -92,7 +93,10 @@ export default function NaverCallbackHandler() {
           }
 
           const userData = useUserStore.getState().userData
-          if (userData?.userId && (!userData.displayName || userData.displayName.trim() === '')) {
+          if (
+            userData?.userId &&
+            (!userData.displayName || userData.displayName.trim() === '')
+          ) {
             const userRef = doc(db, 'users', userData.userId)
             await updateDoc(userRef, { displayName: nickname })
           }
@@ -100,60 +104,56 @@ export default function NaverCallbackHandler() {
           console.log('네이버 계정으로 신규 로그인 완료:', currentUser.uid)
 
           if (!hasRedirected.current) {
-            router.replace('/')
+            console.log('Naver: ', prevPath)
+            router.replace(prevPath || '/') // 🔹 저장된 경로로 이동
+            setPrevPath(null) // 사용 후 초기화
           }
-
         } else {
-          
-          // 로그인 상태이다.
-          // 이 경우 SNS 로그인 연동 요청이다.
-          // 그렇다면 처음 연동인지, 이미 연동되어 있는지 확인이 필요하다.
-
-          // naverUid가 uids 안에 있는지 확인한다.
+          // 계정 연동
           const userStore = useUserStore.getState()
           const isLinked = userStore.userData?.uids?.includes(naverUid)
           if (isLinked) {
-              alert('✅ 이미 연동되어 있습니다.')
+            alert('✅ 이미 연동되어 있습니다.')
           } else {
             currentUser = user
-
             const userRef = doc(db, 'users', currentUser.uid)
             await updateDoc(userRef, {
-              displayName: nickname, 
+              displayName: nickname,
               uids: arrayUnion(naverUid),
             })
 
             const snap = await getDoc(userRef)
             if (snap.exists()) {
-              const data = snap.data() 
+              const data = snap.data()
               const userData: UserData = {
                 userId: data.userId,
                 phoneNumber: data.phoneNumber ?? '',
-                displayName: nickname, 
+                displayName: nickname,
                 role: data.role,
                 createdAt: data.createdAt,
                 uids: data.uids ?? [],
               }
-              useUserStore.getState().setFirebaseUser(user)
-              useUserStore.getState().setUserData(userData)
+              setFirebaseUser(user)
+              setUserData(userData)
               alert('✅ 네이버 계정으로 연동 완료')
-            }          
+            }
           }
 
           if (!hasRedirected.current) {
-            router.replace('/mypage/profile')
+            router.replace(prevPath || '/mypage/profile')
+            setPrevPath(null)
           }
         }
       } catch (error: any) {
         console.error('❌ 네이버 로그인 실패:', error)
         alert('네이버 로그인 오류: ' + error.message)
-      } finally {      
-        setLoading(false);
+      } finally {
+        setLoading(false)
       }
     })
 
     return () => unsubscribe()
-  }, [searchParams, router])
+  }, [searchParams, router, prevPath, setPrevPath, setFirebaseUser, setUserData])
 
   return (
     <div className="p-6 text-center">
@@ -166,5 +166,5 @@ export default function NaverCallbackHandler() {
         <h2>로그인 완료!</h2>
       )}
     </div>
-  );
+  )
 }
