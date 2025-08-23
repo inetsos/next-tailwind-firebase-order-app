@@ -69,9 +69,9 @@ export default function EmailAuthModal({
             leaveTo="opacity-0 scale-95"
           >
             <DialogPanel className="w-full max-w-md rounded bg-white p-6 shadow-xl">
-              <DialogTitle className="text-lg font-semibold text-gray-900 mb-2">
+              {/* <DialogTitle className="text-lg font-semibold text-gray-900 mb-2">
                 이메일 로그인
-              </DialogTitle>
+              </DialogTitle> */}
 
               <EmailAuth onLoginSuccess={handleLoginSuccess} />
             </DialogPanel>

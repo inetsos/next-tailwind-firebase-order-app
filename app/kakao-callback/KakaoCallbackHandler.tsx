@@ -82,6 +82,8 @@ export default function KakaoCallbackHandler() {
               role: data.role,
               createdAt: data.createdAt,
               uids: data.uids ?? [],
+              uniqueNumber: data.uniqueNumber
+
             }
             setFirebaseUser(currentUser)
             setUserData(userData)
@@ -139,6 +141,7 @@ export default function KakaoCallbackHandler() {
                 role: data.role,
                 createdAt: data.createdAt,
                 uids: data.uids ?? [],
+                uniqueNumber: data.uniqueNumber
               }
               setFirebaseUser(user)
               setUserData(userData)

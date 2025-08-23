@@ -37,6 +37,7 @@ export async function handleRedirectResultAfterLinking() {
           role: docData.role,
           createdAt: docData.createdAt,
           uids: docData.uids ?? [],
+          uniqueNumber: docData.uniqueNumber
         };
 
         useUserStore.getState().setUserData(updatedUserData);

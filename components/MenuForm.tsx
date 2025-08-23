@@ -59,7 +59,7 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
           .sort((a, b) => a.sortOrder - b.sortOrder);
         setCategories(categoryList.map(cat => cat.name));
       } catch (error) {
-        await logEvent('error', '카테고리 불러오기 실패', { error });
+        await logEvent('error', '메뉴', '카테고리 불러오기 실패', { error });
       }
     }
     fetchCategories();
@@ -73,7 +73,7 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
       const url = await getDownloadURL(imageRef);
       return url;
     } catch (error) {
-      await logEvent('error', '메뉴 이미지 업로드 실패', { error });
+      await logEvent('error', '메뉴', '메뉴 이미지 업로드 실패', { error });
       alert('이미지 업로드 중 오류가 발생했습니다.');
       return imageUrl || '';
     }
@@ -148,7 +148,7 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
         alert('메뉴가 등록되었습니다.');
       }
 
-      await logEvent('info', '메뉴 등록 완료', { storeId, menuName: name });
+      await logEvent('info','메뉴', '메뉴 등록 완료', { storeId, menuName: name });
 
       // 초기화
       setName('');
@@ -168,7 +168,7 @@ export default function MenuForm({ storeId, menuData, onSubmit }: MenuFormProps)
 
       router.push(`/store/${storeId}/menus`);
     } catch (error) {
-      await logEvent('error', '메뉴 등록 실패', {
+      await logEvent('error', '메뉴', '메뉴 등록 실패', {
         storeId,
         menuName: name,
         error: error instanceof Error ? error.message : String(error),

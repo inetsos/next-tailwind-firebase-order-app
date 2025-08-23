@@ -128,7 +128,8 @@ export default function PhoneAuth({ onLoginSuccess }: PhoneAuthProps) {
         createdAt: serverTimestamp(),
         displayName: '',
         role: 'customer',
-        uids: [user.uid]
+        uids: [user.uid],
+        uniqueNumber: ''
       }
 
       // Firestore에 사용자 정보 저장

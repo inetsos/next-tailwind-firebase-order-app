@@ -5,16 +5,7 @@ import { auth, db } from '@/firebase/firebaseConfig';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useUserStore } from '@/stores/userStore';
-
-interface UserData {
-  userId: string;
-  phoneNumber: string;
-  displayName?: string;
-  role?: string;
-  createdAt?: any;
-  email?: string;
-  uids: string[];
-}
+import type { UserData } from '@/types/UserData';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -48,6 +39,7 @@ export function useAuth() {
               createdAt: data.createdAt,
               email: data.email || '',
               uids: data.uids,
+              uniqueNumber: data.uniqueNumber
             };
             setFirebaseUser(firebaseUser)
             setUserData(userData);

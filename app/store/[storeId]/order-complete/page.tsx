@@ -1,6 +1,8 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
+import { logEvent } from '@/utils/logger';
 
 export default function OrderCompletePage() {
   const router = useRouter();
@@ -10,6 +12,20 @@ export default function OrderCompletePage() {
   const orderNumber = searchParams.get('orderNumber');
   const storeId = searchParams.get('storeId');
 
+  // 페이지 로드 시 로그 기록
+  useEffect(() => {
+    if (orderNumber) {
+      logEvent('info', '주문', '주문 완료 페이지 방문', {
+        orderNumber,
+        storeId: storeId ?? null,
+      });
+    } else {
+      logEvent('warn', '주문', '주문 완료 페이지 접근: orderNumber 없음', {
+        storeId: storeId ?? null,
+      });
+    }
+  }, [orderNumber, storeId]);
+  
   return (
     <div className="max-w-xl mx-auto px-4 py-16 text-center">
       <h1 className="text-3xl font-bold mb-6 text-green-600">주문이 완료되었습니다!</h1>

@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import Link from "next/link";
+import { Package, ClipboardList, User, MessageCircle } from "lucide-react";
 
 export default function MyPagePage() {
   return (
@@ -9,30 +10,43 @@ export default function MyPagePage() {
         <li>
           <Link
             href="/mypage/order-messages"
-            className="block p-4 bg-green-100 rounded hover:bg-green-200 dark:bg-green-900 dark:hover:bg-green-800"
+            className="flex items-center gap-3 p-4 bg-green-100 rounded hover:bg-green-200 dark:bg-green-900 dark:hover:bg-green-800"
           >
-            내 주문 상태 보기
+            <Package className="w-5 h-5" />
+            <span>내 주문 상태 보기</span>
           </Link>
         </li>
-        
+
         <li>
           <Link
             href="/mypage/orders"
-            className="block p-4 bg-yellow-100 rounded hover:bg-yellow-200 dark:bg-yellow-900 dark:hover:bg-yellow-800"
+            className="flex items-center gap-3 p-4 bg-yellow-100 rounded hover:bg-yellow-200 dark:bg-yellow-900 dark:hover:bg-yellow-800"
           >
-            내 주문 보기
+            <ClipboardList className="w-5 h-5" />
+            <span>내 주문 보기</span>
           </Link>
         </li>
 
         <li>
           <Link
             href="/mypage/profile"
-            className="block p-4 bg-blue-100 rounded hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800"
+            className="flex items-center gap-3 p-4 bg-blue-100 rounded hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800"
           >
-            내 프로필
+            <User className="w-5 h-5" />
+            <span>내 프로필</span>
           </Link>
         </li>
-        
+
+        {/* 새로 추가된 버튼 */}
+        <li>
+          <Link
+            href="/mypage/messages"
+            className="flex items-center gap-3 p-4 bg-purple-100 rounded hover:bg-purple-200 dark:bg-purple-900 dark:hover:bg-purple-800"
+          >
+            <MessageCircle className="w-5 h-5" />
+            <span>주인장에게 보낸 메시지</span>
+          </Link>
+        </li>
       </ul>
     </main>
   );

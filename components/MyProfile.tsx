@@ -95,6 +95,11 @@ export default function MyProfileContent() {
     }
   };
 
+  const formatMemberNumber = (number: string): string => 
+    !number || number.length !== 11 
+      ? number 
+      : `${number.slice(0, 3)} ${number.slice(3, 7)} ${number.slice(7, 11)}`;
+
   return (
     <div className="max-w-md mx-auto mt-4 p-4 rounded-xl shadow bg-white dark:bg-gray-800 space-y-4">
       <h1 className="text-xl font-bold text-gray-900 dark:text-white">내프로필</h1>
@@ -141,10 +146,16 @@ export default function MyProfileContent() {
           </button>
         </div>
 
-        {/* <div className="flex">
-          <span className="w-24 font-semibold text-gray-600 dark:text-gray-400">역할</span>
-          <span>{userData.role || '-'}</span>
-        </div> */}
+        <div className="flex">
+          <span className="w-24 font-semibold text-gray-600 dark:text-gray-400">회원아이디</span>
+          <span>{userData.uniqueNumber ? formatMemberNumber(userData.userId) : '-'}</span>
+        </div>
+
+        <div className="flex">
+          <span className="w-24 font-semibold text-gray-600 dark:text-gray-400">회원번호</span>
+          <span>{userData.uniqueNumber ? formatMemberNumber(userData.uniqueNumber) : '-'}</span>
+        </div>
+
         <div className="flex">
           <span className="w-24 font-semibold text-gray-600 dark:text-gray-400">가입일</span>
           <span>{userData.createdAt?.toDate?.().toLocaleString() ?? '-'}</span>
@@ -165,14 +176,14 @@ export default function MyProfileContent() {
 
           <div className="flex justify-end items-center mt-1 mr-2 gap-2">
             <span className="text-xs text-gray-600 dark:text-gray-400">
-              {isLinked('kakao') ? '✅ 연동됨' : '❌ 미연동'}
+              {isLinked('kakao') ? '✅ 연동' : '❌ 미연동'}
             </span>
             {isLinked('kakao') && (
               <button
                 onClick={() => unlinkProvider('kakao')}
                 className="text-xs text-gray-500 underline hover:text-gray-600"
               >
-                연동 해제
+                해제
               </button>
             )}
           </div>
@@ -189,14 +200,14 @@ export default function MyProfileContent() {
 
           <div className="flex justify-end items-center mt-1 mr-2 gap-2">
             <span className="text-xs text-gray-600 dark:text-gray-400">
-              {isLinked('naver') ? '✅ 연동됨' : '❌ 미연동'}
+              {isLinked('naver') ? '✅ 연동' : '❌ 미연동'}
             </span>
             {isLinked('naver') && (
               <button
                 onClick={() => unlinkProvider('naver')}
                 className="text-xs text-gray-500 underline hover:text-gray-600"
               >
-                연동 해제
+                해제
               </button>
             )}
           </div>

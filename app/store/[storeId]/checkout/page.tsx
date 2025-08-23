@@ -8,6 +8,7 @@ import { createOrderWithTransaction } from '@/utils/order';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserStore } from '@/stores/userStore';
 import EmailAuthModal from '@/components/EmailAuthModal';
+import { logEvent } from '@/utils/logger';
 
 export default function CheckoutPage() {
   const { storeId: rawStoreId } = useParams();
@@ -60,6 +61,12 @@ export default function CheckoutPage() {
     }
   }, [user, storeId, setPrevPath]);
 
+  function formatUniqueNumber(uniqueNumber: string): string {
+    if (!uniqueNumber || uniqueNumber.length < 11) return uniqueNumber;
+
+    return `${uniqueNumber.slice(0, 3)}-${uniqueNumber.slice(3, 7)}-${uniqueNumber.slice(7, 11)}`;
+  }
+
   const handleOrderSubmit = async () => {
     
     if (!user || !userData) {
@@ -70,7 +77,7 @@ export default function CheckoutPage() {
     }
     else {
       setPrevPath(null);
-      setLoginModalOpen(false); // 🔹 모달 열기
+      setLoginModalOpen(false); // 🔹 모달 닫기
     }
 
     if (!items || items.length === 0) {
@@ -87,22 +94,28 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
+      const userName = userData.displayName?.trim()
+        ? userData.displayName
+        : formatUniqueNumber(userData.uniqueNumber);
+
       const orderData = {
         userId: userData.userId,
         userPhone: userData.phoneNumber ?? '',
+        userName, //:userData.displayName,
         storeId,
         storeName: items[0].storeName,
         items,
         totalPrice,
-        status: '접수' as const,
+        status: '주문' as const,
+        cancelReason: '',
         requestNote,
       };
 
       const { orderNumber } = await createOrderWithTransaction(orderData);
-
       clearCart(storeId);
-
+      logEvent('info', '주문', '주문 완료', { storeId, userId: userData.userId, orderNumber, totalPrice });
       router.push(`/store/${storeId}/order-complete?orderNumber=${orderNumber}`);
+      
     } catch (error: any) {
       console.error(error);
       alert(`주문 처리 중 오류 발생: ${error.message || '알 수 없는 오류입니다.'}`);

@@ -5,7 +5,7 @@ export function setupGlobalErrorHandler() {
   if (typeof window === 'undefined') return;
 
   window.onerror = (msg, src, line, col, err) => {
-    logEvent('error', 'JS 전역 에러', {
+    logEvent('error','에러', 'JS 전역 에러', {
       message: msg,
       source: src,
       line,
@@ -15,7 +15,7 @@ export function setupGlobalErrorHandler() {
   };
 
   window.onunhandledrejection = (event) => {
-    logEvent('error', 'Unhandled Promise rejection', {
+    logEvent('error', '에러', 'Unhandled Promise rejection', {
       reason: event.reason,
     });
   };

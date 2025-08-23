@@ -10,6 +10,7 @@ import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import type { UserData } from '@/types/UserData';
 import { useUserStore } from '@/stores/userStore';
+import { v4 as uuidv4 } from 'uuid';
 
 interface EmailAuthProps {
   onLoginSuccess: () => void;
@@ -28,6 +29,13 @@ export default function EmailAuth({ onLoginSuccess }: EmailAuthProps) {
 
   const [kakaoAuthUrl, setKakaoAuthUrl] = useState('');
   const [naverAuthUrl, setNaverAuthUrl] = useState('');
+
+  // UUID 기반 11자리 숫자 생성 함수
+  function generateUniqueNumber(): string {
+    const uuid = uuidv4().replace(/-/g, '');
+    const numeric = BigInt('0x' + uuid).toString();
+    return numeric.slice(0, 11);
+  }
 
   // 소셜 로그인 URL 설정
   useEffect(() => {
@@ -73,7 +81,9 @@ export default function EmailAuth({ onLoginSuccess }: EmailAuthProps) {
       const userRef = doc(db, 'users', user.uid);
       const docSnap = await getDoc(userRef);
 
-      if (!docSnap.exists()) {
+      const uniqueNumber = generateUniqueNumber(); // 고유번호 생성
+
+      if (!docSnap.exists()) {        
         const userData: UserData = {
           userId: user.uid,
           email: user.email || '',
@@ -82,6 +92,7 @@ export default function EmailAuth({ onLoginSuccess }: EmailAuthProps) {
           displayName: '',
           role: 'customer',
           uids: [user.uid],
+          uniqueNumber,
         };
         await setDoc(userRef, userData);
         console.log('신규 사용자 등록');
@@ -103,6 +114,7 @@ export default function EmailAuth({ onLoginSuccess }: EmailAuthProps) {
               displayName: '',
               role: 'customer',
               uids: [user.uid],
+              uniqueNumber
             }
       );
 
@@ -116,11 +128,18 @@ export default function EmailAuth({ onLoginSuccess }: EmailAuthProps) {
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
+      {/* 타이틀 */}
+      <h2 className="text-xl font-bold text-center">
+        {isSignUp ? '회원가입' : '로그인'}
+      </h2>
+
       <input
         type="email"
-        className={"w-full border border-gray-300 mt-2 px-3 py-2 rounded "+
-                  "bg-white text-black dark:bg-gray-800 dark:text-white"}
+        className={
+          'w-full border border-gray-300 mt-2 px-3 py-2 rounded ' +
+          'bg-white text-black dark:bg-gray-800 dark:text-white'
+        }
         placeholder="이메일"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
@@ -138,7 +157,7 @@ export default function EmailAuth({ onLoginSuccess }: EmailAuthProps) {
         className={`w-full py-2 rounded transition-colors ${
           isLoading
             ? 'bg-gray-400 cursor-not-allowed text-white'
-            : 'bg-blue-500 hover:bg-blue-600 text-white' // 파란색으로 변경
+            : 'bg-blue-500 hover:bg-blue-600 text-white'
         }`}
         onClick={handleAuth}
         disabled={isLoading}
@@ -147,10 +166,12 @@ export default function EmailAuth({ onLoginSuccess }: EmailAuthProps) {
       </button>
 
       <p
-        className="text-xs text-center text-gray-800 cursor-pointer hover:underline"
+        className="text-xs text-center -mt-2 text-gray-800 cursor-pointer hover:underline"
         onClick={() => setIsSignUp(!isSignUp)}
       >
-        {isSignUp ? '이미 계정이 있으신가요? 로그인' : '계정이 없으신가요? 회원가입'}
+        {isSignUp
+          ? '이미 계정이 있으신가요? 로그인'
+          : '계정이 없으신가요? 회원가입'}
       </p>
 
       <hr className="border-t border-gray-300 my-6 dark:border-gray-600" />

@@ -35,6 +35,7 @@ function sanitizeMeta(meta: Record<string, any>): Record<string, any> {
 
 export async function logEvent(
   level: 'info' | 'warn' | 'error',
+  category: string,
   message: string,
   meta: Record<string, any> = {}
 ) {
@@ -44,6 +45,7 @@ export async function logEvent(
     const logData = {
       level,
       message,
+      category,
       ...sanitizeMeta(meta), // 안전하게 처리
       userAgent,
       timestamp: serverTimestamp(),

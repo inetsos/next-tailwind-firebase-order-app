@@ -23,7 +23,7 @@ export default class ErrorBoundaryClient extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    logEvent('error', 'React 전역 에러', {
+    logEvent('error', '에러', 'React 전역 에러', {
       message: error.message,
       stack: error.stack,
       componentStack: errorInfo.componentStack,

@@ -11,6 +11,7 @@ import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { v4 as uuidv4 } from 'uuid';
 import { useStoreStore } from '@/stores/useStoreStore';
 import { Store, DayOfWeek } from '@/types/store';
+import { logEvent } from '@/utils/logger';
 
 export default function OnlineOrderPage() {
   const params = useParams();
@@ -50,12 +51,15 @@ export default function OnlineOrderPage() {
         if (storeSnap.exists()) {
           const storeData = storeSnap.data() as Store;
           setStore(storeData);
+          logEvent('info', '주문', '가게 정보 로드 성공', { storeId });
         } else {
           setStore(null);
+          logEvent('warn', '주문', '존재하지 않는 가게 접근 시도', { storeId });
         }
       } catch (err) {
         console.error('가게 정보 로드 오류:', err);
         setStore(null);
+        logEvent('error', '주문', '가게 정보 로드 실패', { storeId, error: err });
       } finally {
         setInitialized(true);
       }
@@ -76,6 +80,7 @@ export default function OnlineOrderPage() {
         if (snap.exists()) {
           const data = snap.data();
           setMenu({ id: snap.id, ...data } as Menu);
+          logEvent('info', '주문', '메뉴 정보 로드 성공', { storeId, menuId });
 
           if (data.requiredOptions?.length > 0) {
             setSelectedRequiredOptions(
@@ -90,10 +95,12 @@ export default function OnlineOrderPage() {
           }
         } else {
           setMenu(null);
+          logEvent('warn', '주문', '존재하지 않는 메뉴 접근 시도', { storeId, menuId });
         }
       } catch (err) {
         console.error('메뉴 로드 실패:', err);
         setMenu(null);
+        logEvent('error', '주문', '메뉴 정보 로드 실패', { storeId, menuId, error: err });
       } finally {
         setLoading(false);
       }
@@ -148,11 +155,16 @@ export default function OnlineOrderPage() {
     setIsOpen(checkIsOpen());
   }, [store]);
 
-  if (!isInitialized) return <div className="p-4 text-center">⏳ 가게 정보 로딩 중...</div>;
-  if (!store) return <div className="p-4 text-center">❌ 존재하지 않는 가게입니다.</div>;
-  if (!storeId || !menuId) return <div className="p-4 text-center">❌ 잘못된 접근입니다.</div>;
-  if (loading) return <div className="p-4 text-center">⏳ 메뉴 불러오는 중...</div>;
-  if (!menu) return <div className="p-4 text-center">❌ 메뉴를 찾을 수 없습니다.</div>;
+  if (!isInitialized) 
+    return <div className="p-4 text-center">⏳ 가게 정보 로딩 중...</div>;
+  if (!store) 
+    return <div className="p-4 text-center">❌ 존재하지 않는 가게입니다.</div>;
+  if (!storeId || !menuId) 
+    return <div className="p-4 text-center">❌ 잘못된 접근입니다.</div>;
+  if (loading) 
+    return <div className="p-4 text-center">⏳ 메뉴 불러오는 중...</div>;
+  if (!menu) 
+    return <div className="p-4 text-center">❌ 메뉴를 찾을 수 없습니다.</div>;
 
   const selectedPrice =
     menu.prices && menu.prices.length > 0
@@ -172,9 +184,10 @@ export default function OnlineOrderPage() {
     (sum, optionIndexes, groupIdx) => {
       const group = menu.optionalOptions?.[groupIdx];
       if (!group) return sum;
-      const groupSum = optionIndexes.reduce((groupSum, optionIdx) => {
-        return groupSum + (group.options[optionIdx]?.price || 0);
-      }, 0);
+      const groupSum = optionIndexes.reduce(
+        (groupSum, optionIdx) => groupSum + (group.options[optionIdx]?.price || 0),
+        0
+      );
       return sum + groupSum;
     },
     0
@@ -186,6 +199,7 @@ export default function OnlineOrderPage() {
     setSelectedRequiredOptions((prev) => {
       const newArr = [...prev];
       newArr[groupIdx] = optionIdx;
+      logEvent('info', '주문', '필수 옵션 선택', { storeId, menuId, groupIdx, optionIdx });
       return newArr;
     });
   };
@@ -194,8 +208,10 @@ export default function OnlineOrderPage() {
     setSelectedOptionalOptions((prev) => {
       const newArr = [...prev];
       const groupSelected = newArr[groupIdx] || [];
+
       if (groupSelected.includes(optionIdx)) {
         newArr[groupIdx] = groupSelected.filter((idx) => idx !== optionIdx);
+        logEvent('info', '주문', '선택 옵션 제거', { storeId, menuId, groupIdx, optionIdx });
       } else {
         const group = menu.optionalOptions?.[groupIdx];
         if (group && groupSelected.length >= group.maxSelect) {
@@ -203,6 +219,7 @@ export default function OnlineOrderPage() {
           return prev;
         }
         newArr[groupIdx] = [...groupSelected, optionIdx];
+        logEvent('info', '주문', '선택 옵션 추가', { storeId, menuId, groupIdx, optionIdx });
       }
       return newArr;
     });
@@ -210,15 +227,18 @@ export default function OnlineOrderPage() {
 
   const onChangePriceOption = (priceIdx: number) => {
     setSelectedPriceIdx(priceIdx);
+    logEvent('info', '주문', '가격 옵션 변경', { storeId, menuId, priceIdx });
   };
 
   const handleOrder = async () => {
     if (!isOpen) {
       alert('현재 영업 시간이 아닙니다. 주문이 불가능합니다.');
+      logEvent('warn', '주문', '영업시간 외 주문 시도', { storeId, menuId });
       return;
     }
     if (menu.requiredOptions?.some((_, idx) => selectedRequiredOptions[idx] === -1)) {
-      alert('필수 옵션을 모두 선택해주세요.');
+      alert('필수 옵션을 선택해주세요.');
+      logEvent('warn', '주문', '필수 옵션 미선택 주문 시도', { storeId, menuId });
       return;
     }
 
@@ -252,6 +272,8 @@ export default function OnlineOrderPage() {
 
     addItem(storeId, itemToAdd);
     sessionStorage.setItem('scrollToMenu', 'true');
+
+    logEvent('info', '주문', '장바구니에 메뉴 추가', { storeId, menuId, item: itemToAdd });
 
     router.push(`/store/${storeId}`);
   };
@@ -415,23 +437,26 @@ export default function OnlineOrderPage() {
         총액: {total.toLocaleString()}원
       </div>
 
-      {/* 영업시간 안내 */}
+      {/* 주문 버튼 */}
+      <button
+        className={`w-full p-3 rounded text-white 
+          ${isOpen 
+            ? 'bg-blue-600 hover:bg-blue-700' 
+            : 'bg-gray-400 cursor-not-allowed'
+          }`}
+        onClick={handleOrder}
+        disabled={!isOpen}
+      >
+        주문하기
+      </button>
+
+      {/* 영업시간 외 안내문 */}
       {!isOpen && (
-        <p className="mb-4 text-red-600 font-semibold text-center">
-          현재 영업 시간이 아닙니다. 주문이 불가능합니다.
+        <p className="mt-3 text-center text-sm text-red-500 font-medium">
+          현재 영업중이 아닙니다.
         </p>
       )}
 
-      {/* 주문 버튼 */}
-      <button
-        onClick={handleOrder}
-        disabled={!isOpen}
-        className={`w-full py-2 rounded text-sm font-medium text-white ${
-          isOpen ? 'bg-blue-600 hover:bg-blue-700 cursor-pointer' : 'bg-gray-400 cursor-not-allowed'
-        }`}
-      >
-        장바구니에 담기
-      </button>
     </div>
   );
 }

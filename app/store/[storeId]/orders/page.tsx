@@ -148,7 +148,7 @@ export default function StoreOrdersPage() {
               <div className="flex justify-between mb-2">
                 <div>
                   <p><strong>주문번호:</strong> {order.orderNumber}</p>
-                  <p><strong>주문자:</strong> {order.userPhone}</p>
+                  <p><strong>주문자:</strong> {order.userName}</p>
                   <p>
                     <strong>상태:</strong>{' '}
                     <span
@@ -176,7 +176,8 @@ export default function StoreOrdersPage() {
                   )}
                 </div>
                 <div className="text-right">
-                  <p>{order.createdAt?.toDate?.().toLocaleTimeString() || '-'}</p>
+                  {/* <p>{order.createdAt?.toDate?.().toLocaleTimeString() || '-'}</p> */}
+                  <p>{order.createdAt ? dayjs(order.createdAt.toDate()).format('YYYY-MM-DD HH:mm') : '-'}</p>
                   <p className="font-semibold">{order.totalPrice.toLocaleString()}원</p>
                 </div>
               </div>

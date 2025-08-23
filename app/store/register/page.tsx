@@ -44,7 +44,7 @@ interface Category {
 }
 
 export default function StoreRegisterPage() {
-  const [form, setForm] = useState<Store & { industry?: string }>({
+  const [form, setForm] = useState<Store & { industry?: string; orderManager?: string }>({
     category: '',
     industry: '',
     name: '',
@@ -58,6 +58,7 @@ export default function StoreRegisterPage() {
     holidayRule: defaultHolidayRule,
     admin: '',
     web: '',
+    orderManager: '',
   });
 
   const [categories, setCategories] = useState<Category[]>([]);
@@ -183,6 +184,7 @@ export default function StoreRegisterPage() {
       { key: 'address', label: '주소' },
       { key: 'latitude', label: '위도' },
       { key: 'longitude', label: '경도' },
+      //{ key: 'orderManager', label: '주문 처리 담당자' }, // 필수 여부 선택 가능
     ];
 
     for (const field of requiredFields) {
@@ -219,7 +221,8 @@ export default function StoreRegisterPage() {
         ...form,
         latitude: parseFloat(form.latitude),
         longitude: parseFloat(form.longitude),
-        admin: userData.userId,
+        admin: userData.userId,        // 기존 admin
+        orderManager: form.orderManager, // 새 필드 추가
         name_keywords: generateAdvancedSearchKeywords(form.name.trim()),
         createdAt: serverTimestamp(),
       });
@@ -240,29 +243,27 @@ export default function StoreRegisterPage() {
   return (
     <div className="max-w-xl mx-auto p-3">
       <h1 className="text-2xl font-bold mb-2 dark:text-white">매장 등록</h1>
+      
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* 1. category는 변경 불가 텍스트로 보여주기 */}
-        
         <div className="mb-4 space-y-2">
-          {/* 비동기 카테고리 선택 */}
           <Suspense fallback={null}>
-                        <CategoryFromSearchParams
+            <CategoryFromSearchParams
               onSetCategory={(category) => {
                 setForm(prev => {
                   if (prev.category !== category) {
                     return {
                       ...prev,
                       category,
-                      industry: '', // 카테고리가 바뀔 때만 초기화
+                      industry: '', // 카테고리 바뀌면 세부 업종 초기화
                     };
                   }
-                  return prev; // 카테고리 변화 없으면 상태 유지
+                  return prev;
                 });
               }}
             />
           </Suspense>
 
-          {/* 선택된 카테고리 표시 */}
           <div className="flex items-center gap-2">
             <label className="font-semibold dark:text-gray-200">카테고리</label>
             <p className="px-3 py-1 border rounded bg-gray-100 text-sm dark:bg-gray-700 dark:text-gray-300">
@@ -325,6 +326,66 @@ export default function StoreRegisterPage() {
             dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
         />
 
+        {/* 주문 처리 담당자 */}
+        <div className="flex items-center w-full">
+          {/* 입력창 */}
+          <input
+            type="text"
+            name="orderManager"
+            placeholder="주문 처리 담당자"
+            value={form.orderManager}
+            onChange={handleChange}
+            className="flex-1 p-2 text-xs border border-gray-300 rounded-l
+              bg-white text-black placeholder-gray-400
+              dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
+          />
+
+          {/* 초기화 버튼 */}
+          <button
+            type="button"
+            onClick={() => setForm(prev => ({ ...prev, orderManager: '' }))}
+            className="p-2 border-t border-b border-r text-gray-700 bg-gray-100 hover:bg-gray-200
+              rounded-r dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+            title="초기화"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          {/* 검색 버튼 */}
+          <button
+            type="button"
+            onClick={async () => {
+              const userNumber = prompt('회원 번호를 입력하세요:');
+              if (!userNumber) return;
+
+              try {
+                const usersRef = collection(db, 'users');
+                const q = query(usersRef, where('uniqueNumber', '==', userNumber));
+                const snapshot = await getDocs(q);
+
+                if (snapshot.empty) {
+                  alert('해당 회원 번호가 존재하지 않습니다.');
+                  return;
+                }
+
+                const userDoc = snapshot.docs[0];
+                setForm(prev => ({ ...prev, orderManager: userDoc.id }));
+              } catch (error) {
+                console.error(error);
+                alert('회원 조회 중 오류가 발생했습니다.');
+              }
+            }}
+            className="p-2 border rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 ml-2"
+            title="회원 번호로 검색"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1111.5 4.5a7.5 7.5 0 014.65 12.15z" />
+            </svg>
+          </button>
+        </div>
+
         {/* 영업시간 설정 버튼 */}
         <button
           type="button"
@@ -363,7 +424,6 @@ export default function StoreRegisterPage() {
             </ul>
           )}
         </div>
-
 
         {/* 휴무일 설정 버튼 */}
         <button
@@ -407,8 +467,8 @@ export default function StoreRegisterPage() {
           readOnly
           onClick={handleAddressSearch}
           className="w-full p-2 text-xs rounded border cursor-pointer
-            border-gray-300 bg-gray-100 text-black placeholder-gray-400
-            dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
+            border-gray-300 bg-gray-100 text-black
+            dark:border-gray-600 dark:bg-gray-800 dark:text-white"
         />
 
         {/* 상세주소 */}

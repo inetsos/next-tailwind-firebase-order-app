@@ -84,8 +84,8 @@ export default function OrderReceipt() {
           <h4 className="text-lg font-bold mb-2">
             주문번호: {order.orderNumber ?? order.id}
           </h4>
-          {order.userPhone && (
-            <p className="text-base mb-1">주문자: {order.userPhone}</p>
+          {order.userName && (
+            <p className="text-base mb-1">주문자: {order.userName}</p>
           )}
           <p className="text-sm mb-1 flex items-center gap-2">
             상태:
@@ -178,7 +178,7 @@ export default function OrderReceipt() {
 
 
         <div className="flex flex-wrap gap-2 mt-6 justify-center print:hidden">
-          {['접수', '준비', '픽업', '취소'].map((label) => {
+          {['주문', '접수', '준비', '픽업', '취소'].map((label) => {
             const statusValue = label as Order['status'];
             return (
               <button

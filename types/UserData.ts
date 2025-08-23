@@ -7,4 +7,5 @@ export type UserData = {
   role?: string;              // 권한 (예: 'customer', 'admin')
   createdAt?: any;           // Firestore serverTimestamp
   uids: string[];            // 연결된 모든 Firebase UID 목록
+  uniqueNumber:string;
 };

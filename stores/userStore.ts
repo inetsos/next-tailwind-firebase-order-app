@@ -52,11 +52,12 @@ export const useUserStore = create<UserStore>()(
         userData: state.userData,
         prevPath: state.prevPath,
         isLoginModalOpen: state.isLoginModalOpen,
-        hasHydrated: state.hasHydrated,
+        //hasHydrated: state.hasHydrated,
         // firebaseUser는 저장하지 않음
       }),
-      onRehydrateStorage: () => (state) => {
-        state?.setHasHydrated(true);
+      onRehydrateStorage: () => (state, error) => {
+        if (state) state.setHasHydrated(true);
+        if (error) console.error("rehydrate error", error);
       },
     }
   )

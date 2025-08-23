@@ -81,8 +81,10 @@ export default function MenuByCategory({ storeId }: MenuByCategoryProps) {
     }
   };
 
-  if (loading) return <p className="text-center text-sm py-6">⏳ 메뉴 불러오는 중...</p>;
-  if (menus.length === 0) return <p className="text-center text-sm py-6">📭 등록된 메뉴가 없습니다.</p>;
+  if (loading) 
+    return <p className="text-center text-sm py-6">⏳ 메뉴 불러오는 중...</p>;
+  if (menus.length === 0) 
+    return <p className="text-center text-sm py-6">📭 등록된 메뉴가 없습니다.</p>;
 
   return (
     <div className="space-y-6">

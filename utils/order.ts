@@ -51,8 +51,8 @@ export const createOrderWithTransaction = async (
       orderNumber,
       storeId: order.storeId,
       storeName: order.storeName,
-      status: '접수',
-      message: `${order.storeName} - 주문이 접수되었습니다.`,
+      status: '주문',
+      message: `${order.storeName} - 주문하였습니다.`,
       createdAt: serverTimestamp(),
       read: false,
     });

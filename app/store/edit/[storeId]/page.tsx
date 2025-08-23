@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { doc, getDoc, updateDoc, serverTimestamp, 
-  orderBy, collection, query, getDocs } from 'firebase/firestore';
+  orderBy, collection, query, getDocs, where } from 'firebase/firestore';
 import { db } from '@/firebase/firebaseConfig';
 import { Store, BusinessHour, DayOfWeek, HolidayRule } from '@/types/store';
 import { useUserStore } from '@/stores/userStore';
@@ -269,6 +269,68 @@ export default function StoreEditPage() {
           placeholder="상호명"
           className="w-full p-2 border text-xs rounded"
         />
+
+        {/* 주문 처리 담당자 */}
+        <div className="flex gap-2 items-center">
+          {/* 입력창 + 초기화 버튼 묶음 */}
+          <div className="flex flex-1">
+            <input
+              type="text"
+              name="orderManager"
+              value={form.orderManager || ''}
+              onChange={handleChange}
+              placeholder="주문 처리 담당자"
+              className="flex-1 p-2 border-t border-b border-l rounded-l text-xs
+                border-gray-300 bg-white text-black placeholder-gray-400
+                dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
+            />
+            <button
+              type="button"
+              onClick={() => setForm(prev => ({ ...prev!, orderManager: '' }))}
+              className="p-2 border-t border-b border-r rounded-r bg-gray-100 hover:bg-gray-200
+                border-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-600"
+              title="초기화"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-700 dark:text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {/* 검색 버튼 */}
+          <button
+            type="button"
+            onClick={async () => {
+              const userNumber = prompt('회원 번호를 입력하세요:');
+              if (!userNumber) return;
+
+              try {
+                const usersRef = collection(db, 'users');
+                const q = query(usersRef, where('uniqueNumber', '==', userNumber));
+                const snapshot = await getDocs(q);
+
+                if (snapshot.empty) {
+                  alert('해당 회원 번호가 존재하지 않습니다.');
+                  return;
+                }
+
+                const userDoc = snapshot.docs[0];
+                setForm(prev => ({ ...prev!, orderManager: userDoc.id }));
+              } catch (error) {
+                console.error(error);
+                alert('회원 조회 중 오류가 발생했습니다.');
+              }
+            }}
+            className="p-2 border rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
+            title="회원 번호로 검색"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-700 dark:text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1111.5 4.5a7.5 7.5 0 014.65 12.15z" />
+            </svg>
+          </button>
+        </div>
+        
+        {/* 소개말 */}
         <textarea
           name="description"
           value={form.description}

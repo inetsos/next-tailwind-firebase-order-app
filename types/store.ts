@@ -42,6 +42,8 @@ export interface Store {
 
   admin: string;
   web?: string;
+  orderManager?: string;
+  status?: string;  // online, offline
 }
 
 // distanceKm 포함 확장 타입

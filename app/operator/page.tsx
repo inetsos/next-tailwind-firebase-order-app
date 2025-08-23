@@ -17,6 +17,10 @@ export default function OperatorPage() {
     router.push('/operator/users');
   };
 
+  const goToLogs = () => {
+    router.push('/operator/logs');
+  };
+
   return (
     <div className="max-w-xl mx-auto py-4 px-4 space-y-4">
       <h1 className="text-2xl font-bold mb-6">운영자 페이지</h1>
@@ -40,6 +44,13 @@ export default function OperatorPage() {
         className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-md w-full"
       >
         회원 관리
+      </button>
+
+      <button
+        onClick={goToLogs}
+        className="bg-gray-700 hover:bg-gray-800 text-white px-6 py-3 rounded-md w-full"
+      >
+        로그 보기
       </button>
     </div>
   );
