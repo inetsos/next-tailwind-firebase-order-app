@@ -8,6 +8,7 @@ import {
   ExclamationTriangleIcon,
   QrCodeIcon,
   BellIcon,
+  MegaphoneIcon,
 } from '@heroicons/react/24/outline';
 import { useParams, useRouter } from 'next/navigation';
 
@@ -61,6 +62,14 @@ export default function StoreAdminDashboard() {
       bg: 'bg-pink-50',
       onClick: () => router.push(`/store/${storeId}/notifications`),
     },
+    {
+      title: '고객의 소리',
+      description: '고객이 남긴 의견과 피드백을 확인할 수 있어요.',
+      icon: <MegaphoneIcon className="w-8 h-8 text-purple-600" />,
+      bg: 'bg-purple-50',
+      onClick: () => router.push(`/store/${storeId}/voice-of-customer`),
+    },
+
   ];
 
   return (

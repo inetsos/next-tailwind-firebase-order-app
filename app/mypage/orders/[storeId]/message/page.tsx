@@ -1,15 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import {
   collection,
   query,
+  where,
   orderBy,
   limit,
-  where,
-  getDocs,
   startAfter,
+  getDocs,
   addDoc,
   serverTimestamp,
   DocumentData,
@@ -19,115 +19,109 @@ import { db } from '@/firebase/firebaseConfig';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserStore } from '@/stores/userStore';
 import dayjs from 'dayjs';
-import { useRef } from 'react';
 
 interface VoiceMessage {
   id: string;
   type: 'message' | 'reply';
   message: string;
-  storeName: string;
   userId: string;
+  userNumber?: string;
+  replyTo?: string;
   createdAt?: { seconds: number; nanoseconds: number };
 }
 
-export default function StoreChatPage() {
+export default function CustomerChatPage() {
   const { storeId: rawStoreId } = useParams();
   const storeId = Array.isArray(rawStoreId) ? rawStoreId[0] : rawStoreId;
 
-  const { user } = useAuth();
   const { userData } = useUserStore();
-
   const [messages, setMessages] = useState<VoiceMessage[]>([]);
+  const [replies, setReplies] = useState<{ [key: string]: VoiceMessage[] }>({});
+  const [message, setMessage] = useState('');
   const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [sending, setSending] = useState(false);
-  const [message, setMessage] = useState('');
 
-  const todayStart = dayjs().startOf('day').toDate(); // 오늘 00:00
+  const limitCount = 3;
+  const effectRan = useRef(false);
 
-  // 메시지 불러오기
-  const fetchMessages = async (more = false) => {
-    if (!storeId || !userData?.userId) return;
+  /** 메시지 + 주인장 답변 불러오기 */
+  const fetchMessagesWithReplies = async (more = false) => {
+    if (!storeId || !userData?.userId || loading) return;
 
-    const limitCount = 3;
     setLoading(true);
-
     try {
       let q;
-
       if (more && lastDoc) {
-        // 더보기: 날짜 제한 없이 이어서 가져오기
         q = query(
           collection(db, 'stores', storeId, 'voiceOfCustomer'),
+          where('type', '==', 'message'),
           orderBy('createdAt', 'desc'),
           startAfter(lastDoc),
           limit(limitCount)
         );
       } else {
-        // 처음: 오늘 날짜 이후 메시지만 가져오기
         q = query(
           collection(db, 'stores', storeId, 'voiceOfCustomer'),
-          where('createdAt', '>=', todayStart),
+          where('type', '==', 'message'),
           orderBy('createdAt', 'desc'),
           limit(limitCount)
         );
       }
 
-      const snapshot = await getDocs(q);
-      if (snapshot.empty) {
+      const snap = await getDocs(q);
+      if (snap.empty) {
         setHasMore(false);
         return;
       }
 
-      const newMessages = snapshot.docs.map((doc) => {
-        const data = doc.data() as Omit<VoiceMessage, 'id'>;
-        return { ...data, id: doc.id };
-      });
+      const newMessages = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as VoiceMessage));
+      setMessages(prev => more ? [...prev, ...newMessages] : newMessages);
+      setLastDoc(snap.docs[snap.docs.length - 1]);
 
-      setMessages((prev) => [...prev, ...newMessages]);
-      setLastDoc(snapshot.docs[snapshot.docs.length - 1]);
-
-      if (snapshot.docs.length < limitCount) {
-        setHasMore(false);
+      // 메시지별 주인장 답변 불러오기
+      const repliesMap: { [key: string]: VoiceMessage[] } = {};
+      for (const msg of newMessages) {
+        const replyQuery = query(
+          collection(db, 'stores', storeId, 'voiceOfCustomer'),
+          where('type', '==', 'reply'),
+          where('replyTo', '==', msg.id),
+          orderBy('createdAt', 'asc')
+        );
+        const replySnap = await getDocs(replyQuery);
+        repliesMap[msg.id] = replySnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as VoiceMessage));
       }
+
+      setReplies(prev => ({ ...prev, ...repliesMap }));
+      if (snap.docs.length < limitCount) setHasMore(false);
+
     } finally {
       setLoading(false);
     }
   };
 
-  // 메시지 전송
+  /** 고객 메시지 전송 */
   const handleSend = async () => {
-    if (!storeId) return;
-    if (!user?.uid || !userData?.userId) {
-      alert('로그인이 필요합니다.');
-      return;
-    }
-    if (!message.trim()) {
-      alert('메시지를 입력해주세요.');
-      return;
-    }
+    if (!storeId || !userData?.userId || !message.trim()) return;
 
     setSending(true);
     try {
       await addDoc(collection(db, 'stores', storeId, 'voiceOfCustomer'), {
         type: 'message',
-        storeId,
-        storeName: '', // 필요하면 쿼리스트링이나 별도 state에서 가져오기
-        userId: userData?.userId,
-        userNumber: userData.uniqueNumber,
         message,
+        storeId,
+        userId: userData.userId,
+        userNumber: userData.uniqueNumber,
         createdAt: serverTimestamp(),
       });
 
       setMessage('');
-      setMessages([]); // 새로 불러오기 위해 초기화
+      setMessages([]);
+      setReplies({});
       setLastDoc(null);
       setHasMore(true);
-      fetchMessages();
-    } catch (error) {
-      console.error(error);
-      alert('메시지 전송 중 오류가 발생했습니다.');
+      fetchMessagesWithReplies();
     } finally {
       setSending(false);
     }
@@ -135,48 +129,43 @@ export default function StoreChatPage() {
 
   useEffect(() => {
     if (!storeId || !userData?.userId) return;
-
-    // 이미 실행했으면 return
     if (effectRan.current) return;
     effectRan.current = true;
 
     setMessages([]);
+    setReplies({});
     setLastDoc(null);
     setHasMore(true);
-    fetchMessages();
+    fetchMessagesWithReplies();
   }, [storeId, userData?.userId]);
 
-  const formatDate = (timestamp?: { seconds: number; nanoseconds: number }) => {
-    if (!timestamp) return '';
-    return dayjs(timestamp.seconds * 1000).format('YYYY.MM.DD HH:mm');
-  };
-
-  const effectRan = useRef(false);
+  const formatDate = (timestamp?: { seconds: number; nanoseconds: number }) =>
+    timestamp ? dayjs(timestamp.seconds * 1000).format('YYYY.MM.DD HH:mm') : '';
 
   return (
     <div className="max-w-xl mx-auto p-4 flex flex-col bg-white dark:bg-gray-900">
-      <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
-        대화 내역
-      </h2>
+      <h2 className="text-lg font-semibold mb-4">문의 내역</h2>
 
-      {/* 메시지 목록 */}
       <div className="flex-1 space-y-3 overflow-y-auto">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`p-3 rounded-lg max-w-[100%] ${
-              msg.type === 'message'
-                ? 'bg-blue-100 dark:bg-blue-900 self-start text-left ml-0'
-                : 'bg-green-100 dark:bg-green-900 self-end text-right ml-auto'
-            }`}
-          >
-            <div className="text-xs text-gray-600 dark:text-gray-300 mb-1 flex justify-between">
-              <span>{msg.type === 'message' ? '나' : '주인장'}</span>
-              <span>{formatDate(msg.createdAt)}</span>
+        {messages.map(msg => (
+          <div key={msg.id} className="space-y-1 border p-3 rounded">
+            {/* 고객 메시지 */}
+            <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900 self-start">
+              <div className="text-xs text-gray-600 dark:text-gray-300 mb-1">
+                나 | {formatDate(msg.createdAt)}
+              </div>
+              <div className="whitespace-pre-line">{msg.message}</div>
             </div>
-            <div className="whitespace-pre-line">
-              {msg.message}
-            </div>            
+
+            {/* 주인장 답변 */}
+            {(replies[msg.id] || []).map(reply => (
+              <div key={reply.id} className="p-2 rounded-lg bg-green-100 dark:bg-green-900 self-end ml-auto text-right">
+                <div className="text-xs text-gray-400 mb-1">
+                  주인장 | {formatDate(reply.createdAt)}
+                </div>
+                <div className="whitespace-pre-line">{reply.message}</div>
+              </div>
+            ))}
           </div>
         ))}
 
@@ -185,11 +174,11 @@ export default function StoreChatPage() {
         )}
 
         {hasMore && (
-          <div className="text-center mt-6">
+          <div className="text-center mt-4">
             <button
-              onClick={() => fetchMessages(true)}
+              onClick={() => fetchMessagesWithReplies(true)}
               disabled={loading}
-              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
+              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
             >
               {loading ? '불러오는 중...' : '더보기'}
             </button>
@@ -197,19 +186,19 @@ export default function StoreChatPage() {
         )}
       </div>
 
-      {/* 메시지 입력 */}
-      <div className="mt-4">
+      {/* 메시지 작성 */}
+      <div className="mt-4 flex gap-2">
         <textarea
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          className="w-full border rounded-lg p-3 mb-2 dark:bg-gray-800 dark:text-white"
-          rows={3}
+          onChange={e => setMessage(e.target.value)}
+          rows={2}
+          className="flex-1 border p-2 rounded resize-none"
           placeholder="메시지를 입력하세요..."
         />
         <button
           onClick={handleSend}
           disabled={sending}
-          className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400"
+          className="px-4 py-2 bg-blue-600 text-white rounded"
         >
           {sending ? '전송 중...' : '보내기'}
         </button>

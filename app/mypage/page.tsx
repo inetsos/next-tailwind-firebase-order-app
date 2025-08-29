@@ -36,17 +36,7 @@ export default function MyPagePage() {
             <span>내 프로필</span>
           </Link>
         </li>
-
-        {/* 새로 추가된 버튼 */}
-        <li>
-          <Link
-            href="/mypage/messages"
-            className="flex items-center gap-3 p-4 bg-purple-100 rounded hover:bg-purple-200 dark:bg-purple-900 dark:hover:bg-purple-800"
-          >
-            <MessageCircle className="w-5 h-5" />
-            <span>주인장에게 보낸 메시지</span>
-          </Link>
-        </li>
+        
       </ul>
     </main>
   );
